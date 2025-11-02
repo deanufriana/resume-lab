@@ -3,11 +3,9 @@
     <!-- Header -->
     <header class="sticky top-0 z-50 bg-white shadow-sm border-b">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center flex-col md:flex-row">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h1 class="text-3xl font-bold text-gray-900">Resume Lab</h1>
-            <p class="text-gray-600 mt-1">Lab for creating ATS-friendly resumes</p>
-          </div>
+        <div class="flex flex-col justify-center">
+          <h1 class="text-3xl font-bold text-gray-900">Resume Lab</h1>
+          <p class="text-gray-600 mt-1">Lab for creating ATS-friendly resumes</p>
         </div>
         <!-- Navigation Menu -->
         <NavigationMenu>
