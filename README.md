@@ -187,6 +187,35 @@ The generated PDFs are optimized for Applicant Tracking Systems:
 - Standard date formats
 - Professional formatting
 
+## GitHub Pages Deployment
+
+This project includes GitHub Actions workflow for automatic deployment to GitHub Pages.
+
+### Setup Instructions
+
+1. **Enable GitHub Pages in Repository Settings:**
+   - Go to your repository on GitHub
+   - Navigate to **Settings** → **Pages**
+   - Under **Source**, select **GitHub Actions**
+
+2. **Push to Main Branch:**
+   - The workflow will automatically trigger on pushes to `main` or `master` branch
+   - The deployment will be available at: `https://<username>.github.io/<repository-name>/`
+
+3. **For Custom Domain or Repository Subdirectory:**
+   - If your repository is not named `<username>.github.io`, update `vite.config.ts`:
+   ```typescript
+   base: '/repository-name/'
+   ```
+   - Or set the `VITE_BASE_PATH` environment variable in the workflow file
+
+### Manual Deployment
+
+You can also trigger the deployment manually:
+- Go to **Actions** tab in your repository
+- Select **Deploy to GitHub Pages** workflow
+- Click **Run workflow**
+
 ## License
 
 MIT
