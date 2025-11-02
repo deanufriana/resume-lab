@@ -2,19 +2,19 @@
   <div ref="previewContainer" id="resume-preview" class="relative"
     style="font-family: 'Times New Roman', Times, serif;">
     <!-- Header -->
-    <div class="border-b-2 border-gray-800 pb-4 mb-4">
+    <div class="border-b-2 border-gray-800 pb-4">
       <h1 class="text-3xl font-bold text-gray-900 mb-4">
         {{ resumeData.basics?.name }} | {{ resumeData.basics?.label }}
       </h1>
       <div class="flex flex-wrap gap-2 text-sm text-gray-700">
         <div v-if="resumeData.basics?.email">
-          <strong>Email:</strong> {{ resumeData.basics.email }}
+          <strong>Email:</strong> <a :href="`mailto:${resumeData.basics.email}`" class="text-blue-600 hover:underline" target="_blank">{{ resumeData.basics.email }}</a>
         </div>
         <div v-if="resumeData.basics?.phone">
-          <strong>Phone:</strong> {{ resumeData.basics.phone }}
+          <strong>Phone:</strong> <a :href="`tel:${resumeData.basics.phone}`" class="text-blue-600 hover:underline" target="_blank">{{ resumeData.basics.phone }}</a>
         </div>
         <div v-if="resumeData.basics?.url">
-          <strong>Website:</strong> {{ resumeData.basics.url }}
+          <strong>Website:</strong> <a :href="resumeData.basics.url" class="text-blue-600 hover:underline" target="_blank">{{ resumeData.basics.url }}</a>
         </div>
         <div v-if="resumeData.basics?.location">
           <strong>Location:</strong>
@@ -45,7 +45,7 @@
 
     <!-- Work Experience -->
     <div v-if="resumeData.work && resumeData.work.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2">
+      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">
         Work Experience
       </h2>
       <div v-for="(work, index) in resumeData.work" :key="index" class="mb-4">
@@ -57,7 +57,7 @@
             <h4 class="text-base font-medium text-gray-700">
               {{ work.name }}
               <span v-if="work.url" class="text-sm text-gray-600">
-                - {{ work.url }}
+                - <a :href="work.url" class="text-blue-600 hover:underline" target="_blank">{{ work.url }}</a>
               </span>
             </h4>
           </div>
@@ -80,7 +80,7 @@
 
     <!-- Volunteer Experience -->
     <div v-if="resumeData.volunteer && resumeData.volunteer.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2">
+      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">
         Volunteer Experience
       </h2>
       <div v-for="(vol, index) in resumeData.volunteer" :key="index" class="mb-4">
@@ -92,7 +92,7 @@
             <h4 class="text-base font-medium text-gray-700">
               {{ vol.organization }}
               <span v-if="vol.url" class="text-sm text-gray-600">
-                - {{ vol.url }}
+                - <a :href="vol.url" class="text-blue-600 hover:underline" target="_blank">{{ vol.url }}</a>
               </span>
             </h4>
           </div>
@@ -111,7 +111,7 @@
 
     <!-- Education -->
     <div v-if="resumeData.education && resumeData.education.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2">
+      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">
         Education
       </h2>
       <div v-for="(edu, index) in resumeData.education" :key="index" class="mb-4">
@@ -123,7 +123,7 @@
             <h4 class="text-base font-medium text-gray-700">
               {{ edu.institution }}
               <span v-if="edu.url" class="text-sm text-blue-600">
-                - {{ edu.url }}
+                - <a :href="edu.url" class="text-blue-600 hover:underline" target="_blank">{{ edu.url }}</a>
               </span>
               <span v-if="edu.score" class="text-sm text-gray-600">
                 - GPA: {{ edu.score }}
@@ -143,7 +143,7 @@
 
     <!-- Skills -->
     <div v-if="resumeData.skills && resumeData.skills.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2">
+      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">
         Skills
       </h2>
       <div v-for="(skill, index) in resumeData.skills" :key="index" class="mb-3">
@@ -159,7 +159,7 @@
 
     <!-- Certificates -->
     <div v-if="resumeData.certificates && resumeData.certificates.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2">
+      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">
         Certificates
       </h2>
       <div v-for="(cert, index) in resumeData.certificates" :key="index" class="mb-2">
@@ -172,7 +172,7 @@
 
     <!-- Projects -->
     <div v-if="resumeData.projects && resumeData.projects.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2">
+      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">
         Projects
       </h2>
       <div v-for="(project, index) in resumeData.projects" :key="index" class="mb-4">
@@ -200,7 +200,7 @@
 
     <!-- Awards -->
     <div v-if="resumeData.awards && resumeData.awards.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2">
+      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">
         Awards
       </h2>
       <div v-for="(award, index) in resumeData.awards" :key="index" class="mb-3">
@@ -214,7 +214,7 @@
 
     <!-- Publications -->
     <div v-if="resumeData.publications && resumeData.publications.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2">
+      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">
         Publications
       </h2>
       <div v-for="(pub, index) in resumeData.publications" :key="index" class="mb-4">
@@ -236,7 +236,7 @@
 
     <!-- Languages -->
     <div v-if="resumeData.languages && resumeData.languages.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2">
+      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">
         Languages
       </h2>
       <div class="flex flex-wrap gap-4">
@@ -248,7 +248,7 @@
 
     <!-- Interests -->
     <div v-if="resumeData.interests && resumeData.interests.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2">
+      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">
         Interests
       </h2>
       <div v-for="(interest, index) in resumeData.interests" :key="index" class="mb-3">

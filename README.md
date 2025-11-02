@@ -18,7 +18,7 @@ A modern, ATS-friendly resume lab built with Vue 3, TypeScript, Vite, and Tailwi
 - **Vite** - Fast build tool and dev server
 - **Tailwind CSS** - Utility-first CSS framework
 - **jsPDF** - PDF generation library
-- **html2canvas** - Convert HTML to canvas for PDF export
+- **html2pdf.js** - Convert HTML to canvas for PDF export
 
 ## Getting Started
 
