@@ -127,4 +127,3 @@ export interface Resume {
   projects?: Project[];
   meta?: Meta;
 }
-
