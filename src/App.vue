@@ -41,6 +41,16 @@
                 Preview
               </NavigationMenuLink>
             </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink :class="[
+                'cursor-pointer whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm rounded-none transition-colors',
+                activeTab === 'signature'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              ]" @click="activeTab = 'signature'">
+                Signature
+              </NavigationMenuLink>
+            </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
       </div>
@@ -98,6 +108,11 @@
           <ResumePreview :resume-data="resumeData" :theme-id="selectedThemeId" ref="previewRef" />
         </div>
       </div>
+
+      <!-- Signature Tab -->
+      <div v-show="activeTab === 'signature'" class="bg-white p-6 rounded-lg shadow-md">
+        <SignaturePad />
+      </div>
     </main>
 
     <!-- Footer -->
@@ -154,6 +169,7 @@ import NavigationMenuLink from './components/ui/NavigationMenuLink.vue';
 import FileUpload from './components/ui/FileUpload.vue';
 import ResumeForm from './components/ResumeForm.vue';
 import ResumePreview from './components/ResumePreview.vue';
+import SignaturePad from './components/SignaturePad.vue';
 import Toast from './components/ui/Toast.vue';
 import { generatePDFFromElement } from './utils/pdf';
 import { useToast } from './composables/useToast';
@@ -161,7 +177,7 @@ import { saveResumeToStorage, loadResumeFromStorage } from './utils/storage';
 import { themes, getDefaultTheme } from './themes';
 import exampleResume from './data/resume.json';
 
-const activeTab = ref<'upload' | 'manual' | 'preview'>('upload');
+const activeTab = ref<'upload' | 'manual' | 'preview' | 'signature'>('upload');
 const previewRef = ref<InstanceType<typeof ResumePreview> | null>(null);
 const toast = useToast();
 const selectedThemeId = ref<string>(getDefaultTheme().id);

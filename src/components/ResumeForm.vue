@@ -109,7 +109,7 @@
           :list="localResume.basics!.profiles"
           :item-key="getItemKey"
           handle=".item-drag-handle"
-          ghost-class="drag-ghost"
+          ghost-class="drag-ghost" :force-fallback="true" fallback-class="drag-fallback"
         >
           <template #item="{ element: profile, index }">
             <div class="mb-4 p-4 border rounded-lg">
@@ -177,7 +177,7 @@
         :list="localResume.work"
         :item-key="getItemKey"
         handle=".item-drag-handle"
-        ghost-class="drag-ghost"
+        ghost-class="drag-ghost" :force-fallback="true" fallback-class="drag-fallback"
         @change="syncDerivedFields"
       >
         <template #item="{ element: work, index }">
@@ -284,7 +284,7 @@
         :list="localResume.education"
         :item-key="getItemKey"
         handle=".item-drag-handle"
-        ghost-class="drag-ghost"
+        ghost-class="drag-ghost" :force-fallback="true" fallback-class="drag-fallback"
         @change="syncDerivedFields"
       >
         <template #item="{ element: edu, index }">
@@ -390,7 +390,7 @@
         :list="localResume.volunteer"
         :item-key="getItemKey"
         handle=".item-drag-handle"
-        ghost-class="drag-ghost"
+        ghost-class="drag-ghost" :force-fallback="true" fallback-class="drag-fallback"
         @change="syncDerivedFields"
       >
         <template #item="{ element: vol, index }">
@@ -488,7 +488,7 @@
         :list="localResume.projects"
         :item-key="getItemKey"
         handle=".item-drag-handle"
-        ghost-class="drag-ghost"
+        ghost-class="drag-ghost" :force-fallback="true" fallback-class="drag-fallback"
         @change="syncDerivedFields"
       >
         <template #item="{ element: project, index }">
@@ -581,7 +581,7 @@
         :list="localResume.awards"
         :item-key="getItemKey"
         handle=".item-drag-handle"
-        ghost-class="drag-ghost"
+        ghost-class="drag-ghost" :force-fallback="true" fallback-class="drag-fallback"
       >
         <template #item="{ element: award, index }">
           <div class="mb-4 p-4 border rounded-lg">
@@ -648,7 +648,7 @@
         :list="localResume.publications"
         :item-key="getItemKey"
         handle=".item-drag-handle"
-        ghost-class="drag-ghost"
+        ghost-class="drag-ghost" :force-fallback="true" fallback-class="drag-fallback"
       >
         <template #item="{ element: pub, index }">
           <div class="mb-4 p-4 border rounded-lg">
@@ -725,7 +725,7 @@
         :list="localResume.certificates"
         :item-key="getItemKey"
         handle=".item-drag-handle"
-        ghost-class="drag-ghost"
+        ghost-class="drag-ghost" :force-fallback="true" fallback-class="drag-fallback"
       >
         <template #item="{ element: cert, index }">
           <div class="mb-4 p-4 border rounded-lg">
@@ -799,7 +799,7 @@
         :list="localResume.languages"
         :item-key="getItemKey"
         handle=".item-drag-handle"
-        ghost-class="drag-ghost"
+        ghost-class="drag-ghost" :force-fallback="true" fallback-class="drag-fallback"
       >
         <template #item="{ element: lang, index }">
           <div class="mb-4 p-4 border rounded-lg">
@@ -858,7 +858,7 @@
         :list="localResume.interests"
         :item-key="getItemKey"
         handle=".item-drag-handle"
-        ghost-class="drag-ghost"
+        ghost-class="drag-ghost" :force-fallback="true" fallback-class="drag-fallback"
         @change="syncDerivedFields"
       >
         <template #item="{ element: interest, index }">
@@ -923,7 +923,7 @@
         :list="localResume.references"
         :item-key="getItemKey"
         handle=".item-drag-handle"
-        ghost-class="drag-ghost"
+        ghost-class="drag-ghost" :force-fallback="true" fallback-class="drag-fallback"
       >
         <template #item="{ element: ref, index }">
           <div class="mb-4 p-4 border rounded-lg">
@@ -986,7 +986,7 @@
         :list="localResume.skills"
         :item-key="getItemKey"
         handle=".item-drag-handle"
-        ghost-class="drag-ghost"
+        ghost-class="drag-ghost" :force-fallback="true" fallback-class="drag-fallback"
         @change="syncDerivedFields"
       >
         <template #item="{ element: skill, index }">
@@ -1509,16 +1509,17 @@ function resetForm() {
 </script>
 
 <style scoped>
-:deep(.drag-ghost),
-:deep(.sortable-ghost),
-:deep(.sortable-chosen),
-:deep(.sortable-drag) {
-  opacity: 1 !important;
+:deep(.drag-ghost) {
+  opacity: 0.4 !important;
+  background: #f1f5f9 !important;
+  border: 2px dashed #cbd5e1 !important;
 }
 
-:deep(.drag-ghost) {
-  background: #ffffff;
-  border-color: #2563eb;
-  box-shadow: 0 8px 24px rgb(15 23 42 / 0.16);
+:deep(.drag-fallback) {
+  opacity: 1 !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
+  cursor: grabbing !important;
 }
 </style>
