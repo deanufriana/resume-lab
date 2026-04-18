@@ -3,13 +3,13 @@
     <label
       :for="inputId"
       :class="cn(
-        'flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100',
+        'flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-border rounded-lg cursor-pointer bg-muted/30 hover:bg-muted/50 transition-colors',
         className
       )"
     >
       <div class="flex flex-col items-center justify-center pt-5 pb-6">
         <svg
-          class="w-10 h-10 mb-3 text-gray-400"
+          class="w-10 h-10 mb-3 text-muted-foreground"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -21,10 +21,10 @@
             d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
           />
         </svg>
-        <p class="mb-2 text-sm text-gray-500">
+        <p class="mb-2 text-sm text-muted-foreground">
           <span class="font-semibold">Click to upload</span> or drag and drop
         </p>
-        <p class="text-xs text-gray-500">JSON file only</p>
+        <p class="text-xs text-muted-foreground">JSON file only</p>
       </div>
       <input
         :id="inputId"

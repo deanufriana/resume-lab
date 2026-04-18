@@ -60,7 +60,7 @@
           <p class="flex-1 text-sm font-medium">{{ toast.message }}</p>
           <button
             @click="removeToast(toast.id)"
-            class="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+            class="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors"
           >
             <svg
               class="w-4 h-4"
@@ -89,9 +89,9 @@ import { cn } from '../../utils/cn';
 const { toasts, removeToast } = useToast();
 
 const toastVariants = {
-  success: 'bg-green-50 border-green-200 text-green-800',
-  error: 'bg-red-50 border-red-200 text-red-800',
-  info: 'bg-blue-50 border-blue-200 text-blue-800',
+  success: 'bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400',
+  error: 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400',
+  info: 'bg-blue-500/10 border-blue-500/20 text-blue-600 dark:text-blue-400',
 };
 </script>
 

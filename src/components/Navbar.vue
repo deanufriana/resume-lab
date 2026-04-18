@@ -1,8 +1,19 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { Menu, X, Upload, FileText, Eye, PenTool } from "lucide-vue-next";
+import { Menu, X, Upload, FileText, Eye, PenTool, Sun, Moon } from "lucide-vue-next";
+import { useDark } from "@vueuse/core";
 import { cn } from "../utils/cn";
-import { Button } from "./ui";
+import { Button } from "./ui/index";
+
+const isDark = useDark({
+  selector: "html",
+  attribute: "class",
+  valueDark: "dark",
+  valueLight: "",
+});
+const toggleDark = () => {
+  isDark.value = !isDark.value;
+};
 
 type TabId = "upload" | "manual" | "preview" | "signature";
 
@@ -75,7 +86,18 @@ function handleNavClick(id: TabId) {
         </nav>
 
         <!-- GitHub/CTA etc -->
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 sm:gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            @click="toggleDark()"
+            class="rounded-lg"
+            aria-label="Toggle theme"
+          >
+            <Sun v-if="isDark" class="w-5 h-5 text-yellow-500" />
+            <Moon v-else class="w-5 h-5 text-slate-700" />
+          </Button>
+
           <Button
             variant="ghost"
             size="icon"

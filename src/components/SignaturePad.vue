@@ -1,11 +1,11 @@
 <template>
   <div class="flex flex-col items-center w-full max-w-3xl mx-auto">
     <div class="mb-6 text-center">
-      <h2 class="text-2xl font-bold text-gray-900 mb-2">Draw Your Signature</h2>
-      <p class="text-gray-600 text-sm">Draw your signature below and export it as a PNG file. Use your mouse or touch screen.</p>
+      <h2 class="text-2xl font-bold text-foreground mb-2">Draw Your Signature</h2>
+      <p class="text-muted-foreground text-sm">Draw your signature below and export it as a PNG file. Use your mouse or touch screen.</p>
     </div>
     
-    <div class="w-full bg-white border-2 border-dashed border-gray-300 rounded-xl overflow-hidden relative">
+    <div class="w-full bg-white border-2 border-dashed border-border rounded-xl overflow-hidden relative">
       <!-- Responsive container that maintains aspect ratio or sets limits -->
       <div class="relative w-full" style="height: 300px;">
         <canvas
@@ -17,7 +17,7 @@
           @pointerleave="stopDrawing"
         ></canvas>
         <div v-if="!hasDrawn" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
-          <span class="text-2xl text-gray-400 font-medium">Draw here</span>
+          <span class="text-2xl text-muted-foreground font-medium">Draw here</span>
         </div>
       </div>
     </div>

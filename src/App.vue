@@ -12,8 +12,9 @@ import {
   ResumeForm,
   ResumePreview,
   SignaturePad,
+  Label,
 } from "./components";
-import { FileUp, Download, Eye, PenTool, Sparkles } from "lucide-vue-next";
+import { FileUp, Download, Eye, PenTool, Sparkles, FileText } from "lucide-vue-next";
 import FileUpload from "./components/ui/FileUpload.vue";
 import { generatePDFFromElement } from "./utils/pdf";
 import { useToast } from "./composables/useToast";
