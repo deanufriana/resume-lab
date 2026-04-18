@@ -5,7 +5,7 @@
       <p class="text-gray-600 text-sm">Draw your signature below and export it as a PNG file. Use your mouse or touch screen.</p>
     </div>
     
-    <div class="w-full bg-white border-2 border-dashed border-gray-300 rounded-xl overflow-hidden shadow-sm relative">
+    <div class="w-full bg-white border-2 border-dashed border-gray-300 rounded-xl overflow-hidden relative">
       <!-- Responsive container that maintains aspect ratio or sets limits -->
       <div class="relative w-full" style="height: 300px;">
         <canvas

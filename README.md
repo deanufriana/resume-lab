@@ -1,24 +1,30 @@
 # Resume Lab
 
-A modern, ATS-friendly resume lab built with Vue 3, TypeScript, Vite, and Tailwind CSS. Create professional resumes by uploading JSON files or filling in forms manually, then generate PDFs optimized for Applicant Tracking Systems.
+A modern, ATS-friendly resume builder built with Vue 3, TypeScript, Vite, and Tailwind CSS. Create professional resumes by uploading JSON files or filling in forms manually, then generate PDFs optimized for Applicant Tracking Systems.
 
 ## Features
 
-- 📄 **JSON Upload**: Upload your resume data in JSON format
-- ✏️ **Manual Entry**: Fill out resume information through intuitive forms
-- 👁️ **Live Preview**: See your resume before generating the PDF
-- 📥 **PDF Generation**: Generate ATS-friendly PDF resumes
-- 💾 **Export JSON**: Download your resume data as JSON
-- 🎨 **Modern UI**: Beautiful, responsive interface built with Tailwind CSS
+- 📄 **JSON Upload & Export**: Seamlessly upload or download your resume data in standard JSON format.
+- ✏️ **Manual Entry**: Intensive form management for all resume sections including Work, Education, Skills, Projects, and more.
+- 🖱️ **Drag-and-Drop Reordering**: Intuitively reorder work experience, education, and other list entries with a smooth drag-and-drop interface.
+- 🎨 **Multi-Theme Support**: Choose from different professional templates (e.g., Simple) optimized for ATS.
+- 🖋️ **Signature Pad**: Draw and export your digital signature as a PNG file for professional use.
+- 💾 **Local Storage Persistence**: Your progress is automatically saved to your browser, so you never lose your work.
+- 👁️ **Live Preview**: See a real-time rendering of your resume with the selected theme.
+- 📥 **PDF Generation**: Generate clean, ATS-friendly PDF resumes with one click.
+- 🔔 **Real-time Feedback**: Toast notifications for saving, loading, and exporting actions.
+- 📱 **Responsive UI**: A beautiful, premium interface that works across all device sizes.
 
 ## Tech Stack
 
-- **Vue 3** - Progressive JavaScript framework
-- **TypeScript** - Type-safe development
-- **Vite** - Fast build tool and dev server
-- **Tailwind CSS** - Utility-first CSS framework
-- **jsPDF** - PDF generation library
-- **html2pdf.js** - Convert HTML to canvas for PDF export
+- **Vue 3** - Modern, performant JavaScript framework.
+- **TypeScript** - For robust, type-safe development.
+- **Vite** - Lightning-fast build tool and development server.
+- **Tailwind CSS** - Utility-first styling for a premium look and feel.
+- **vuedraggable** - Smooth drag-and-drop experience.
+- **html2pdf.js & jsPDF** - Client-side high-quality PDF generation.
+- **VueUse** - Collection of essential Vue composition utilities.
+- **Lucide Vue Next** - Beautiful, consistent icons.
 
 ## Getting Started
 
@@ -44,95 +50,55 @@ npm install
 npm run dev
 ```
 
-4. Open your browser and navigate to the URL shown in the terminal (usually `http://localhost:5173`)
+4. Open your browser and navigate to `http://localhost:5173`
 
 ## Usage
 
-### Upload JSON Resume
+### 1. Upload JSON Resume
+- Navigate to the **Upload JSON** tab.
+- Drag and drop your `resume.json` or download the example format to get started.
 
-1. Click on the "Upload JSON" tab
-2. Drag and drop a JSON file or click to browse
-3. The JSON should match the resume format (see JSON Format section below)
-4. Once loaded, you can preview and generate PDF
+### 2. Manual Entry & Reordering
+- Switch to the **Manual Entry** tab to fill in your details.
+- Use the **::** handle to drag and reorder items within sections.
+- Sections are collapsible for a cleaner editing experience.
+- Click **Save Resume** to persist changes to local storage.
 
-### Manual Entry
+### 3. Signature Pad
+- Go to the **Signature** tab to draw your professional signature.
+- Click **Export PNG** to download it for use in documents.
 
-1. Click on the "Manual Entry" tab
-2. Fill in your information:
-   - Basic Information (name, email, phone, etc.)
-   - Work Experience (add multiple entries)
-   - Education (add multiple entries)
-   - Skills (add multiple entries)
-3. Click "Save Resume" when done
-4. Switch to "Preview" tab to see your resume
-
-### Generate PDF
-
-1. Navigate to the "Preview" tab
-2. Review your resume
-3. Click "Generate PDF" button
-4. The PDF will be downloaded automatically with an ATS-friendly filename
-
-### Export JSON
-
-1. In the "Preview" tab, click "Download JSON"
-2. Your resume data will be saved as a JSON file
+### 4. Preview & Generate PDF
+- High-quality preview is available in the **Preview** tab.
+- Select your preferred **Theme** from the dropdown.
+- Click **Generate PDF** to download your ATS-optimized resume.
 
 ## JSON Format
 
-The JSON should follow this structure:
+The application follows a structure compatible with standard JSON resume formats:
 
 ```json
 {
   "basics": {
-    "name": "Your Name",
-    "label": "Job Title",
-    "email": "email@example.com",
-    "phone": "+1 (555) 123-4567",
-    "url": "https://yourwebsite.com",
-    "summary": "Professional summary",
-    "location": {
-      "city": "City",
-      "region": "State/Province",
-      "postalCode": "12345",
-      "countryCode": "US"
-    }
+    "name": "Jane Doe",
+    "label": "Software Engineer",
+    "email": "jane@example.com",
+    "location": { "city": "San Francisco", "region": "CA" },
+    "profiles": [
+      { "network": "GitHub", "username": "janedoe", "url": "https://github.com/janedoe" }
+    ]
   },
   "work": [
     {
-      "name": "Company Name",
-      "position": "Job Title",
-      "url": "https://company.com",
+      "name": "Tech Corp",
+      "position": "Senior Dev",
       "startDate": "2020-01-01",
-      "endDate": "2023-12-31",
-      "summary": "Job summary",
-      "highlights": [
-        "Achievement 1",
-        "Achievement 2"
-      ],
-      "skills": ["Skill1", "Skill2"]
-    }
-  ],
-  "education": [
-    {
-      "institution": "University Name",
-      "area": "Field of Study",
-      "studyType": "Bachelor's",
-      "startDate": "2016-01-01",
-      "endDate": "2020-05-01",
-      "score": "3.8"
+      "highlights": ["Led a team of 5", "Optimized performance by 40%"]
     }
   ],
   "skills": [
-    {
-      "name": "Web Development",
-      "level": "Expert",
-      "keywords": ["JavaScript", "Vue.js", "React"]
-    }
-  ],
-  "certificates": [],
-  "projects": [],
-  "languages": []
+    { "name": "Frontend", "keywords": ["Vue", "React", "TypeScript"] }
+  ]
 }
 ```
 
@@ -142,79 +108,32 @@ The JSON should follow this structure:
 resume-lab/
 ├── src/
 │   ├── components/
-│   │   ├── ui/           # Reusable UI components
+│   │   ├── ui/           # Shared UI components (Button, Input, etc.)
 │   │   ├── ResumeForm.vue
-│   │   └── ResumePreview.vue
-│   ├── types/
-│   │   └── resume.ts     # TypeScript interfaces
-│   ├── utils/
-│   │   ├── cn.ts         # Utility for class merging
-│   │   └── pdf.ts        # PDF generation logic
-│   ├── App.vue           # Main application component
-│   ├── main.ts           # Application entry point
-│   └── style.css         # Global styles
-├── public/
-├── index.html
-├── package.json
-├── tailwind.config.js
-├── tsconfig.json
-└── vite.config.ts
-```
-
-## Build for Production
-
-```bash
-npm run build
-```
-
-The built files will be in the `dist` directory.
-
-## Preview Production Build
-
-```bash
-npm run preview
+│   │   ├── ResumePreview.vue
+│   │   └── SignaturePad.vue
+│   ├── themes/           # Resume templates/themes
+│   ├── composables/      # Shared logic (useToast, etc.)
+│   ├── types/            # TypeScript interfaces
+│   ├── utils/            # Utilities (PDF, storage, etc.)
+│   ├── data/             # Static data & examples
+│   ├── App.vue           # Main application shell
+│   └── main.ts           # Entry point
+├── public/               # Static assets
+└── ...configs            # Vite, Tailwind, TS configs
 ```
 
 ## ATS-Friendly Features
 
-The generated PDFs are optimized for Applicant Tracking Systems:
+The generated PDFs are specifically optimized for ATS:
+- **Clean Layout**: Avoids complex tables or columns that confuse parsers.
+- **Scannable Text**: Ensures text remains searchable and selectable.
+- **Standard Fonts**: Uses clean, professional typography.
+- **Section Headers**: Uses clear hierarchies for automated categorization.
 
-- Clean, simple layout without complex formatting
-- Standard fonts (Times New Roman)
-- Proper text structure with headings
-- No images or graphics that might confuse parsers
-- Clear section separation
-- Standard date formats
-- Professional formatting
+## Deployment
 
-## GitHub Pages Deployment
-
-This project includes GitHub Actions workflow for automatic deployment to GitHub Pages.
-
-### Setup Instructions
-
-1. **Enable GitHub Pages in Repository Settings:**
-   - Go to your repository on GitHub
-   - Navigate to **Settings** → **Pages**
-   - Under **Source**, select **GitHub Actions**
-
-2. **Push to Main Branch:**
-   - The workflow will automatically trigger on pushes to `main` or `master` branch
-   - The deployment will be available at: `https://<username>.github.io/<repository-name>/`
-
-3. **For Custom Domain or Repository Subdirectory:**
-   - If your repository is not named `<username>.github.io`, update `vite.config.ts`:
-   ```typescript
-   base: '/repository-name/'
-   ```
-   - Or set the `VITE_BASE_PATH` environment variable in the workflow file
-
-### Manual Deployment
-
-You can also trigger the deployment manually:
-- Go to **Actions** tab in your repository
-- Select **Deploy to GitHub Pages** workflow
-- Click **Run workflow**
+This project is configured for **GitHub Pages** via GitHub Actions. Pushing to `main` automatically triggers a deployment.
 
 ## License
 

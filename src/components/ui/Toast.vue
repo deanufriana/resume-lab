@@ -8,7 +8,7 @@
           v-for="toast in toasts"
           :key="toast.id"
           :class="cn(
-            'flex items-center gap-3 p-4 rounded-lg shadow-lg border',
+            'flex items-center gap-3 p-4 rounded-lg border',
             toastVariants[toast.type]
           )"
         >
