@@ -38,7 +38,7 @@ jobs:
       - name: Bump version
         run: |
           npm version ${{ inputs.release_type }}
-          git push origin master --tags
+          git push origin main --tags
 
       - name: Install dependencies
         run: npm ci
