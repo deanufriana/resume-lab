@@ -1,5 +1,7 @@
 import type { Component } from 'vue';
 import SimplePreview from './Simple.vue';
+import ModernPreview from './Modern.vue';
+import ProfessionalPreview from './Professional.vue';
 
 export interface Theme {
   id: string;
@@ -14,6 +16,18 @@ export const themes: Theme[] = [
     name: 'Simple',
     description: 'Clean and straightforward ATS-friendly format',
     component: SimplePreview,
+  },
+  {
+    id: 'modern',
+    name: 'Modern',
+    description: 'Clean, sans-serif design with a sidebar and timeline',
+    component: ModernPreview,
+  },
+  {
+    id: 'professional',
+    name: 'Professional',
+    description: 'Bold, high-contrast design with efficient space usage',
+    component: ProfessionalPreview,
   }
 ];
 
