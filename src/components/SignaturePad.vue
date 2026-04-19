@@ -43,6 +43,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import Button from './ui/Button.vue';
 import { useToast } from '../composables/useToast';
+import { Analytics } from '../utils/analytics';
 
 const toast = useToast();
 const canvas = ref<HTMLCanvasElement | null>(null);
@@ -157,6 +158,7 @@ const clearCanvas = () => {
   ctx.clearRect(0, 0, canvas.value.width, canvas.value.height);
   hasDrawn.value = false;
   toast.info('Canvas cleared');
+  Analytics.trackSignatureClear();
 };
 
 const exportPNG = () => {
@@ -187,6 +189,7 @@ const exportPNG = () => {
       document.body.removeChild(link);
       
       toast.success('Signature exported successfully!');
+      Analytics.trackSignatureExport();
     }
   } catch (err) {
     toast.error('Failed to export signature.');

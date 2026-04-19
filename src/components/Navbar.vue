@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { Menu, X, Upload, FileText, Eye, PenTool, Sun, Moon } from "lucide-vue-next";
+import { ref, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { Menu, X, Upload, FileText, Eye, PenTool, Sun, Moon, Info } from "lucide-vue-next";
 import { useDark } from "@vueuse/core";
 import { cn } from "../utils/cn";
 import { Button } from "./ui/index";
+import { Analytics } from "../utils/analytics";
+
+const route = useRoute();
+const router = useRouter();
 
 const isDark = useDark({
   selector: "html",
@@ -13,30 +18,33 @@ const isDark = useDark({
 });
 const toggleDark = () => {
   isDark.value = !isDark.value;
+  Analytics.trackDarkModeToggle(isDark.value);
 };
 
-type TabId = "upload" | "manual" | "preview" | "signature";
-
 interface Props {
-  activeTab: TabId;
   isResumeLoaded: boolean;
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits(["update:activeTab"]);
 
 const isMenuOpen = ref(false);
 
+const activeTab = computed(() => {
+  const path = route.path.replace("/", "");
+  return path || "upload";
+});
+
 const navItems = [
-  { id: "upload" as const, label: "Upload JSON", icon: Upload },
-  { id: "manual" as const, label: "Manual Entry", icon: FileText },
-  { id: "preview" as const, label: "Preview", icon: Eye },
-  { id: "signature" as const, label: "Signature", icon: PenTool },
+  { id: "upload", path: "/upload", label: "Upload JSON", icon: Upload },
+  { id: "manual", path: "/manual", label: "Manual Entry", icon: FileText },
+  { id: "preview", path: "/preview", label: "Preview", icon: Eye },
+  { id: "signature", path: "/signature", label: "Signature", icon: PenTool },
+  { id: "about", path: "/about", label: "About", icon: Info },
 ];
 
-function handleNavClick(id: TabId) {
+function handleNavClick(path: string, id: string) {
   if (id === "preview" && !props.isResumeLoaded) return;
-  emit("update:activeTab", id);
+  router.push(path);
   isMenuOpen.value = false;
 }
 </script>
@@ -66,7 +74,7 @@ function handleNavClick(id: TabId) {
           <button
             v-for="item in navItems"
             :key="item.id"
-            @click="handleNavClick(item.id)"
+            @click="handleNavClick(item.path, item.id)"
             :disabled="item.id === 'preview' && !isResumeLoaded"
             :class="
               cn(
@@ -105,6 +113,7 @@ function handleNavClick(id: TabId) {
             href="https://github.com/deanufriana/resume-lab"
             target="_blank"
             class="hidden sm:flex"
+            @click="Analytics.trackExternalLink('https://github.com/deanufriana/resume-lab', 'GitHub')"
           >
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path
@@ -141,7 +150,7 @@ function handleNavClick(id: TabId) {
         <button
           v-for="item in navItems"
           :key="item.id"
-          @click="handleNavClick(item.id)"
+          @click="handleNavClick(item.path, item.id)"
           :disabled="item.id === 'preview' && !isResumeLoaded"
           :class="
             cn(

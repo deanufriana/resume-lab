@@ -63,38 +63,40 @@ const sections = [
   <div class="max-w-6xl mx-auto">
     <div class="flex flex-col md:flex-row gap-8">
       <!-- Sidebar Navigation -->
-      <aside class="w-full md:w-64 md:sticky md:top-24 self-start space-y-4">
+      <aside class="w-full md:w-64 md:sticky md:top-24 self-start space-y-6">
         <Card class="border-none shadow-none bg-transparent">
-          <CardContent class="p-0 space-y-2">
+          <CardContent class="p-0 flex flex-nowrap overflow-x-auto md:flex-col gap-2 no-scrollbar">
             <button
               v-for="section in sections"
               :key="section.id"
               @click="activeSection = section.id"
               :class="[
-                'w-full flex items-center gap-3 px-4 py-3 rounded-sm transition-all duration-200 text-left',
+                'flex-shrink-0 flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-md transition-all duration-200 text-left',
                 activeSection === section.id
-                  ? 'bg-primary text-primary-foreground scale-[1.01]'
+                  ? 'bg-primary text-primary-foreground scale-[1.05] md:scale-[1.01] shadow-md'
                   : 'hover:bg-accent text-muted-foreground hover:text-foreground',
+                'min-w-[48px]'
               ]"
+              :title="section.label"
             >
               <component :is="section.icon" class="w-5 h-5" />
-              <span class="font-medium font-outfit">{{ section.label }}</span>
+              <span class="font-medium font-outfit hidden md:inline">{{ section.label }}</span>
             </button>
           </CardContent>
         </Card>
 
-        <Separator class="my-6" />
+        <Separator class="hidden md:block my-2" />
 
-        <div class="flex flex-col gap-2">
-          <Button class="w-full justify-start gap-2 h-11" @click="handleSave">
-            <Save class="w-4 h-4" /> Save Changes
+        <div class="flex flex-row md:flex-col gap-3">
+          <Button class="flex-1 justify-center md:justify-start gap-2 h-11" @click="handleSave">
+            <Save class="w-4 h-4" /> <span class="hidden md:inline">Save Changes</span><span class="md:hidden">Save</span>
           </Button>
           <Button
             variant="outline"
-            class="w-full justify-start gap-2 h-11"
+            class="flex-1 justify-center md:justify-start gap-2 h-11"
             @click="handleReset"
           >
-            <RotateCcw class="w-4 h-4" /> Reset Form
+            <RotateCcw class="w-4 h-4" /> <span class="hidden md:inline">Reset Form</span><span class="md:hidden">Reset</span>
           </Button>
         </div>
       </aside>

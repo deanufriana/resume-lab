@@ -1,176 +1,232 @@
 {
-  "basics": {
-      "name": "Devi Adi Nufriana",
-      "label": "Software Engineer",
-      "email": "devi.nufriana@gmail.com",
-      "phone": "(62) 82617263726",
-      "url": "https://deanufriana.github.io",
-      "summary": "I am Software Engineer with expertise in React and Vue. Passionate about exploring new technologies to optimize feature development for speed and efficiency. Experienced in rebuilding websites using the latest technologies to enhance performance, maintainability, and code readability. Committed to delivering fast, scalable, and high-quality solutions",
-      "location": { 
-          "postalCode": "13950",
-          "city": "East Jakarta",
-          "countryCode": "ID",
-          "region": "Indonesia"
-      },
-      "image": "https://media.licdn.com/dms/image/v2/C5603AQEmOped69Jl7A/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1603892082142?e=1749686400&v=beta&t=egYHX4_TPza5o6xdTzEBjbAFNKp1O0z-QOelgNkhsL0",
-      "profiles": [
-          {
-              "network": "LinkedIn",
-              "username": "devinufriana",
-              "url": "https://www.linkedin.com/in/devinufriana"
-          }
-      ]
-  },
-  "work": [
-      {
-          "name": "Blibli",
-          "position": "Software Frontend Engineer",
-          "url": "https://www.blibli.com",
-          "startDate": "2022-08-01",
-          "endDate": "2025-10-23",
-          "summary": "Frontend Engineer leading UI modernization and performance optimization initiatives. Spearheaded migration of legacy systems to Vue.js and implemented comprehensive integration testing.",
-          "highlights": [
-              "Proficiently developed integration tests using Playwright to validate software functionality and reliability.",
-              "Took charge of refining the UI Detail page, implementing improvements for an enhanced user experience.",
-              "Conducted comprehensive software analysis to identify opportunities for performance enhancement and implemented strategies to optimize system efficiency.",
-              "Refactored the review page, hall of fame page, and latest to the latest Vue version, improving performance and reusability by creating modular components",
-              "Redesigned and migrated the Review Center page from Java to Vue, enhancing user experience and modernizing the technology stack",
-              "Maintained existing features and developed new functionalities based on product manager requests, ensuring smooth and efficient implementation"
-          ],
-          "skills": ["JavaScript", "Vue.js", "Playwright", "Linux"]
-      },
-      {
-          "name": "Frisidea",
-          "position": "Software Development",
-          "url": "https://www.frisidea.com/id/",
-          "startDate": "2021-04-01",
-          "endDate": "2022-07-01",
-          "summary": "Full-stack Developer leading modernization of web and mobile applications. Successfully migrated 'Mylife' app to Flutter and implemented modern React practices.",
-          "highlights": [
-              "Upgraded the application to utilize the latest React technology stack.",
-              "Took on a pivotal role in enhancing the TMLI web application.",
-              "Consistently contributed high-quality code and improvements, ensuring optimal performance.",
-              "Translated design concepts into a functional and user-friendly web interface.",
-              "Adapted the UI/UX of kitasiap.com to align with user preferences and client expectations.",
-              "Leveraged HTML, CSS, and JavaScript to create engaging user interactions.",
-              "Successfully implemented a web-based customer care access system for the insurance industry.",
-              "Ensured seamless user access to policy information and services.",
-              "Employed technologies such as JavaScript, ReactJS, ViteJS, Git, Nginx, and Linux to achieve project goals."
-          ],
-          "skills": ["JavaScript", "ReactJS", "Linux"]
-      },
-      {
-          "name": "BRI Life",
-          "position": "Software Development",
-          "url": "https://brilife.co.id",
-          "startDate": "2019-02-01",
-          "endDate": "2021-03-01",
-          "summary": "Full-stack Developer responsible for modernizing mobile and web applications. Led migration of 'Mylife' app to Flutter and implemented modern React practices.",
-          "highlights": [
-              "Spearheaded the transformation of the 'Mylife' mobile application, transitioning it from React Native to Flutter.",
-              "Conducted thorough testing and optimization to enhance user experience and app performance.",
-              "Successfully managed three distinct application projects, showcasing adaptability across diverse technologies.",
-              "Developed a customer care application, ensuring seamless access to vital services.",
-              "Contributed significantly to the maintenance and enhancement of the web application 'Digiform' using ReactJS.",
-              "Proficiently utilized a versatile tech stack, including JavaScript, ExpressJS, ReactJS, Git, React Native, SQL Server, and Linux server configuration.",
-              "Equipped with the skills to configure and deploy applications in various environments, be it development or production."
-          ],
-          "skills": [
-              "JavaScript",
-              "ReactJS",
-              "Flutter",
-              "ExpressJS",
-              "SQL Server",
-              "Linux",
-              "NodeJS"
-          ]
-      }
-  ],
-  "education": [
-      {
-          "institution": "Universitas Muhadi Setiabudi",
-          "url": "https://umus.ac.id/",
-          "area": "Informatics Engineering",
-          "studyType": "S1",
-          "startDate": "2014-05-01",
-          "endDate": "2019-03-01",
-          "score": "3.56",
-          "courses": []
-      }
-  ],
-  "awards": [],
-  "certificates": [
-      {
-          "name": "Certified Software Engineer",
-          "date": "2019-12-12",
-          "issuer": "Pijar Camp",
-          "url": "https://certificate.com"
-      }
-  ],
-  "publications": [],
-  "skills": [
-      {
-          "name": "Web Development",
-          "level": "Master",
-          "keywords": [
-              "Vue.js",
-              "React.js",
-              "Express.js",
-              "TypeScript",
-              "JavaScript (ES6+)",
-              "HTML5/CSS3"
-          ]
-      },
-      {
-          "name": "Mobile Development",
-          "level": "Intermediate",
-          "keywords": [
-              "Flutter",
-              "React Native",
-              "Dart"
-          ]
-      },
-      {
-          "name": "Backend Development",
-          "level": "Intermediate",
-          "keywords": [
-              "Express.js",
-              "MySQL",
-              "RESTful APIs"
-          ]
-      }
-  ],
-  "languages": [
-      {
-          "language": "Indonesia",
-          "fluency": "Conversation"
-      },
-      {
-          "language": "English",
-          "fluency": "Intermediate"
-      }
-  ],
-  "interests": [],
-  "references": [],
-  "projects": [
-      {
-          "name": "Mortgage Loan",
-          "startDate": "2018-03-01",
-          "endDate": "2019-04-01",
-          "description": "",
-          "highlights": [],
-          "url": "https://simulasi-kpr.vercel.app"
-      },
-      {
-          "name": "Sistem Skripsi",
-          "startDate": "2018-03-01",
-          "endDate": "2019-04-01",
-          "description": "The thesis process becomes more organized and faster, carried out online and can be accessed anywhere via a browser with the aim of saving time, energy and making it easier to obtain information on the thesis process online.",
-          "highlights": [],
-          "url": "https://github.com/deanufriana/sistem_skripsi"
-      }
-  ],
-  "meta": {
-      "theme": "macchiato"
-  }
+    "basics": {
+        "name": "Devi Adi Nufriana",
+        "label": "Software Engineer",
+        "email": "devi.nufriana@gmail.com",
+        "phone": "(62) 85642612283",
+        "url": "https://deanufriana.github.io",
+        "summary": "I help visionary businesses bring their ideas to life through high-performing, scalable web applications. With over a decade of experience, I specialize in turning complex problems into elegant, user-friendly digital experiences. Whether you need a custom web app, legacy modernization, or performance consulting, I deliver fast, highly-maintainable solutions that drive results.",
+        "location": {
+            "postalCode": "13950",
+            "city": "East Jakarta",
+            "countryCode": "ID",
+            "region": "Indonesia"
+        },
+        "image": "https://media.licdn.com/dms/image/v2/C5603AQEmOped69Jl7A/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1603892082142?e=1749686400&v=beta&t=egYHX4_TPza5o6xdTzEBjbAFNKp1O0z-QOelgNkhsL0",
+        "profiles": [
+            {
+                "network": "LinkedIn",
+                "username": "deanufriana",
+                "url": "https://www.linkedin.com/in/deanufriana"
+            }
+        ]
+    },
+    "work": [
+        {
+            "name": "BRI Life",
+            "position": "Software Engineer",
+            "startDate": "2025-11-06",
+            "endDate": "",
+            "summary": "Full-stack engineer responsible for analyzing business problems and collaborating with cross-functional teams within the digital integration team to design and improve system workflows, reducing redundancy and increasing operational efficiency.",
+            "highlights": [
+                "Analyzed and optimized existing workflows to reduce redundancy and improve system efficiency",
+                "Designed and implemented a notification microservice to support scalable system integration",
+                "Integration third party sistem such as WA, SMS, EMAIL, and push notification",
+                "Collaborated with multiple teams to streamline integration processes across systems",
+                "Implemented CI/CD pipelines using GitLab CI to improve deployment automation"
+            ],
+            "skills": [
+                "Go Lang",
+                "VueJs",
+                "Docker",
+                "Gitlab"
+            ],
+            "url": "https://brilife.co.id/"
+        },
+        {
+            "name": "Blibli",
+            "position": "Software Frontend Engineer",
+            "url": "https://www.blibli.com",
+            "startDate": "2022-08-01",
+            "endDate": "2025-10-23",
+            "summary": "Frontend Engineer leading UI modernization and performance optimization initiatives. Spearheaded migration of legacy systems to Vue.js and implemented comprehensive integration testing.",
+            "highlights": [
+                "Proficiently developed integration tests using Playwright to validate software functionality and reliability.",
+                "Took charge of refining the UI Detail page, implementing improvements for an enhanced user experience.",
+                "Conducted comprehensive software analysis to identify opportunities for performance enhancement and implemented strategies to optimize system efficiency.",
+                "Refactored the review page, hall of fame page, and latest to the latest Vue version, improving performance and reusability by creating modular components",
+                "Redesigned and migrated the Review Center page from Java to Vue, enhancing user experience and modernizing the technology stack",
+                "Maintained existing features and developed new functionalities based on product manager requests, ensuring smooth and efficient implementation"
+            ],
+            "skills": [
+                "JavaScript",
+                "Vue.js",
+                "Playwright",
+                "Linux"
+            ]
+        },
+        {
+            "name": "Frisidea",
+            "position": "Software Development",
+            "url": "https://www.frisidea.com/id/",
+            "startDate": "2021-04-01",
+            "endDate": "2022-07-01",
+            "summary": "Full-stack Developer leading modernization of web and mobile applications. Successfully migrated 'Mylife' app to Flutter and implemented modern React practices.",
+            "highlights": [
+                "Upgraded the application to utilize the latest React technology stack.",
+                "Took on a pivotal role in enhancing the TMLI web application.",
+                "Consistently contributed high-quality code and improvements, ensuring optimal performance.",
+                "Translated design concepts into a functional and user-friendly web interface.",
+                "Adapted the UI/UX of kitasiap.com to align with user preferences and client expectations.",
+                "Leveraged HTML, CSS, and JavaScript to create engaging user interactions.",
+                "Successfully implemented a web-based customer care access system for the insurance industry.",
+                "Ensured seamless user access to policy information and services.",
+                "Employed technologies such as JavaScript, ReactJS, ViteJS, Git, Nginx, and Linux to achieve project goals."
+            ],
+            "skills": [
+                "JavaScript",
+                "ReactJS",
+                "Linux"
+            ]
+        },
+        {
+            "name": "BRI Life",
+            "position": "Software Development",
+            "url": "https://brilife.co.id",
+            "startDate": "2019-02-01",
+            "endDate": "2021-03-01",
+            "summary": "Full-stack Developer responsible for modernizing mobile and web applications. Led migration of 'Mylife' app to Flutter and implemented modern React practices.",
+            "highlights": [
+                "Spearheaded the transformation of the 'Mylife' mobile application, transitioning it from React Native to Flutter.",
+                "Conducted thorough testing and optimization to enhance user experience and app performance.",
+                "Successfully managed three distinct application projects, showcasing adaptability across diverse technologies.",
+                "Developed a customer care application, ensuring seamless access to vital services.",
+                "Contributed significantly to the maintenance and enhancement of the web application 'Digiform' using ReactJS.",
+                "Proficiently utilized a versatile tech stack, including JavaScript, ExpressJS, ReactJS, Git, React Native, SQL Server, and Linux server configuration.",
+                "Equipped with the skills to configure and deploy applications in various environments, be it development or production."
+            ],
+            "skills": [
+                "JavaScript",
+                "ReactJS",
+                "Flutter",
+                "ExpressJS",
+                "SQL Server",
+                "Linux",
+                "NodeJS"
+            ]
+        }
+    ],
+    "education": [
+        {
+            "institution": "Universitas Muhadi Setiabudi",
+            "url": "https://umus.ac.id/",
+            "area": "Informatics Engineering",
+            "studyType": "S1",
+            "startDate": "2014-05-01",
+            "endDate": "2019-03-01",
+            "score": "3.56",
+            "courses": []
+        }
+    ],
+    "skills": [
+        {
+            "name": "Web Development",
+            "level": "Master",
+            "keywords": [
+                "Vue.js",
+                "React.js",
+                "Express.js",
+                "TypeScript",
+                "JavaScript (ES6+)",
+                "HTML5/CSS3"
+            ]
+        },
+        {
+            "name": "Mobile Development",
+            "level": "Intermediate",
+            "keywords": [
+                "Flutter",
+                "React Native",
+                "Dart"
+            ]
+        },
+        {
+            "name": "Backend Development",
+            "level": "Intermediate",
+            "keywords": [
+                "Express.js",
+                "Go",
+                "MySQL",
+                "RESTful APIs"
+            ]
+        },
+        {
+            "name": "DevOps & Infrastructure",
+            "level": "Intermediate",
+            "keywords": [
+                "Docker",
+                "CI/CD (GitHub Actions, GitLab CI)",
+                "Linux Server",
+                "Git"
+            ]
+        }
+    ],
+    "volunteer": [],
+    "awards": [],
+    "certificates": [
+        {
+            "name": "Certified Software Engineer",
+            "date": "2019-12-12",
+            "issuer": "Pijar Camp",
+            "url": "https://certificate.com"
+        }
+    ],
+    "publications": [],
+    "languages": [
+        {
+            "language": "Indonesia",
+            "fluency": "Conversation"
+        },
+        {
+            "language": "English",
+            "fluency": "Intermediate"
+        }
+    ],
+    "interests": [],
+    "references": [],
+    "projects": [
+        {
+            "name": "Resume Lab",
+            "startDate": "2025-10-01",
+            "endDate": "2025-10-10",
+            "description": "A modern, ATS-friendly resume lab built with Vue 3, TypeScript, Vite, and Tailwind CSS. Create professional resumes by uploading JSON files or filling in forms manually, then generate PDFs optimized for Applicant Tracking Systems.",
+            "highlights": [
+                "Built a modern, ATS-friendly resume lab using Vue 3, TypeScript, Vite, and Tailwind CSS",
+                "Implemented JSON file upload and manual form entry for resume creation",
+                "Developed PDF generation with ATS optimization for professional resumes",
+                "Created a user-friendly interface for resume management and customization",
+                "Integrated modern web technologies for a seamless user experience"
+            ],
+            "url": "https://deanufriana.github.io/resume-lab/"
+        },
+        {
+            "name": "Mortgage Loan",
+            "startDate": "2018-03-01",
+            "endDate": "2019-04-01",
+            "description": "A modern, responsive Mortgage Calculator (Simulasi KPR) built with React and Vite. This application helps users estimate their monthly mortgage payments, taking into account both **fixed** and **floating** interest rates",
+            "highlights": [],
+            "url": "https://deanufriana.github.io/simulasi-kpr/"
+        },
+        {
+            "name": "Sistem Skripsi",
+            "startDate": "2018-03-01",
+            "endDate": "2019-04-01",
+            "description": "The thesis process becomes more organized and faster, carried out online and can be accessed anywhere via a browser with the aim of saving time, energy and making it easier to obtain information on the thesis process online.",
+            "highlights": [],
+            "url": "https://github.com/deanufriana/sistem_skripsi"
+        }
+    ],
+    "meta": {
+        "theme": "macchiato"
+    }
 }
