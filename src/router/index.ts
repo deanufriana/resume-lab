@@ -1,9 +1,8 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import { 
-  ResumeForm, 
-  ResumePreview, 
-  SignaturePad, 
-  About 
+import {
+  ResumeForm,
+  SignaturePad,
+  About
 } from '../components'
 import UploadView from '../views/UploadView.vue'
 

@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { Menu, X, Upload, FileText, Eye, PenTool, Sun, Moon, Info } from "lucide-vue-next";
+import {
+  Menu,
+  X,
+  Upload,
+  FileText,
+  PenTool,
+  Sun,
+  Moon,
+  Info,
+} from "lucide-vue-next";
 import { useDark } from "@vueuse/core";
 import { cn } from "../utils/cn";
 import { Button } from "./ui/index";
@@ -112,7 +121,12 @@ function handleNavClick(path: string, id: string) {
             href="https://github.com/deanufriana/resume-lab"
             target="_blank"
             class="hidden sm:flex"
-            @click="Analytics.trackExternalLink('https://github.com/deanufriana/resume-lab', 'GitHub')"
+            @click="
+              Analytics.trackExternalLink(
+                'https://github.com/deanufriana/resume-lab',
+                'GitHub',
+              )
+            "
           >
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path
