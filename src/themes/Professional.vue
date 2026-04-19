@@ -1,5 +1,5 @@
 <template>
-  <div ref="previewContainer" id="resume-preview" class="relative bg-white text-gray-900 font-sans p-10 min-h-[1100px]">
+  <div ref="previewContainer" id="resume-preview" class="relative bg-white text-gray-900 font-sans p-10">
     <!-- Professional Header -->
     <header class="border-b-4 border-gray-900 pb-8 mb-8">
       <div class="flex flex-col items-center text-center">
@@ -62,16 +62,15 @@
     </section>
 
     <!-- Two-Column Section for Skills & Education -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+    <div class="grid grid-cols-2 gap-10">
       <!-- Left: Skills -->
       <section v-if="resumeData.skills?.length">
         <h2 class="section-title">Expertise</h2>
         <div class="space-y-4">
           <div v-for="(skill, index) in resumeData.skills" :key="index">
             <h3 class="text-xs font-black uppercase tracking-widest text-gray-500 mb-2">{{ skill.name }}</h3>
-            <div class="flex flex-wrap gap-2 text-sm font-bold">
-              <span v-for="(keyword, kIndex) in skill.keywords" :key="kIndex" 
-                class="px-2 py-1 border-2 border-gray-900 leading-none">
+            <div class="flex flex-wrap gap-x-4 gap-y-2 text-sm font-bold text-gray-800">
+              <span v-for="(keyword, kIndex) in skill.keywords" :key="kIndex">
                 {{ keyword }}
               </span>
             </div>
@@ -96,7 +95,7 @@
     </div>
 
     <!-- Final Section (Awards/Certs) -->
-    <div v-if="resumeData.awards?.length || resumeData.certificates?.length" class="mt-10 pt-8 border-t-2 border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-10">
+    <div v-if="resumeData.awards?.length || resumeData.certificates?.length" class="mt-10 pt-8 border-t-2 border-gray-100 grid grid-cols-2 gap-10">
       <section v-if="resumeData.awards?.length">
         <h2 class="section-title !mb-4">Awards</h2>
         <ul class="space-y-2">

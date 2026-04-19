@@ -24,8 +24,7 @@ const routes = [
   },
   {
     path: '/preview',
-    name: 'preview',
-    component: ResumePreview
+    redirect: '/manual'
   },
   {
     path: '/signature',

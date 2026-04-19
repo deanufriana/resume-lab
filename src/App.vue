@@ -2,17 +2,7 @@
 import { reactive, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import type { Resume } from "./types/resume";
-import {
-  Button,
-  Card,
-  CardContent,
-  Navbar,
-  Footer,
-  Label,
-  NativeSelect,
-  NativeSelectOption,
-} from "./components";
-import { Download, Sparkles } from "lucide-vue-next";
+import { Navbar, Footer } from "./components";
 import { generatePDFFromElement } from "./utils/pdf";
 import { useToast } from "./composables/useToast";
 import { saveResumeToStorage, loadResumeFromStorage } from "./utils/storage";
@@ -26,9 +16,12 @@ const toast = useToast();
 const selectedThemeId = reactive({ value: getDefaultTheme().id });
 
 // Track route changes
-watch(() => route.path, (newPath) => {
-  Analytics.trackTabChange(newPath.replace('/', '') || 'upload');
-});
+watch(
+  () => route.path,
+  (newPath) => {
+    Analytics.trackTabChange(newPath.replace("/", "") || "upload");
+  },
+);
 
 // Initialize resumeData
 const resumeData = reactive<Resume>({
@@ -143,55 +136,6 @@ function downloadExampleJSON() {
     <Navbar :is-resume-loaded="!!resumeData.basics?.name" />
 
     <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Preview Page Toolbar -->
-      <transition
-        enter-active-class="transition duration-300 ease-out"
-        enter-from-class="opacity-0 -translate-y-4"
-        enter-to-class="opacity-100 translate-y-0"
-        leave-active-class="transition duration-200 ease-in"
-        leave-from-class="opacity-100 translate-y-0"
-        leave-to-class="opacity-0 -translate-y-4"
-      >
-        <div v-if="route.path === '/preview'" class="mb-6">
-          <Card class="bg-card/50 backdrop-blur-sm">
-            <CardContent class="p-6">
-              <div
-                class="flex flex-col sm:flex-row justify-between items-center gap-6"
-              >
-                <div class="flex items-center gap-4">
-                  <div class="space-y-1">
-                    <Label
-                      class="text-xs uppercase tracking-wider font-bold text-muted-foreground"
-                      >Resume Template</Label
-                    >
-                    <NativeSelect
-                      @change="handleThemeChange"
-                      v-model="selectedThemeId.value"
-                    >
-                      <NativeSelectOption
-                        v-for="theme in themes"
-                        :key="theme.id"
-                        :value="theme.id"
-                      >
-                        {{ theme.name }}
-                      </NativeSelectOption>
-                    </NativeSelect>
-                  </div>
-                </div>
-                <div class="flex gap-3">
-                  <Button variant="outline" @click="downloadJSON" class="gap-2">
-                    <Download class="w-4 h-4" /> JSON
-                  </Button>
-                  <Button @click="generatePDF" class="gap-2">
-                    <Sparkles class="w-4 h-4" /> Export PDF
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </transition>
-
       <router-view v-slot="{ Component }">
         <transition
           mode="out-in"
@@ -205,11 +149,14 @@ function downloadExampleJSON() {
           <component
             :is="Component"
             :resume-data="resumeData"
+            :themes="themes"
             :theme-id="selectedThemeId.value"
             @update="handleResumeUpdate"
             @file-loaded="handleFileLoaded"
             @download-example="downloadExampleJSON"
-            @view-current="router.push('/preview')"
+            @download-json="downloadJSON"
+            @export-pdf="generatePDF"
+            @theme-change="handleThemeChange"
           />
         </transition>
       </router-view>

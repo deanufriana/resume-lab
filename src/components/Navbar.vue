@@ -37,7 +37,6 @@ const activeTab = computed(() => {
 const navItems = [
   { id: "upload", path: "/upload", label: "Upload JSON", icon: Upload },
   { id: "manual", path: "/manual", label: "Manual Entry", icon: FileText },
-  { id: "preview", path: "/preview", label: "Preview", icon: Eye },
   { id: "signature", path: "/signature", label: "Signature", icon: PenTool },
   { id: "about", path: "/about", label: "About", icon: Info },
 ];
