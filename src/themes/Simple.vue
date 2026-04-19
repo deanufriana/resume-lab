@@ -1,5 +1,5 @@
 <template>
-  <div ref="previewContainer" id="resume-preview" class="relative bg-white p-10"
+  <div ref="previewContainer" id="resume-preview" class="relative"
     style="font-family: 'Times New Roman', Times, serif;">
     <!-- Header -->
     <div class="border-b-2 border-gray-800 pb-4">

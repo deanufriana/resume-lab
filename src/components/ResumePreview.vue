@@ -8,10 +8,7 @@
         height: `${contentHeight}px`,
       }"
     >
-      <div
-        id="resume-preview"
-        class="bg-white shadow-sm ring-1 ring-gray-900/5 min-h-full"
-      >
+      <div id="resume-preview" class="bg-white min-h-full p-10">
         <component :is="themeComponent" :resume-data="resumeData" />
       </div>
     </div>

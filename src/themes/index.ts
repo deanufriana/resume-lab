@@ -24,11 +24,11 @@ export const themes: Theme[] = [
   }
 ];
 
-export function getTheme(themeId: string): Theme | undefined {
+export function getTheme (themeId: string): Theme | undefined {
   return themes.find((theme) => theme.id === themeId);
 }
 
-export function getDefaultTheme(): Theme {
+export function getDefaultTheme (): Theme {
   // Simple theme as default
   const defaultTheme = themes.find((theme) => theme.id === 'simple');
   if (!defaultTheme) {

@@ -1,46 +1,37 @@
 import html2pdf from 'html2pdf.js';
 import type { Resume } from '../types/resume';
 
-export async function generatePDFFromElement(resumeData: Resume, element: HTMLElement): Promise<void> {
+export async function generatePDFFromElement (resumeData: Resume, element: HTMLElement): Promise<void> {
+  const container = document.createElement('div');
+
   try {
-    // Hide page break indicators and info before generating PDF
-    const noPrintElements = element.querySelectorAll('.no-print');
-    const originalDisplay: string[] = [];
-    noPrintElements.forEach((el) => {
-      originalDisplay.push((el as HTMLElement).style.display);
-      (el as HTMLElement).style.display = 'none';
+    // 1. Create a deep clone of the element to avoid mutating the live DOM
+    const clone = element.cloneNode(true) as HTMLElement;
+
+    // 2. Setup an off-screen container with the same width as the capture window
+    // This prevents any visual "glitches" or layout jumps in the main UI
+    Object.assign(container.style, {
+      position: 'absolute',
+      left: '-9999px',
+      top: '0',
+      width: '800px',
+      backgroundColor: '#ffffff',
+      zIndex: '-1000'
     });
 
-    // Temporarily remove any CSS transform scaling from parent wrappers
-    // so html2canvas captures at the true 800px width
-    const scaledWrapper = element.closest('[style*="transform"]') as HTMLElement | null;
-    const outerWrapper = scaledWrapper?.parentElement as HTMLElement | null;
-    let originalTransform = '';
-    let originalWrapperWidth = '';
-    let originalPosition = '';
-    let originalLeft = '';
-    let originalOuterOverflow = '';
-    let originalOuterHeight = '';
+    container.appendChild(clone);
+    document.body.appendChild(container);
 
-    if (scaledWrapper) {
-      originalTransform = scaledWrapper.style.transform;
-      originalWrapperWidth = scaledWrapper.style.width;
-      originalPosition = scaledWrapper.style.position || getComputedStyle(scaledWrapper).position;
-      originalLeft = scaledWrapper.style.left || getComputedStyle(scaledWrapper).left;
+    // 3. Prepare the clone (hide non-print elements, ensure visible overflow)
+    const noPrintElements = clone.querySelectorAll('.no-print');
+    noPrintElements.forEach((el) => {
+      (el as HTMLElement).style.display = 'none';
+    });
+    clone.style.overflow = 'visible';
 
-      scaledWrapper.style.transform = 'none';
-      scaledWrapper.style.position = 'static';
-      scaledWrapper.style.left = 'auto';
-    }
-    if (outerWrapper) {
-      originalOuterOverflow = outerWrapper.style.overflow;
-      originalOuterHeight = outerWrapper.style.height;
-      outerWrapper.style.overflow = 'visible';
-    }
-
-    // Configure html2pdf options for ATS-friendly PDF
+    // 4. Configure html2pdf options for ATS-friendly PDF
     const opt = {
-      margin: 10,
+      margin: 0,
       filename: resumeData.basics?.name
         ? `${resumeData.basics.name.replace(/\s+/g, '_')}_Resume.pdf`
         : 'Resume.pdf',
@@ -65,31 +56,19 @@ export async function generatePDFFromElement(resumeData: Resume, element: HTMLEl
       },
     };
 
-    // Wait for all fonts to be fully loaded to prevent alignment shifts
+    // 5. Wait for all fonts to be fully loaded to prevent alignment shifts
     await document.fonts.ready;
 
-    // Generate and save PDF
-    await html2pdf().set(opt).from(element).save();
+    // 6. Generate and save PDF from the clone
+    await html2pdf().set(opt).from(clone).save();
 
-    // Restore original styles
-    if (scaledWrapper) {
-      scaledWrapper.style.transform = originalTransform;
-      scaledWrapper.style.width = originalWrapperWidth;
-      // If our original properties contained data, restore them. Otherwise, clear the inline styles we added.
-      scaledWrapper.style.position = originalPosition === 'static' ? '' : originalPosition;
-      scaledWrapper.style.left = originalLeft === 'auto' ? '' : originalLeft;
-    }
-
-    if (outerWrapper) {
-      outerWrapper.style.overflow = originalOuterOverflow;
-      outerWrapper.style.height = originalOuterHeight;
-    }
-
-    noPrintElements.forEach((el, index) => {
-      (el as HTMLElement).style.display = originalDisplay[index] || '';
-    });
   } catch (error) {
     console.error('Error generating PDF:', error);
     throw error;
+  } finally {
+    // 7. Cleanup: remove the temporary container from the DOM
+    if (document.body.contains(container)) {
+      document.body.removeChild(container);
+    }
   }
 }
