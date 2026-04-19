@@ -2,6 +2,7 @@
 import { FileText, Github, Linkedin, ExternalLink, Heart } from "lucide-vue-next";
 import { Analytics } from "../utils/analytics";
 
+const appVersion = __APP_VERSION__;
 const currentYear = new Date().getFullYear();
 
 const otherApps = [
@@ -122,7 +123,7 @@ const socialLinks = [
           </a>
         </div>
         <div class="flex gap-6">
-          <span class="font-medium">Version 2.0.0</span>
+          <span class="font-medium">Version {{ appVersion }}</span>
           <span class="hidden sm:inline">|</span>
           <span class="font-medium">Jakarta, Indonesia</span>
         </div>
