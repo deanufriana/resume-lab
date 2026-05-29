@@ -1,5 +1,5 @@
 <template>
-  <div ref="previewContainer" id="resume-preview" class="relative"
+  <div ref="previewContainer" class="resume-content relative"
     style="font-family: 'Times New Roman', Times, serif;">
     <!-- Header -->
     <div class="border-b-2 border-gray-800 pb-4">
@@ -293,7 +293,7 @@ watch(() => props.resumeData, () => {
 </script>
 
 <style scoped>
-#resume-preview {
+.resume-content {
   page-break-inside: avoid;
 }
 

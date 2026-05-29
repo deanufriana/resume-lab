@@ -28,10 +28,15 @@ export async function generatePDFFromElement (resumeData: Resume, element: HTMLE
       (el as HTMLElement).style.display = 'none';
     });
     clone.style.overflow = 'visible';
+    clone.style.padding = '0px';
 
     // 4. Configure html2pdf options for ATS-friendly PDF
+    // We use a uniform 10mm margin on all sides to keep horizontal and vertical margins
+    // perfectly aligned. Since the preview has a ~90% content width ratio (720px/800px),
+    // a 10mm margin on A4 (190mm/210mm ≈ 90.5%) ensures the PDF layout and text wrapping
+    // match the screen preview exactly.
     const opt = {
-      margin: 0,
+      margin: 10,
       filename: resumeData.basics?.name
         ? `${resumeData.basics.name.replace(/\s+/g, '_')}_Resume.pdf`
         : 'Resume.pdf',

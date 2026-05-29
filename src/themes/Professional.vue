@@ -1,8 +1,7 @@
 <template>
   <div
     ref="previewContainer"
-    id="resume-preview"
-    class="relative bg-white text-gray-900 font-sans"
+    class="resume-content relative bg-white text-gray-900 font-sans"
   >
     <!-- Professional Header -->
     <header class="border-b-4 border-gray-900 pb-8 mb-8">
@@ -209,7 +208,7 @@ watch(
 </script>
 
 <style scoped>
-#resume-preview {
+.resume-content {
   page-break-inside: avoid;
 }
 
@@ -250,7 +249,7 @@ watch(
 }
 
 @media print {
-  #resume-preview {
+  .resume-content {
     width: 210mm;
     min-height: 297mm;
   }
