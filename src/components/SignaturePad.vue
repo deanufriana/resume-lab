@@ -1,12 +1,13 @@
 <template>
   <div class="flex flex-col items-center w-full max-w-3xl mx-auto">
-    <div class="mb-6 text-center">
-      <h2 class="text-2xl font-bold text-foreground mb-2">Draw Your Signature</h2>
-      <p class="text-muted-foreground text-sm">Draw your signature below and export it as a PNG file. Use your mouse or touch screen.</p>
-    </div>
+    <Card class="w-full border-none shadow-none">
+      <CardHeader class="text-center">
+        <CardTitle>Draw Your Signature</CardTitle>
+        <CardDescription>Draw your signature below and export it as a PNG file. Use your mouse or touch screen.</CardDescription>
+      </CardHeader>
+    </Card>
     
     <div class="w-full bg-white border-2 border-dashed border-border rounded-xl overflow-hidden relative">
-      <!-- Responsive container that maintains aspect ratio or sets limits -->
       <div class="relative w-full" style="height: 300px;">
         <canvas
           ref="canvas"
@@ -23,16 +24,12 @@
     </div>
 
     <div class="flex gap-4 mt-8 w-full justify-center">
-      <Button variant="outline" @click="clearCanvas" class="w-32">
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-        </svg>
+      <Button variant="outline" @click="clearCanvas">
+        <Trash2 data-icon="inline-start" />
         Clear
       </Button>
-      <Button @click="exportPNG" :disabled="!hasDrawn" class="w-48 bg-blue-600 hover:bg-blue-700">
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-        </svg>
+      <Button @click="exportPNG" :disabled="!hasDrawn">
+        <Download data-icon="inline-start" />
         Export PNG
       </Button>
     </div>
@@ -41,7 +38,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-import Button from './ui/Button.vue';
+import { Button, Card, CardHeader, CardTitle, CardDescription } from './ui/index';
+import { Trash2, Download } from 'lucide-vue-next';
 import { useToast } from '../composables/useToast';
 import { Analytics } from '../utils/analytics';
 

@@ -3,12 +3,14 @@ import { watch, ref } from "vue";
 import type { Skill } from "../../types/resume";
 import {
   Input,
-  Label,
   Card,
   CardHeader,
   CardTitle,
   CardContent,
   Button,
+  FieldGroup,
+  Field,
+  FieldLabel,
 } from "../ui/index";
 import Draggable from "vuedraggable";
 import {
@@ -63,11 +65,11 @@ function updateKeywords(index: number, value: string) {
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div class="flex flex-col gap-4">
     <div class="flex items-center justify-between">
       <h3 class="text-lg font-semibold">Skills</h3>
       <Button @click="addSkill" size="sm">
-        <Plus class="w-4 h-4 mr-2" /> Add Skill
+        <Plus data-icon="inline-start" /> Add Skill
       </Button>
     </div>
 
@@ -75,7 +77,7 @@ function updateKeywords(index: number, value: string) {
       v-model="localSkills"
       item-key="name"
       handle=".handle"
-      class="space-y-4"
+      class="flex flex-col gap-4"
     >
       <template #item="{ element: skill, index }">
         <Card>
@@ -83,7 +85,7 @@ function updateKeywords(index: number, value: string) {
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
                 <div class="handle cursor-grab active:cursor-grabbing">
-                  <GripVertical class="w-4 h-4 text-muted-foreground" />
+                  <GripVertical class="size-4 text-muted-foreground" />
                 </div>
                 <CardTitle class="text-base">
                   {{ skill.name || `Skill #${index + 1}` }}
@@ -95,8 +97,8 @@ function updateKeywords(index: number, value: string) {
                   size="sm"
                   @click="toggleCollapse(index)"
                 >
-                  <ChevronUp v-if="!collapsedItems[index]" class="w-4 h-4" />
-                  <ChevronDown v-else class="w-4 h-4" />
+                  <ChevronUp v-if="!collapsedItems[index]" class="size-4" />
+                  <ChevronDown v-else class="size-4" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -104,27 +106,27 @@ function updateKeywords(index: number, value: string) {
                   class="text-destructive"
                   @click="removeSkill(index)"
                 >
-                  <Trash2 class="w-4 h-4" />
+                  <Trash2 class="size-4" />
                 </Button>
               </div>
             </div>
           </CardHeader>
           <CardContent
             v-show="!collapsedItems[index]"
-            class="p-4 pt-0 space-y-4"
+            class="p-4 pt-0 flex flex-col gap-4"
           >
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="space-y-1">
-                <Label class="text-xs">Skill Group / Name</Label>
+            <FieldGroup class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Field>
+                <FieldLabel class="text-xs">Skill Group / Name</FieldLabel>
                 <Input v-model="skill.name" placeholder="Web Development" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">Level (optional)</Label>
+              </Field>
+              <Field>
+                <FieldLabel class="text-xs">Level (optional)</FieldLabel>
                 <Input v-model="skill.level" placeholder="Expert / Advanced" />
-              </div>
-            </div>
-            <div class="space-y-1">
-              <Label class="text-xs">Keywords (comma-separated)</Label>
+              </Field>
+            </FieldGroup>
+            <Field>
+              <FieldLabel class="text-xs">Keywords (comma-separated)</FieldLabel>
               <Input
                 :model-value="skill.keywords?.join(', ')"
                 @update:model-value="
@@ -132,7 +134,7 @@ function updateKeywords(index: number, value: string) {
                 "
                 placeholder="React, Vue, TypeScript, Next.js..."
               />
-            </div>
+            </Field>
           </CardContent>
         </Card>
       </template>

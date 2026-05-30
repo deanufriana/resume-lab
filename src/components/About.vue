@@ -8,7 +8,7 @@ import {
   Laptop,
   CheckCircle2,
 } from "lucide-vue-next";
-import { Card, CardContent, Button } from "./ui/index";
+import { Badge, Card, CardContent, Button } from "./ui/index";
 import { Analytics } from "../utils/analytics";
 import resumeData from "../data/resume.json";
 
@@ -34,16 +34,17 @@ const otherApps = [
 
 <template>
   <div
-    class="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700"
+    class="flex flex-col gap-12 animate-in fade-in slide-in-from-bottom-4 duration-700"
   >
     <!-- Hero / Vision Section -->
-    <section class="max-w-4xl mx-auto text-center space-y-6">
-      <div
-        class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-2"
+    <section class="max-w-4xl mx-auto text-center flex flex-col gap-6">
+      <Badge
+        variant="outline"
+        class="self-center uppercase tracking-wider px-3 py-1"
       >
-        <Sparkles class="w-3.5 h-3.5" />
+        <Sparkles class="size-3.5" />
         The Vision
-      </div>
+      </Badge>
       <h1
         class="text-4xl md:text-5xl font-black font-outfit tracking-tight text-foreground"
       >
@@ -59,13 +60,11 @@ const otherApps = [
     </section>
 
     <!-- Projects Section -->
-    <section class="max-w-4xl mx-auto space-y-8">
-      <div class="space-y-2 text-center md:text-left">
-        <div
-          class="inline-flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest"
-        >
-          <Rocket class="w-4 h-4" /> Portfolio
-        </div>
+    <section class="max-w-4xl mx-auto flex flex-col gap-8">
+      <div class="flex flex-col gap-2 text-center md:text-left">
+        <Badge variant="outline" class="self-center md:self-start uppercase tracking-widest">
+          <Rocket data-icon="inline-start" /> Portfolio
+        </Badge>
         <h2 class="text-3xl font-bold font-outfit">My Other Apps</h2>
         <p class="text-muted-foreground">
           Check out some of my other projects and tools.
@@ -84,7 +83,7 @@ const otherApps = [
             >
               <component
                 :is="app.icon"
-                class="w-12 h-12 text-primary/40 group-hover:text-primary transition-colors group-hover:scale-110 duration-500"
+                class="size-12 text-primary/40 group-hover:text-primary transition-colors group-hover:scale-110 duration-500"
               />
             </div>
             <div class="md:w-2/3 p-6 flex flex-col justify-between">
@@ -99,7 +98,7 @@ const otherApps = [
                     class="p-2 rounded-full hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
                     @click="Analytics.trackExternalLink(app.url, app.name)"
                   >
-                    <ExternalLink class="w-5 h-5" />
+                    <ExternalLink class="size-5" />
                   </a>
                 </div>
                 <p class="text-sm text-muted-foreground mb-4 leading-relaxed">
@@ -107,13 +106,14 @@ const otherApps = [
                 </p>
               </div>
               <div class="flex flex-wrap gap-2">
-                <span
+                <Badge
                   v-for="tag in app.tags"
                   :key="tag"
-                  class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary"
+                  variant="secondary"
+                  class="uppercase text-[10px] tracking-wider"
                 >
                   {{ tag }}
-                </span>
+                </Badge>
               </div>
             </div>
           </div>
@@ -125,7 +125,7 @@ const otherApps = [
         <CardContent
           class="p-8 flex flex-col md:flex-row items-center justify-between gap-6"
         >
-          <div class="space-y-2 text-center md:text-left">
+          <div class="flex flex-col gap-2 text-center md:text-left">
             <h3 class="text-2xl font-bold font-outfit">
               Interested in Collaboration?
             </h3>
@@ -139,26 +139,26 @@ const otherApps = [
             size="lg"
             class="rounded-full shadow-lg font-bold"
           >
-            <Mail class="w-5 h-5" /> Say Hello
+            <Mail data-icon="inline-start" /> Say Hello
           </Button>
         </CardContent>
       </Card>
     </section>
 
     <!-- Why Resume Lab? -->
-    <section class="max-w-4xl mx-auto space-y-8 pt-12">
-      <div class="text-center space-y-2">
+    <section class="max-w-4xl mx-auto flex flex-col gap-8 pt-12">
+      <div class="text-center flex flex-col gap-2">
         <h2 class="text-3xl font-bold font-outfit">Why I built Resume Lab</h2>
         <p class="text-muted-foreground">
           The story behind the ultimate developer resume toolkit.
         </p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="p-6 rounded-2xl bg-accent/30 border space-y-4">
+        <div class="p-6 rounded-2xl bg-accent/30 border flex flex-col gap-4">
           <div
-            class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center"
+            class="size-10 rounded-lg bg-primary/20 flex items-center justify-center"
           >
-            <CheckCircle2 class="w-6 h-6 text-primary" />
+            <CheckCircle2 class="size-6 text-primary" />
           </div>
           <h4 class="font-bold text-lg font-outfit">ATS Optimization</h4>
           <p class="text-sm text-muted-foreground">
@@ -167,11 +167,11 @@ const otherApps = [
             aesthetics.
           </p>
         </div>
-        <div class="p-6 rounded-2xl bg-accent/30 border space-y-4">
+        <div class="p-6 rounded-2xl bg-accent/30 border flex flex-col gap-4">
           <div
-            class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center"
+            class="size-10 rounded-lg bg-primary/20 flex items-center justify-center"
           >
-            <FileText class="w-6 h-6 text-primary" />
+            <FileText class="size-6 text-primary" />
           </div>
           <h4 class="font-bold text-lg font-outfit">JSON First</h4>
           <p class="text-sm text-muted-foreground">

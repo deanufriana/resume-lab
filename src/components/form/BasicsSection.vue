@@ -3,13 +3,17 @@ import { reactive, watch } from "vue";
 import type { Basics } from "../../types/resume";
 import {
   Input,
-  Label,
   Textarea,
   Card,
   CardHeader,
   CardTitle,
   CardContent,
   Button,
+  FieldGroup,
+  Field,
+  FieldLabel,
+  FieldSet,
+  FieldLegend,
 } from "../ui/index";
 import Draggable from "vuedraggable";
 import { GripVertical, Plus, Trash2 } from "lucide-vue-next";
@@ -47,70 +51,70 @@ function removeProfile(index: number) {
     <CardHeader>
       <CardTitle>Basic Information</CardTitle>
     </CardHeader>
-    <CardContent class="space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="space-y-2">
-          <Label for="name">Name</Label>
+    <CardContent class="flex flex-col gap-6">
+      <FieldGroup class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Field>
+          <FieldLabel for="name">Name</FieldLabel>
           <Input id="name" v-model="localBasics.name" placeholder="John Doe" />
-        </div>
-        <div class="space-y-2">
-          <Label for="label">Title</Label>
+        </Field>
+        <Field>
+          <FieldLabel for="label">Title</FieldLabel>
           <Input
             id="label"
             v-model="localBasics.label"
             placeholder="Software Engineer"
           />
-        </div>
-        <div class="space-y-2">
-          <Label for="email">Email</Label>
+        </Field>
+        <Field>
+          <FieldLabel for="email">Email</FieldLabel>
           <Input
             id="email"
             type="email"
             v-model="localBasics.email"
             placeholder="john@example.com"
           />
-        </div>
-        <div class="space-y-2">
-          <Label for="phone">Phone</Label>
+        </Field>
+        <Field>
+          <FieldLabel for="phone">Phone</FieldLabel>
           <Input
             id="phone"
             v-model="localBasics.phone"
             placeholder="+1 (555) 000-0000"
           />
-        </div>
-        <div class="space-y-2">
-          <Label for="url">Website</Label>
+        </Field>
+        <Field>
+          <FieldLabel for="url">Website</FieldLabel>
           <Input
             id="url"
             v-model="localBasics.url"
             placeholder="https://johndoe.com"
           />
-        </div>
-        <div class="space-y-2">
-          <Label for="image">Profile Image URL</Label>
+        </Field>
+        <Field>
+          <FieldLabel for="image">Profile Image URL</FieldLabel>
           <Input
             id="image"
             v-model="localBasics.image"
             placeholder="https://example.com/photo.jpg"
           />
-        </div>
-      </div>
+        </Field>
+      </FieldGroup>
 
-      <div class="space-y-2">
-        <Label for="summary">Summary</Label>
+      <Field>
+        <FieldLabel for="summary">Summary</FieldLabel>
         <Textarea
           id="summary"
           v-model="localBasics.summary"
           placeholder="Brief professional summary..."
           class="min-h-[100px]"
         />
-      </div>
+      </Field>
 
-      <div class="space-y-4">
+      <FieldSet class="flex flex-col gap-4">
         <div class="flex items-center justify-between">
-          <Label>Social Profiles</Label>
+          <FieldLegend variant="label">Social Profiles</FieldLegend>
           <Button variant="outline" size="sm" @click="addProfile">
-            <Plus class="w-4 h-4 mr-2" /> Add Profile
+            <Plus data-icon="inline-start" /> Add Profile
           </Button>
         </div>
 
@@ -119,53 +123,53 @@ function removeProfile(index: number) {
           v-model="localBasics.profiles"
           item-key="url"
           handle=".handle"
-          class="space-y-3"
+          class="flex flex-col gap-3"
         >
           <template #item="{ element: profile, index }">
             <div
               class="flex items-start gap-4 p-4 border rounded-lg bg-muted/30"
             >
               <div class="handle cursor-grab active:cursor-grabbing mt-2">
-                <GripVertical class="w-4 h-4 text-muted-foreground" />
+                <GripVertical class="size-4 text-muted-foreground" />
               </div>
-              <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div class="space-y-1">
-                  <Label class="text-xs">Network</Label>
+              <FieldGroup class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
+                <Field>
+                  <FieldLabel class="text-xs">Network</FieldLabel>
                   <Input
                     v-model="profile.network"
                     placeholder="LinkedIn"
                     size="sm"
                   />
-                </div>
-                <div class="space-y-1">
-                  <Label class="text-xs">Username</Label>
+                </Field>
+                <Field>
+                  <FieldLabel class="text-xs">Username</FieldLabel>
                   <Input
                     v-model="profile.username"
                     placeholder="johndoe"
                     size="sm"
                   />
-                </div>
-                <div class="space-y-1">
-                  <Label class="text-xs">URL</Label>
+                </Field>
+                <Field>
+                  <FieldLabel class="text-xs">URL</FieldLabel>
                   <Input
                     v-model="profile.url"
                     placeholder="https://..."
                     size="sm"
                   />
-                </div>
-              </div>
+                </Field>
+              </FieldGroup>
               <Button
                 variant="ghost"
                 size="icon"
                 class="text-destructive"
                 @click="removeProfile(index)"
               >
-                <Trash2 class="w-4 h-4" />
+                <Trash2 class="size-4" />
               </Button>
             </div>
           </template>
         </Draggable>
-      </div>
+      </FieldSet>
     </CardContent>
   </Card>
 </template>

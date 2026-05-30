@@ -4,4 +4,6 @@ export { default as ResumePreview } from './ResumePreview.vue'
 export { default as SignaturePad } from './SignaturePad.vue'
 export { default as Footer } from './Footer.vue'
 export { default as About } from './About.vue'
+export { default as SettingsModal } from './SettingsModal.vue'
 export * from './ui'
+

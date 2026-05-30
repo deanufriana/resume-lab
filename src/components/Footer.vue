@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { FileText, Github, Linkedin, ExternalLink, Heart } from "lucide-vue-next";
+import { Badge } from "./ui/index";
 import { Analytics } from "../utils/analytics";
 
 const appVersion = __APP_VERSION__;
@@ -41,10 +42,10 @@ const socialLinks = [
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
         <!-- Brand & Summary -->
-        <div class="space-y-4">
+        <div class="flex flex-col gap-4">
           <div class="flex items-center gap-2 group cursor-default">
-            <div class="w-8 h-8 rounded bg-primary flex items-center justify-center transition-transform group-hover:rotate-12">
-              <FileText class="w-5 h-5 text-primary-foreground" />
+            <div class="size-8 rounded bg-primary flex items-center justify-center transition-transform group-hover:rotate-12">
+              <FileText class="size-5 text-primary-foreground" />
             </div>
             <span class="font-bold text-xl font-outfit tracking-tight">Resume Lab</span>
           </div>
@@ -61,15 +62,15 @@ const socialLinks = [
               @click="Analytics.trackExternalLink(social.url, social.name)"
               :aria-label="social.name"
             >
-              <component :is="social.icon" class="w-5 h-5" />
+              <component :is="social.icon" class="size-5" />
             </a>
           </div>
         </div>
 
         <!-- Other Apps -->
-        <div class="space-y-4">
+        <div class="flex flex-col gap-4">
           <h3 class="font-bold text-sm uppercase tracking-wider text-foreground font-outfit">My Other Apps</h3>
-          <ul class="space-y-3">
+          <ul class="flex flex-col gap-3">
             <li v-for="app in otherApps" :key="app.name">
               <a 
                 :href="app.url" 
@@ -79,7 +80,7 @@ const socialLinks = [
               >
                 <div class="flex items-center gap-1.5 text-sm font-medium text-foreground transition-colors group-hover:text-primary">
                   {{ app.name }}
-                  <ExternalLink class="w-3 h-3 opacity-0 -translate-y-1 translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0" />
+                  <ExternalLink class="size-3 opacity-0 -translate-y-1 translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0" />
                 </div>
                 <span class="text-xs text-muted-foreground truncate max-w-[250px]">{{ app.description }}</span>
               </a>
@@ -88,14 +89,12 @@ const socialLinks = [
         </div>
 
         <!-- Quick Info -->
-        <div class="space-y-4">
+        <div class="flex flex-col gap-4">
           <h3 class="font-bold text-sm uppercase tracking-wider text-foreground font-outfit">Built With</h3>
           <div class="flex flex-wrap gap-2">
-            <span v-for="tech in ['Vue 3', 'TypeScript', 'Tailwind', 'Shadcn']" :key="tech"
-              class="px-2.5 py-1 rounded-md bg-accent/50 text-[10px] font-semibold text-muted-foreground border border-border/50 uppercase tracking-tight"
-            >
+            <Badge v-for="tech in ['Vue 3', 'TypeScript', 'Tailwind', 'Shadcn']" :key="tech" variant="secondary">
               {{ tech }}
-            </span>
+            </Badge>
           </div>
           <div class="pt-4 flex flex-col gap-2">
             <p class="text-xs text-muted-foreground">
@@ -112,7 +111,7 @@ const socialLinks = [
       <div class="pt-8 border-t border-border/50 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-muted-foreground">
         <div class="flex items-center gap-1 select-none">
           <span>&copy; {{ currentYear }} Resume Lab. Created with</span>
-          <Heart class="w-3.5 h-3.5 text-red-500 fill-red-500 animate-pulse" />
+          <Heart class="size-3.5 text-destructive fill-destructive animate-pulse" />
           <span>by</span>
           <a 
             href="https://github.com/deanufriana" 

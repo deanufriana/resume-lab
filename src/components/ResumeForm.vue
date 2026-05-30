@@ -91,29 +91,32 @@ const sections = [
   <div class="max-w-7xl mx-auto px-4">
     <div class="flex flex-col lg:flex-row gap-8">
       <!-- Sidebar Navigation (Persistent) -->
-      <aside class="w-full lg:w-64 lg:sticky lg:top-24 self-start space-y-6">
+      <aside
+        class="w-full lg:w-64 lg:sticky lg:top-24 self-start flex flex-col gap-6"
+      >
         <Card class="border-none shadow-none bg-transparent">
           <CardContent
             class="p-0 flex flex-nowrap overflow-x-auto lg:flex-col gap-2 no-scrollbar"
           >
-            <button
+            <Button
               v-for="section in sections"
               :key="section.id"
+              variant="ghost"
               @click="handleSectionClick(section.id)"
               :class="[
-                'flex-shrink-0 flex items-center justify-center lg:justify-start gap-3 px-4 py-3 rounded-md transition-all duration-200 text-left',
+                'flex-shrink-0 justify-center lg:justify-start gap-3 px-4 py-3 h-auto rounded-md transition-all duration-200 text-left w-full',
                 activeSection === section.id && !isShowingPreview
-                  ? 'bg-primary text-primary-foreground scale-[1.05] shadow-md'
-                  : 'hover:bg-accent text-muted-foreground hover:text-foreground',
+                  ? 'bg-primary text-primary-foreground scale-[1.05] shadow-md hover:bg-primary hover:text-primary-foreground'
+                  : 'text-muted-foreground hover:text-foreground',
                 'min-w-[48px]',
               ]"
               :title="section.label"
             >
-              <component :is="section.icon" class="w-5 h-5" />
+              <component :is="section.icon" class="size-5" />
               <span class="font-medium font-outfit hidden lg:inline">{{
                 section.label
               }}</span>
-            </button>
+            </Button>
           </CardContent>
         </Card>
 
@@ -121,29 +124,32 @@ const sections = [
 
         <div class="flex flex-row lg:flex-col gap-3">
           <Button
-            class="flex-1 justify-center lg:justify-start gap-2 h-11"
+            class="flex-1 justify-center lg:justify-start h-10 rounded-none"
             @click="handleSave"
           >
-            <Save class="w-4 h-4" />
+            <Save data-icon="inline-start" />
             <span class="hidden lg:inline">Save Changes</span
             ><span class="lg:hidden">Save</span>
           </Button>
           <Button
             variant="outline"
-            class="flex-1 justify-center lg:justify-start gap-2 h-11"
+            class="flex-1 justify-center lg:justify-start h-10"
             @click="handleReset"
           >
-            <RotateCcw class="w-4 h-4" />
+            <RotateCcw data-icon="inline-start" />
             <span class="hidden lg:inline">Reset Form</span
             ><span class="lg:hidden">Reset</span>
           </Button>
 
           <Button
             variant="secondary"
-            class="flex-1 justify-center lg:justify-start gap-2 h-11 border-primary/20"
+            class="flex-1 justify-center lg:justify-start h-10"
             @click="togglePreview"
           >
-            <component :is="isShowingPreview ? Edit3 : Eye" class="w-4 h-4" />
+            <component
+              :is="isShowingPreview ? Edit3 : Eye"
+              data-icon="inline-start"
+            />
             <span class="hidden lg:inline">{{
               isShowingPreview ? "Edit Resume" : "Preview Resume"
             }}</span>
@@ -214,7 +220,7 @@ const sections = [
           <div
             v-else
             key="preview"
-            class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 lg:h-[calc(100vh-140px)] lg:overflow-y-auto lg:pr-4 lg:pb-10 custom-scrollbar"
+            class="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 lg:h-[calc(100vh-140px)] lg:overflow-y-auto lg:pr-4 lg:pb-10 custom-scrollbar"
           >
             <!-- Integrated Preview Action Bar -->
             <Card
@@ -225,7 +231,7 @@ const sections = [
                   class="flex flex-col md:flex-row justify-between items-center gap-6"
                 >
                   <div class="flex items-center gap-4 w-full md:w-auto">
-                    <div class="flex-1 md:flex-initial space-y-1">
+                    <div class="flex-1 md:flex-initial flex flex-col gap-1">
                       <NativeSelect
                         @change="(e: any) => emit('theme-change', e)"
                         :model-value="props.themeId"
@@ -246,17 +252,17 @@ const sections = [
                     <Button
                       variant="outline"
                       @click="emit('download-json')"
-                      class="flex-1 md:flex-none gap-2"
+                      class="flex-1 md:flex-none"
                     >
-                      <Download class="w-4 h-4" />
+                      <Download data-icon="inline-start" />
                       <span class="hidden sm:inline">Download JSON</span
                       ><span class="sm:hidden">JSON</span>
                     </Button>
                     <Button
                       @click="emit('export-pdf')"
-                      class="flex-1 md:flex-none gap-2"
+                      class="flex-1 md:flex-none"
                     >
-                      <Sparkles class="w-4 h-4" />
+                      <Sparkles data-icon="inline-start" />
                       <span class="hidden sm:inline">Export PDF</span
                       ><span class="sm:hidden">PDF</span>
                     </Button>

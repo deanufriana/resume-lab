@@ -3,13 +3,15 @@ import { watch, ref } from "vue";
 import type { Work } from "../../types/resume";
 import {
   Input,
-  Label,
   Textarea,
   Card,
   CardHeader,
   CardTitle,
   CardContent,
   Button,
+  FieldGroup,
+  Field,
+  FieldLabel,
 } from "../ui/index";
 import Draggable from "vuedraggable";
 import {
@@ -75,11 +77,11 @@ function updateSkills(index: number, value: string) {
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div class="flex flex-col gap-4">
     <div class="flex items-center justify-between">
       <h3 class="text-lg font-semibold">Work Experience</h3>
       <Button @click="addWork" size="sm">
-        <Plus class="w-4 h-4 mr-2" /> Add Experience
+        <Plus data-icon="inline-start" /> Add Experience
       </Button>
     </div>
 
@@ -87,7 +89,7 @@ function updateSkills(index: number, value: string) {
       v-model="localWork"
       item-key="name"
       handle=".handle"
-      class="space-y-4"
+      class="flex flex-col gap-4"
     >
       <template #item="{ element: exp, index }">
         <Card>
@@ -95,7 +97,7 @@ function updateSkills(index: number, value: string) {
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
                 <div class="handle cursor-grab active:cursor-grabbing">
-                  <GripVertical class="w-4 h-4 text-muted-foreground" />
+                  <GripVertical class="size-4 text-muted-foreground" />
                 </div>
                 <CardTitle class="text-base">
                   {{ exp.name || `Experience #${index + 1}` }}
@@ -107,8 +109,8 @@ function updateSkills(index: number, value: string) {
                   size="sm"
                   @click="toggleCollapse(index)"
                 >
-                  <ChevronUp v-if="!collapsedItems[index]" class="w-4 h-4" />
-                  <ChevronDown v-else class="w-4 h-4" />
+                  <ChevronUp v-if="!collapsedItems[index]" class="size-4" />
+                  <ChevronDown v-else class="size-4" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -116,48 +118,48 @@ function updateSkills(index: number, value: string) {
                   class="text-destructive"
                   @click="removeWork(index)"
                 >
-                  <Trash2 class="w-4 h-4" />
+                  <Trash2 class="size-4" />
                 </Button>
               </div>
             </div>
           </CardHeader>
           <CardContent
             v-show="!collapsedItems[index]"
-            class="p-4 pt-0 space-y-4"
+            class="p-4 pt-0 flex flex-col gap-4"
           >
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="space-y-1">
-                <Label class="text-xs">Company Name</Label>
+            <FieldGroup class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Field>
+                <FieldLabel class="text-xs">Company Name</FieldLabel>
                 <Input v-model="exp.name" placeholder="Company Inc." />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">Position</Label>
+              </Field>
+              <Field>
+                <FieldLabel class="text-xs">Position</FieldLabel>
                 <Input v-model="exp.position" placeholder="Software Engineer" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">URL</Label>
+              </Field>
+              <Field>
+                <FieldLabel class="text-xs">URL</FieldLabel>
                 <Input v-model="exp.url" placeholder="https://..." />
-              </div>
-              <div class="grid grid-cols-2 gap-2">
-                <div class="space-y-1">
-                  <Label class="text-xs">Start Date</Label>
+              </Field>
+              <FieldGroup class="grid grid-cols-2 gap-2">
+                <Field>
+                  <FieldLabel class="text-xs">Start Date</FieldLabel>
                   <Input v-model="exp.startDate" type="date" />
-                </div>
-                <div class="space-y-1">
-                  <Label class="text-xs">End Date</Label>
+                </Field>
+                <Field>
+                  <FieldLabel class="text-xs">End Date</FieldLabel>
                   <Input v-model="exp.endDate" type="date" />
-                </div>
-              </div>
-            </div>
-            <div class="space-y-1">
-              <Label class="text-xs">Summary</Label>
+                </Field>
+              </FieldGroup>
+            </FieldGroup>
+            <Field>
+              <FieldLabel class="text-xs">Summary</FieldLabel>
               <Textarea
                 v-model="exp.summary"
                 placeholder="Brief overview of your role..."
               />
-            </div>
-            <div class="space-y-1">
-              <Label class="text-xs">Skills (comma-separated)</Label>
+            </Field>
+            <Field>
+              <FieldLabel class="text-xs">Skills (comma-separated)</FieldLabel>
               <Input
                 :model-value="exp.skills?.join(', ')"
                 @update:model-value="
@@ -165,9 +167,9 @@ function updateSkills(index: number, value: string) {
                 "
                 placeholder="React, Vue, Node.js"
               />
-            </div>
-            <div class="space-y-1">
-              <Label class="text-xs">Highlights (one per line)</Label>
+            </Field>
+            <Field>
+              <FieldLabel class="text-xs">Highlights (one per line)</FieldLabel>
               <Textarea
                 :model-value="exp.highlights?.join('\n')"
                 @update:model-value="
@@ -176,7 +178,7 @@ function updateSkills(index: number, value: string) {
                 placeholder="Led the frontend team...&#10;Reduced load times by 40%..."
                 class="min-h-[100px]"
               />
-            </div>
+            </Field>
           </CardContent>
         </Card>
       </template>

@@ -14,7 +14,7 @@
         >
           <div v-if="toast.type === 'success'" class="flex-shrink-0">
             <svg
-              class="w-5 h-5 text-green-600"
+              class="size-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -29,7 +29,7 @@
           </div>
           <div v-if="toast.type === 'error'" class="flex-shrink-0">
             <svg
-              class="w-5 h-5 text-red-600"
+              class="size-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -44,7 +44,7 @@
           </div>
           <div v-if="toast.type === 'info'" class="flex-shrink-0">
             <svg
-              class="w-5 h-5 text-blue-600"
+              class="size-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -63,7 +63,7 @@
             class="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors"
           >
             <svg
-              class="w-4 h-4"
+              class="size-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -89,9 +89,9 @@ import { cn } from '../../utils/cn';
 const { toasts, removeToast } = useToast();
 
 const toastVariants = {
-  success: 'bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400',
-  error: 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400',
-  info: 'bg-blue-500/10 border-blue-500/20 text-blue-600 dark:text-blue-400',
+  success: 'bg-primary/10 border-primary/20 text-primary',
+  error: 'bg-destructive/10 border-destructive/20 text-destructive',
+  info: 'bg-accent border-border text-foreground',
 };
 </script>
 
