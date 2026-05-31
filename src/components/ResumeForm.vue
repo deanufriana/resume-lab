@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, watch } from "vue";
+import { ref, reactive, watch, computed } from "vue";
 import type { Resume } from "../types/resume";
 import {
   Button,
@@ -49,6 +49,9 @@ const emit = defineEmits<{
 const localResume = reactive<Resume>(
   JSON.parse(JSON.stringify(props.resumeData)),
 );
+if (!localResume.meta) {
+  localResume.meta = {};
+}
 const activeSection = ref("basics");
 const isShowingPreview = ref(false);
 
@@ -56,9 +59,21 @@ watch(
   () => props.resumeData,
   (newData) => {
     Object.assign(localResume, JSON.parse(JSON.stringify(newData)));
+    if (!localResume.meta) {
+      localResume.meta = {};
+    }
   },
   { deep: true },
 );
+
+const hideContactVal = computed({
+  get: () => localResume.meta?.hideContact || false,
+  set: (val: boolean) => {
+    if (!localResume.meta) localResume.meta = {};
+    localResume.meta.hideContact = val;
+    handleSave();
+  }
+});
 
 function handleSave() {
   emit("update", { ...localResume });
@@ -175,7 +190,9 @@ const sections = [
                 <BasicsSection
                   v-if="activeSection === 'basics'"
                   :basics="localResume.basics!"
+                  :hide-contact="localResume.meta?.hideContact"
                   @update:basics="(val) => (localResume.basics = val)"
+                  @update:hide-contact="(val) => { if (!localResume.meta) localResume.meta = {}; localResume.meta.hideContact = val; handleSave(); }"
                 />
 
                 <WorkSection
@@ -224,8 +241,8 @@ const sections = [
                 <div
                   class="flex flex-col md:flex-row justify-between items-center gap-6"
                 >
-                  <div class="flex items-center gap-4 w-full md:w-auto">
-                    <div class="flex-1 md:flex-initial space-y-1">
+                  <div class="flex flex-wrap items-center gap-6 w-full md:w-auto">
+                    <div class="flex-1 md:flex-initial min-w-[120px] space-y-1">
                       <NativeSelect
                         @change="(e: any) => emit('theme-change', e)"
                         :model-value="props.themeId"
@@ -240,6 +257,21 @@ const sections = [
                         </NativeSelectOption>
                       </NativeSelect>
                     </div>
+
+                    <!-- Upwork Compliance Toggle Switch -->
+                    <label class="flex items-center gap-3 cursor-pointer select-none">
+                      <div class="relative">
+                        <input
+                          type="checkbox"
+                          v-model="hideContactVal"
+                          class="sr-only peer"
+                        />
+                        <div class="w-9 h-5 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary transition-colors"></div>
+                      </div>
+                      <span class="text-xs font-semibold text-muted-foreground peer-checked:text-foreground tracking-tight">
+                        Hide contact info for Upwork
+                      </span>
+                    </label>
                   </div>
 
                   <div class="flex gap-2 w-full md:w-auto">
@@ -264,6 +296,19 @@ const sections = [
                 </div>
               </CardContent>
             </Card>
+
+            <!-- Upwork Compliance Mode Warning Banner -->
+            <div
+              v-if="localResume.meta?.hideContact"
+              class="max-w-4xl mx-auto p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-start sm:items-center gap-3 text-amber-600 dark:text-amber-400 mb-6 transition-all animate-in fade-in slide-in-from-top-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0 mt-0.5 sm:mt-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+              </svg>
+              <div class="text-xs leading-relaxed font-medium">
+                <span class="font-bold">Upwork Compliance Mode Active:</span> Your email, phone number, website, and social links are hidden from this preview and the exported PDF.
+              </div>
+            </div>
 
             <!-- Preview Display -->
             <div

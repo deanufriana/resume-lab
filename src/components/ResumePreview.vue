@@ -9,7 +9,7 @@
       }"
     >
       <div id="resume-preview" class="bg-white min-h-full p-10">
-        <component :is="themeComponent" :resume-data="resumeData" />
+        <component :is="themeComponent" :resume-data="filteredResumeData" />
       </div>
     </div>
     <!-- Spacer to ensure the relative container has the correct height after scaling -->
@@ -29,6 +29,23 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   themeId: "simple",
+});
+
+const filteredResumeData = computed(() => {
+  if (!props.resumeData.meta?.hideContact) {
+    return props.resumeData;
+  }
+  const cloned = JSON.parse(JSON.stringify(props.resumeData));
+  if (cloned.basics) {
+    cloned.basics.email = "";
+    cloned.basics.phone = "";
+    cloned.basics.url = "";
+    cloned.basics.profiles = [];
+    if (cloned.basics.location) {
+      cloned.basics.location.address = "";
+    }
+  }
+  return cloned;
 });
 
 const baseWidth = 800; // Base width for "desktop" look

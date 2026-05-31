@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, watch } from "vue";
+import { reactive, watch, computed } from "vue";
 import type { Basics } from "../../types/resume";
 import {
   Input,
@@ -16,11 +16,18 @@ import { GripVertical, Plus, Trash2 } from "lucide-vue-next";
 
 const props = defineProps<{
   basics: Basics;
+  hideContact?: boolean;
 }>();
 
 const emit = defineEmits<{
   (e: "update:basics", value: Basics): void;
+  (e: "update:hideContact", value: boolean): void;
 }>();
+
+const localBasicsHideContact = computed({
+  get: () => props.hideContact || false,
+  set: (value: boolean) => emit("update:hideContact", value),
+});
 
 const localBasics = reactive({ ...props.basics });
 
@@ -48,6 +55,27 @@ function removeProfile(index: number) {
       <CardTitle>Basic Information</CardTitle>
     </CardHeader>
     <CardContent class="space-y-6">
+      <!-- Upwork Compliance Mode Switch -->
+      <div class="p-4 border border-amber-500/20 rounded-xl bg-amber-500/5 flex items-center justify-between transition-all">
+        <div class="space-y-1 pr-4">
+          <div class="text-sm font-semibold text-foreground flex items-center gap-1.5">
+            <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-500" :class="{ 'animate-pulse': localBasicsHideContact }"></span>
+            Upwork Compliance Mode
+          </div>
+          <p class="text-xs text-muted-foreground leading-relaxed">
+            Hides your email, phone, personal website, and social links in preview/exports. Keeps your input intact here.
+          </p>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer select-none flex-shrink-0">
+          <input
+            type="checkbox"
+            v-model="localBasicsHideContact"
+            class="sr-only peer"
+          />
+          <div class="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-amber-500"></div>
+        </label>
+      </div>
+
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="space-y-2">
           <Label for="name">Name</Label>

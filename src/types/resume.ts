@@ -110,6 +110,7 @@ export interface Project {
 
 export interface Meta {
   theme?: string;
+  hideContact?: boolean;
 }
 
 export interface Resume {
