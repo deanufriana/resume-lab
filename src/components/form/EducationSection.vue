@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { watch, ref } from "vue";
 import type { Education } from "../../types/resume";
+import { useStableList } from "../../composables/useStableList";
 import {
   Input,
   Label,
@@ -10,15 +10,10 @@ import {
   CardTitle,
   CardContent,
   Button,
+  EmptyState,
 } from "../ui/index";
 import Draggable from "vuedraggable";
-import {
-  GripVertical,
-  Plus,
-  Trash2,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-vue-next";
+import { GraduationCap, GripVertical, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-vue-next";
 
 const props = defineProps<{
   education: Education[];
@@ -28,15 +23,14 @@ const emit = defineEmits<{
   (e: "update:education", value: Education[]): void;
 }>();
 
-const localEducation = ref([...props.education]);
-const collapsedItems = ref<Record<number, boolean>>({});
-
-watch(
-  localEducation,
-  (newValue) => {
-    emit("update:education", newValue);
-  },
-  { deep: true },
+const {
+  localItems: localEducation,
+  getItemKey,
+  isCollapsed,
+  toggleCollapse,
+} = useStableList(
+  () => props.education,
+  (val) => emit("update:education", val),
 );
 
 function addEducation() {
@@ -56,14 +50,8 @@ function removeEducation(index: number) {
   localEducation.value.splice(index, 1);
 }
 
-function toggleCollapse(index: number) {
-  collapsedItems.value[index] = !collapsedItems.value[index];
-}
-
 function updateCourses(index: number, value: string) {
-  localEducation.value[index].courses = value
-    .split("\n")
-    .filter((h) => h.trim() !== "");
+  localEducation.value[index].courses = value.split("\n").filter((h) => h.trim() !== "");
 }
 </script>
 
@@ -71,14 +59,22 @@ function updateCourses(index: number, value: string) {
   <div class="space-y-4">
     <div class="flex items-center justify-between">
       <h3 class="text-lg font-semibold">Education</h3>
-      <Button @click="addEducation" size="sm">
-        <Plus class="w-4 h-4 mr-2" /> Add Education
-      </Button>
+      <Button @click="addEducation" size="sm"> <Plus class="w-4 h-4 mr-2" /> Add Education </Button>
     </div>
 
+    <EmptyState
+      v-if="localEducation.length === 0"
+      :icon="GraduationCap"
+      title="No education added yet"
+      description="Include degrees, bootcamps, or relevant coursework."
+    >
+      <Button size="sm" @click="addEducation"> <Plus class="w-4 h-4 mr-2" /> Add Education </Button>
+    </EmptyState>
+
     <Draggable
+      v-else
       v-model="localEducation"
-      item-key="institution"
+      :item-key="getItemKey"
       handle=".handle"
       class="space-y-4"
     >
@@ -95,12 +91,8 @@ function updateCourses(index: number, value: string) {
                 </CardTitle>
               </div>
               <div class="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  @click="toggleCollapse(index)"
-                >
-                  <ChevronUp v-if="!collapsedItems[index]" class="w-4 h-4" />
+                <Button variant="ghost" size="sm" @click="toggleCollapse(edu)">
+                  <ChevronUp v-if="!isCollapsed(edu)" class="w-4 h-4" />
                   <ChevronDown v-else class="w-4 h-4" />
                 </Button>
                 <Button
@@ -114,17 +106,11 @@ function updateCourses(index: number, value: string) {
               </div>
             </div>
           </CardHeader>
-          <CardContent
-            v-show="!collapsedItems[index]"
-            class="p-4 pt-0 space-y-4"
-          >
+          <CardContent v-show="!isCollapsed(edu)" class="p-4 pt-0 space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="space-y-1">
                 <Label class="text-xs">Institution</Label>
-                <Input
-                  v-model="edu.institution"
-                  placeholder="University of..."
-                />
+                <Input v-model="edu.institution" placeholder="University of..." />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">Area of Study</Label>
@@ -157,9 +143,7 @@ function updateCourses(index: number, value: string) {
               <Label class="text-xs">Courses (one per line)</Label>
               <Textarea
                 :model-value="edu.courses?.join('\n')"
-                @update:model-value="
-                  (val) => updateCourses(index, val as string)
-                "
+                @update:model-value="(val) => updateCourses(index, val as string)"
                 placeholder="DS101 - Algorithms&#10;OS202 - Operating Systems..."
                 class="min-h-[100px]"
               />

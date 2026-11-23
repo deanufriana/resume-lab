@@ -1,31 +1,47 @@
 <script setup lang="ts">
-import { reactive, watch } from 'vue'
-import type { Resume } from '../../types/resume'
-import { Input, Label, Textarea, Button, Separator } from '../ui/index'
-import { Plus, Trash2 } from 'lucide-vue-next'
+import { reactive, watch } from "vue";
+import type { Resume } from "../../types/resume";
+import { Input, Label, Textarea, Button, Separator } from "../ui/index";
+import { Plus, Trash2 } from "lucide-vue-next";
 
 const props = defineProps<{
-  resume: Resume
-}>()
+  resume: Resume;
+}>();
 
 const emit = defineEmits<{
-  (e: 'update:resume', value: Resume): void
-}>()
+  (e: "update:resume", value: Resume): void;
+}>();
 
-const localResume = reactive({ ...props.resume })
+const localResume = reactive({ ...props.resume });
 
-watch(localResume, (newValue) => {
-  emit('update:resume', newValue)
-}, { deep: true })
+watch(
+  () => props.resume,
+  (newValue) => {
+    if (JSON.stringify(newValue) !== JSON.stringify(localResume)) {
+      Object.assign(localResume, JSON.parse(JSON.stringify(newValue)));
+    }
+  },
+  { deep: true },
+);
+
+watch(
+  localResume,
+  (newValue) => {
+    if (JSON.stringify(newValue) !== JSON.stringify(props.resume)) {
+      emit("update:resume", newValue);
+    }
+  },
+  { deep: true },
+);
 
 // Helper functions for adding/removing items
 function addItem(arrayName: keyof Resume, defaultItem: any) {
-  if (!localResume[arrayName]) (localResume as any)[arrayName] = []
-  ;(localResume as any)[arrayName].push(defaultItem)
+  if (!localResume[arrayName]) (localResume as any)[arrayName] = [];
+  (localResume as any)[arrayName].push(defaultItem);
 }
 
 function removeItem(arrayName: keyof Resume, index: number) {
-  ;(localResume as any)[arrayName].splice(index, 1)
+  (localResume as any)[arrayName].splice(index, 1);
 }
 </script>
 
@@ -35,12 +51,25 @@ function removeItem(arrayName: keyof Resume, index: number) {
     <section class="space-y-4">
       <div class="flex items-center justify-between">
         <h3 class="text-lg font-semibold">Awards</h3>
-        <Button variant="outline" size="sm" @click="addItem('awards', { title: '', date: '', awarder: '', summary: '' })">
+        <Button
+          variant="outline"
+          size="sm"
+          @click="addItem('awards', { title: '', date: '', awarder: '', summary: '' })"
+        >
           <Plus class="w-4 h-4 mr-2" /> Add Award
         </Button>
       </div>
-      <div v-for="(award, index) in localResume.awards" :key="index" class="p-4 border rounded-lg bg-muted/20 relative group">
-        <Button variant="ghost" size="icon" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-destructive" @click="removeItem('awards', index)">
+      <div
+        v-for="(award, index) in localResume.awards"
+        :key="index"
+        class="p-4 border rounded-lg bg-muted/20 relative group"
+      >
+        <Button
+          variant="ghost"
+          size="icon"
+          class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-destructive"
+          @click="removeItem('awards', index)"
+        >
           <Trash2 class="w-4 h-4" />
         </Button>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
@@ -62,7 +91,12 @@ function removeItem(arrayName: keyof Resume, index: number) {
           </div>
         </div>
       </div>
-      <p v-if="!localResume.awards?.length" class="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg">No awards added yet.</p>
+      <p
+        v-if="!localResume.awards?.length"
+        class="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg"
+      >
+        No awards added yet.
+      </p>
     </section>
 
     <Separator />
@@ -71,12 +105,25 @@ function removeItem(arrayName: keyof Resume, index: number) {
     <section class="space-y-4">
       <div class="flex items-center justify-between">
         <h3 class="text-lg font-semibold">Certificates</h3>
-        <Button variant="outline" size="sm" @click="addItem('certificates', { name: '', date: '', issuer: '', url: '' })">
+        <Button
+          variant="outline"
+          size="sm"
+          @click="addItem('certificates', { name: '', date: '', issuer: '', url: '' })"
+        >
           <Plus class="w-4 h-4 mr-2" /> Add Certificate
         </Button>
       </div>
-      <div v-for="(cert, index) in localResume.certificates" :key="index" class="p-4 border rounded-lg bg-muted/20 relative group">
-        <Button variant="ghost" size="icon" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-destructive" @click="removeItem('certificates', index)">
+      <div
+        v-for="(cert, index) in localResume.certificates"
+        :key="index"
+        class="p-4 border rounded-lg bg-muted/20 relative group"
+      >
+        <Button
+          variant="ghost"
+          size="icon"
+          class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-destructive"
+          @click="removeItem('certificates', index)"
+        >
           <Trash2 class="w-4 h-4" />
         </Button>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
@@ -98,7 +145,12 @@ function removeItem(arrayName: keyof Resume, index: number) {
           </div>
         </div>
       </div>
-      <p v-if="!localResume.certificates?.length" class="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg">No certificates added yet.</p>
+      <p
+        v-if="!localResume.certificates?.length"
+        class="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg"
+      >
+        No certificates added yet.
+      </p>
     </section>
 
     <Separator />
@@ -107,26 +159,44 @@ function removeItem(arrayName: keyof Resume, index: number) {
     <section class="space-y-4">
       <div class="flex items-center justify-between">
         <h3 class="text-lg font-semibold">Languages</h3>
-        <Button variant="outline" size="sm" @click="addItem('languages', { language: '', fluency: '' })">
+        <Button
+          variant="outline"
+          size="sm"
+          @click="addItem('languages', { language: '', fluency: '' })"
+        >
           <Plus class="w-4 h-4 mr-2" /> Add Language
         </Button>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div v-for="(lang, index) in localResume.languages" :key="index" class="flex items-end gap-2 p-3 border rounded-lg bg-muted/20 relative group">
+        <div
+          v-for="(lang, index) in localResume.languages"
+          :key="index"
+          class="flex items-end gap-2 p-3 border rounded-lg bg-muted/20 relative group"
+        >
           <div class="flex-1 space-y-1">
             <Label class="text-xs">Language</Label>
-            <Input v-model="lang.language" placeholder="English" size="sm" />
+            <Input v-model="lang.language" placeholder="English" class="h-8 text-xs" />
           </div>
           <div class="flex-1 space-y-1">
             <Label class="text-xs">Fluency</Label>
-            <Input v-model="lang.fluency" placeholder="Native / Professional" size="sm" />
+            <Input v-model="lang.fluency" placeholder="Native / Professional" class="h-8 text-xs" />
           </div>
-          <Button variant="ghost" size="icon" class="text-destructive h-8 w-8" @click="removeItem('languages', index)">
+          <Button
+            variant="ghost"
+            size="icon"
+            class="text-destructive h-8 w-8"
+            @click="removeItem('languages', index)"
+          >
             <Trash2 class="w-4 h-4" />
           </Button>
         </div>
       </div>
-      <p v-if="!localResume.languages?.length" class="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg">No languages added yet.</p>
+      <p
+        v-if="!localResume.languages?.length"
+        class="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg"
+      >
+        No languages added yet.
+      </p>
     </section>
 
     <Separator />
@@ -135,31 +205,55 @@ function removeItem(arrayName: keyof Resume, index: number) {
     <section class="space-y-4">
       <div class="flex items-center justify-between">
         <h3 class="text-lg font-semibold">Interests</h3>
-        <Button variant="outline" size="sm" @click="addItem('interests', { name: '', keywords: [] })">
+        <Button
+          variant="outline"
+          size="sm"
+          @click="addItem('interests', { name: '', keywords: [] })"
+        >
           <Plus class="w-4 h-4 mr-2" /> Add Interest
         </Button>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div v-for="(interest, index) in localResume.interests" :key="index" class="space-y-1 p-3 border rounded-lg bg-muted/20 relative group">
-          <Button variant="ghost" size="icon" class="absolute top-1 right-1 h-6 w-6 text-destructive opacity-0 group-hover:opacity-100 transition-opacity" @click="removeItem('interests', index)">
+        <div
+          v-for="(interest, index) in localResume.interests"
+          :key="index"
+          class="space-y-1 p-3 border rounded-lg bg-muted/20 relative group"
+        >
+          <Button
+            variant="ghost"
+            size="icon"
+            class="absolute top-1 right-1 h-6 w-6 text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+            @click="removeItem('interests', index)"
+          >
             <Trash2 class="w-3 h-3" />
           </Button>
           <div class="space-y-1">
             <Label class="text-xs">Name</Label>
-            <Input v-model="interest.name" placeholder="Photography" size="sm" />
+            <Input v-model="interest.name" placeholder="Photography" class="h-8 text-xs" />
           </div>
           <div class="space-y-1">
             <Label class="text-xs">Keywords (comma-separated)</Label>
-            <Input 
-              :model-value="interest.keywords?.join(', ')" 
-              @update:model-value="val => interest.keywords = (val as string).split(',').map(s => s.trim()).filter(Boolean)"
-              placeholder="Nature, Urban, Portrait" 
-              size="sm"
+            <Input
+              :model-value="interest.keywords?.join(', ')"
+              @update:model-value="
+                (val) =>
+                  (interest.keywords = (val as string)
+                    .split(',')
+                    .map((s) => s.trim())
+                    .filter(Boolean))
+              "
+              placeholder="Nature, Urban, Portrait"
+              class="h-8 text-xs"
             />
           </div>
         </div>
       </div>
-      <p v-if="!localResume.interests?.length" class="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg">No interests added yet.</p>
+      <p
+        v-if="!localResume.interests?.length"
+        class="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg"
+      >
+        No interests added yet.
+      </p>
     </section>
 
     <Separator />
@@ -168,12 +262,35 @@ function removeItem(arrayName: keyof Resume, index: number) {
     <section class="space-y-4">
       <div class="flex items-center justify-between">
         <h3 class="text-lg font-semibold">Volunteer</h3>
-        <Button variant="outline" size="sm" @click="addItem('volunteer', { organization: '', position: '', url: '', startDate: '', endDate: '', summary: '', highlights: [] })">
+        <Button
+          variant="outline"
+          size="sm"
+          @click="
+            addItem('volunteer', {
+              organization: '',
+              position: '',
+              url: '',
+              startDate: '',
+              endDate: '',
+              summary: '',
+              highlights: [],
+            })
+          "
+        >
           <Plus class="w-4 h-4 mr-2" /> Add Volunteer
         </Button>
       </div>
-      <div v-for="(vol, index) in localResume.volunteer" :key="index" class="p-4 border rounded-lg bg-muted/20 relative group">
-        <Button variant="ghost" size="icon" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-destructive" @click="removeItem('volunteer', index)">
+      <div
+        v-for="(vol, index) in localResume.volunteer"
+        :key="index"
+        class="p-4 border rounded-lg bg-muted/20 relative group"
+      >
+        <Button
+          variant="ghost"
+          size="icon"
+          class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-destructive"
+          @click="removeItem('volunteer', index)"
+        >
           <Trash2 class="w-4 h-4" />
         </Button>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
@@ -187,11 +304,19 @@ function removeItem(arrayName: keyof Resume, index: number) {
           </div>
           <div class="space-y-1 md:col-span-2">
             <Label class="text-xs">Summary</Label>
-            <Textarea v-model="vol.summary" placeholder="Brief description of your volunteering..." />
+            <Textarea
+              v-model="vol.summary"
+              placeholder="Brief description of your volunteering..."
+            />
           </div>
         </div>
       </div>
-      <p v-if="!localResume.volunteer?.length" class="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg">No volunteer experience added yet.</p>
+      <p
+        v-if="!localResume.volunteer?.length"
+        class="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg"
+      >
+        No volunteer experience added yet.
+      </p>
     </section>
 
     <Separator />
@@ -200,12 +325,33 @@ function removeItem(arrayName: keyof Resume, index: number) {
     <section class="space-y-4">
       <div class="flex items-center justify-between">
         <h3 class="text-lg font-semibold">Publications</h3>
-        <Button variant="outline" size="sm" @click="addItem('publications', { name: '', publisher: '', releaseDate: '', url: '', summary: '' })">
+        <Button
+          variant="outline"
+          size="sm"
+          @click="
+            addItem('publications', {
+              name: '',
+              publisher: '',
+              releaseDate: '',
+              url: '',
+              summary: '',
+            })
+          "
+        >
           <Plus class="w-4 h-4 mr-2" /> Add Publication
         </Button>
       </div>
-      <div v-for="(pub, index) in localResume.publications" :key="index" class="p-4 border rounded-lg bg-muted/20 relative group">
-        <Button variant="ghost" size="icon" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-destructive" @click="removeItem('publications', index)">
+      <div
+        v-for="(pub, index) in localResume.publications"
+        :key="index"
+        class="p-4 border rounded-lg bg-muted/20 relative group"
+      >
+        <Button
+          variant="ghost"
+          size="icon"
+          class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-destructive"
+          @click="removeItem('publications', index)"
+        >
           <Trash2 class="w-4 h-4" />
         </Button>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
@@ -219,7 +365,12 @@ function removeItem(arrayName: keyof Resume, index: number) {
           </div>
         </div>
       </div>
-      <p v-if="!localResume.publications?.length" class="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg">No publications added yet.</p>
+      <p
+        v-if="!localResume.publications?.length"
+        class="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg"
+      >
+        No publications added yet.
+      </p>
     </section>
   </div>
 </template>

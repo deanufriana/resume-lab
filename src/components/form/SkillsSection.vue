@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { watch, ref } from "vue";
 import type { Skill } from "../../types/resume";
+import { useStableList } from "../../composables/useStableList";
 import {
   Input,
   Label,
@@ -9,15 +9,10 @@ import {
   CardTitle,
   CardContent,
   Button,
+  EmptyState,
 } from "../ui/index";
 import Draggable from "vuedraggable";
-import {
-  GripVertical,
-  Plus,
-  Trash2,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-vue-next";
+import { Wrench, GripVertical, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-vue-next";
 
 const props = defineProps<{
   skills: Skill[];
@@ -27,15 +22,14 @@ const emit = defineEmits<{
   (e: "update:skills", value: Skill[]): void;
 }>();
 
-const localSkills = ref([...props.skills]);
-const collapsedItems = ref<Record<number, boolean>>({});
-
-watch(
-  localSkills,
-  (newValue) => {
-    emit("update:skills", newValue);
-  },
-  { deep: true },
+const {
+  localItems: localSkills,
+  getItemKey,
+  isCollapsed,
+  toggleCollapse,
+} = useStableList(
+  () => props.skills,
+  (val) => emit("update:skills", val),
 );
 
 function addSkill() {
@@ -50,10 +44,6 @@ function removeSkill(index: number) {
   localSkills.value.splice(index, 1);
 }
 
-function toggleCollapse(index: number) {
-  collapsedItems.value[index] = !collapsedItems.value[index];
-}
-
 function updateKeywords(index: number, value: string) {
   localSkills.value[index].keywords = value
     .split(",")
@@ -66,14 +56,22 @@ function updateKeywords(index: number, value: string) {
   <div class="space-y-4">
     <div class="flex items-center justify-between">
       <h3 class="text-lg font-semibold">Skills</h3>
-      <Button @click="addSkill" size="sm">
-        <Plus class="w-4 h-4 mr-2" /> Add Skill
-      </Button>
+      <Button @click="addSkill" size="sm"> <Plus class="w-4 h-4 mr-2" /> Add Skill </Button>
     </div>
 
+    <EmptyState
+      v-if="localSkills.length === 0"
+      :icon="Wrench"
+      title="No skills added yet"
+      description="Group your technical or domain skills with comma-separated keywords."
+    >
+      <Button size="sm" @click="addSkill"> <Plus class="w-4 h-4 mr-2" /> Add Skill </Button>
+    </EmptyState>
+
     <Draggable
+      v-else
       v-model="localSkills"
-      item-key="name"
+      :item-key="getItemKey"
       handle=".handle"
       class="space-y-4"
     >
@@ -90,12 +88,8 @@ function updateKeywords(index: number, value: string) {
                 </CardTitle>
               </div>
               <div class="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  @click="toggleCollapse(index)"
-                >
-                  <ChevronUp v-if="!collapsedItems[index]" class="w-4 h-4" />
+                <Button variant="ghost" size="sm" @click="toggleCollapse(skill)">
+                  <ChevronUp v-if="!isCollapsed(skill)" class="w-4 h-4" />
                   <ChevronDown v-else class="w-4 h-4" />
                 </Button>
                 <Button
@@ -109,10 +103,7 @@ function updateKeywords(index: number, value: string) {
               </div>
             </div>
           </CardHeader>
-          <CardContent
-            v-show="!collapsedItems[index]"
-            class="p-4 pt-0 space-y-4"
-          >
+          <CardContent v-show="!isCollapsed(skill)" class="p-4 pt-0 space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="space-y-1">
                 <Label class="text-xs">Skill Group / Name</Label>
@@ -127,9 +118,7 @@ function updateKeywords(index: number, value: string) {
               <Label class="text-xs">Keywords (comma-separated)</Label>
               <Input
                 :model-value="skill.keywords?.join(', ')"
-                @update:model-value="
-                  (val) => updateKeywords(index, val as string)
-                "
+                @update:model-value="(val) => updateKeywords(index, val as string)"
                 placeholder="React, Vue, TypeScript, Next.js..."
               />
             </div>

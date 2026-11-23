@@ -2,10 +2,18 @@
   <div class="flex items-center justify-center w-full">
     <label
       :for="inputId"
-      :class="cn(
-        'flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-border rounded-lg cursor-pointer bg-muted/30 hover:bg-muted/50 transition-colors',
-        className
-      )"
+      @dragover.prevent="isDragging = true"
+      @dragleave.prevent="isDragging = false"
+      @drop.prevent="handleDrop"
+      :class="
+        cn(
+          'flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer transition-colors',
+          isDragging
+            ? 'border-primary bg-primary/5'
+            : 'border-border bg-muted/30 hover:bg-muted/50',
+          className,
+        )
+      "
     >
       <div class="flex flex-col items-center justify-center pt-5 pb-6">
         <svg
@@ -38,7 +46,8 @@
 </template>
 
 <script setup lang="ts">
-import { cn } from '../../utils/cn';
+import { ref } from "vue";
+import { cn } from "../../utils/cn";
 
 interface Props {
   inputId?: string;
@@ -46,8 +55,8 @@ interface Props {
 }
 
 withDefaults(defineProps<Props>(), {
-  inputId: 'file-upload',
-  className: '',
+  inputId: "file-upload",
+  className: "",
 });
 
 const emit = defineEmits<{
@@ -55,14 +64,13 @@ const emit = defineEmits<{
   error: [message: string];
 }>();
 
-function handleFileChange(event: Event) {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
-  
+const isDragging = ref(false);
+
+function processFile(file: File | undefined) {
   if (!file) return;
 
-  if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
-    emit('error', 'Please upload a valid JSON file');
+  if (file.type !== "application/json" && !file.name.endsWith(".json")) {
+    emit("error", "Please upload a valid JSON file");
     return;
   }
 
@@ -70,15 +78,25 @@ function handleFileChange(event: Event) {
   reader.onload = (e) => {
     try {
       const jsonData = JSON.parse(e.target?.result as string);
-      emit('fileLoaded', jsonData);
-    } catch (error) {
-      emit('error', 'Invalid JSON file. Please check the file format.');
+      emit("fileLoaded", jsonData);
+    } catch {
+      emit("error", "Invalid JSON file. Please check the file format.");
     }
   };
   reader.onerror = () => {
-    emit('error', 'Error reading file');
+    emit("error", "Error reading file");
   };
   reader.readAsText(file);
 }
-</script>
 
+function handleFileChange(event: Event) {
+  const target = event.target as HTMLInputElement;
+  processFile(target.files?.[0]);
+  target.value = "";
+}
+
+function handleDrop(event: DragEvent) {
+  isDragging.value = false;
+  processFile(event.dataTransfer?.files?.[0]);
+}
+</script>

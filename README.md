@@ -35,17 +35,20 @@ A modern, ATS-friendly resume builder built with Vue 3, TypeScript, Vite, and Ta
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd resume-lab
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -55,20 +58,24 @@ npm run dev
 ## Usage
 
 ### 1. Upload JSON Resume
+
 - Navigate to the **Upload JSON** tab.
 - Drag and drop your `resume.json` or download the example format to get started.
 
 ### 2. Manual Entry & Reordering
+
 - Switch to the **Manual Entry** tab to fill in your details.
 - Use the **::** handle to drag and reorder items within sections.
 - Sections are collapsible for a cleaner editing experience.
 - Click **Save Resume** to persist changes to local storage.
 
 ### 3. Signature Pad
+
 - Go to the **Signature** tab to draw your professional signature.
 - Click **Export PNG** to download it for use in documents.
 
 ### 4. Preview & Generate PDF
+
 - High-quality preview is available in the **Preview** tab.
 - Select your preferred **Theme** from the dropdown.
 - Click **Generate PDF** to download your ATS-optimized resume.
@@ -96,9 +103,7 @@ The application follows a structure compatible with standard JSON resume formats
       "highlights": ["Led a team of 5", "Optimized performance by 40%"]
     }
   ],
-  "skills": [
-    { "name": "Frontend", "keywords": ["Vue", "React", "TypeScript"] }
-  ]
+  "skills": [{ "name": "Frontend", "keywords": ["Vue", "React", "TypeScript"] }]
 }
 ```
 
@@ -126,6 +131,7 @@ resume-lab/
 ## ATS-Friendly Features
 
 The generated PDFs are specifically optimized for ATS:
+
 - **Clean Layout**: Avoids complex tables or columns that confuse parsers.
 - **Scannable Text**: Ensures text remains searchable and selectable.
 - **Standard Fonts**: Uses clean, professional typography.

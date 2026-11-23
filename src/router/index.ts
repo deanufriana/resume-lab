@@ -1,45 +1,41 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
-import {
-  ResumeForm,
-  SignaturePad,
-  About
-} from '../components'
-import UploadView from '../views/UploadView.vue'
+import { createRouter, createWebHashHistory } from "vue-router";
+import { ResumeForm, SignaturePad, About } from "../components";
+import UploadView from "../views/UploadView.vue";
 
 const routes = [
   {
-    path: '/',
-    redirect: '/upload'
+    path: "/",
+    redirect: "/upload",
   },
   {
-    path: '/upload',
-    name: 'upload',
-    component: UploadView
+    path: "/upload",
+    name: "upload",
+    component: UploadView,
   },
   {
-    path: '/manual',
-    name: 'manual',
-    component: ResumeForm
+    path: "/manual",
+    name: "manual",
+    component: ResumeForm,
   },
   {
-    path: '/preview',
-    redirect: '/manual'
+    path: "/preview",
+    redirect: "/manual",
   },
   {
-    path: '/signature',
-    name: 'signature',
-    component: SignaturePad
+    path: "/signature",
+    name: "signature",
+    component: SignaturePad,
   },
   {
-    path: '/about',
-    name: 'about',
-    component: About
-  }
-]
+    path: "/about",
+    name: "about",
+    component: About,
+  },
+];
 
 const router = createRouter({
   history: createWebHashHistory(),
-  routes
-})
+  routes,
+});
 
-export default router
+export default router;

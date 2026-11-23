@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted, nextTick, onUpdated, type Ref } from 'vue';
+import { ref, onMounted, onUnmounted, nextTick, onUpdated, type Ref } from "vue";
 
 /**
  * Composable for managing resume preview container height calculations
@@ -9,7 +9,7 @@ export function useResumePreview(containerRef: Ref<HTMLElement | null>) {
   let resizeObserver: ResizeObserver | null = null;
 
   function calculateContentHeight() {
-    nextTick(() => {
+    void nextTick(() => {
       if (containerRef.value) {
         contentHeight.value = containerRef.value.scrollHeight;
       }
@@ -18,7 +18,7 @@ export function useResumePreview(containerRef: Ref<HTMLElement | null>) {
 
   onMounted(() => {
     calculateContentHeight();
-    window.addEventListener('resize', calculateContentHeight);
+    window.addEventListener("resize", calculateContentHeight);
 
     if (containerRef.value) {
       resizeObserver = new ResizeObserver(() => {
@@ -32,7 +32,7 @@ export function useResumePreview(containerRef: Ref<HTMLElement | null>) {
     if (resizeObserver) {
       resizeObserver.disconnect();
     }
-    window.removeEventListener('resize', calculateContentHeight);
+    window.removeEventListener("resize", calculateContentHeight);
   });
 
   onUpdated(() => {
@@ -44,4 +44,3 @@ export function useResumePreview(containerRef: Ref<HTMLElement | null>) {
     calculateContentHeight,
   };
 }
-

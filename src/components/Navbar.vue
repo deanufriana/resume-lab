@@ -1,16 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import {
-  Menu,
-  X,
-  Upload,
-  FileText,
-  PenTool,
-  Sun,
-  Moon,
-  Info,
-} from "lucide-vue-next";
+import { Menu, X, Upload, FileText, PenTool, Sun, Moon, Info } from "lucide-vue-next";
 import { useDark } from "@vueuse/core";
 import { cn } from "../utils/cn";
 import { Button } from "./ui/index";
@@ -30,12 +21,6 @@ const toggleDark = () => {
   Analytics.trackDarkModeToggle(isDark.value);
 };
 
-interface Props {
-  isResumeLoaded: boolean;
-}
-
-const props = defineProps<Props>();
-
 const isMenuOpen = ref(false);
 
 const activeTab = computed(() => {
@@ -50,8 +35,7 @@ const navItems = [
   { id: "about", path: "/about", label: "About", icon: Info },
 ];
 
-function handleNavClick(path: string, id: string) {
-  if (id === "preview" && !props.isResumeLoaded) return;
+function handleNavClick(path: string) {
   router.push(path);
   isMenuOpen.value = false;
 }
@@ -65,15 +49,11 @@ function handleNavClick(path: string, id: string) {
       <div class="flex h-16 items-center justify-between">
         <!-- Logo -->
         <div class="flex items-center gap-2">
-          <div
-            class="w-8 h-8 rounded-sm bg-primary flex items-center justify-center"
-          >
+          <div class="w-8 h-8 rounded-sm bg-primary flex items-center justify-center">
             <FileText class="w-5 h-5 text-primary-foreground" />
           </div>
           <div class="flex flex-col">
-            <span class="text-lg font-bold tracking-tight font-outfit"
-              >Resume Lab</span
-            >
+            <span class="text-lg font-bold tracking-tight font-outfit">Resume Lab</span>
           </div>
         </div>
 
@@ -82,17 +62,13 @@ function handleNavClick(path: string, id: string) {
           <button
             v-for="item in navItems"
             :key="item.id"
-            @click="handleNavClick(item.path, item.id)"
-            :disabled="item.id === 'preview' && !isResumeLoaded"
+            @click="handleNavClick(item.path)"
             :class="
               cn(
-                'relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300',
+                'relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors duration-150',
                 activeTab === item.id
                   ? 'bg-primary text-primary-foreground'
                   : 'text-muted-foreground hover:bg-accent hover:text-foreground',
-                item.id === 'preview' &&
-                  !isResumeLoaded &&
-                  'opacity-50 cursor-not-allowed grayscale',
               )
             "
           >
@@ -122,10 +98,7 @@ function handleNavClick(path: string, id: string) {
             target="_blank"
             class="hidden sm:flex"
             @click="
-              Analytics.trackExternalLink(
-                'https://github.com/deanufriana/resume-lab',
-                'GitHub',
-              )
+              Analytics.trackExternalLink('https://github.com/deanufriana/resume-lab', 'GitHub')
             "
           >
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -156,24 +129,17 @@ function handleNavClick(path: string, id: string) {
       leave-from-class="opacity-100 translate-y-0"
       leave-to-class="opacity-0 -translate-y-4"
     >
-      <div
-        v-if="isMenuOpen"
-        class="md:hidden border-t bg-background px-4 py-4 space-y-2"
-      >
+      <div v-if="isMenuOpen" class="md:hidden border-t bg-background px-4 py-4 space-y-2">
         <button
           v-for="item in navItems"
           :key="item.id"
-          @click="handleNavClick(item.path, item.id)"
-          :disabled="item.id === 'preview' && !isResumeLoaded"
+          @click="handleNavClick(item.path)"
           :class="
             cn(
               'flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all',
               activeTab === item.id
                 ? 'bg-primary text-primary-foreground'
                 : 'hover:bg-accent text-muted-foreground',
-              item.id === 'preview' &&
-                !isResumeLoaded &&
-                'opacity-50 cursor-not-allowed',
             )
           "
         >

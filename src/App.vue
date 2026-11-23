@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { reactive, onMounted, watch } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import type { Resume } from "./types/resume";
 import { Navbar, Footer } from "./components";
+import Toast from "./components/ui/Toast.vue";
 import { generatePDFFromElement } from "./utils/pdf";
 import { useToast } from "./composables/useToast";
 import { saveResumeToStorage, loadResumeFromStorage } from "./utils/storage";
@@ -13,7 +14,7 @@ import { Analytics } from "./utils/analytics";
 const router = useRouter();
 const route = useRoute();
 const toast = useToast();
-const selectedThemeId = reactive({ value: getDefaultTheme().id });
+const selectedThemeId = ref(getDefaultTheme().id);
 
 // Track route changes
 watch(
@@ -23,31 +24,40 @@ watch(
   },
 );
 
+function createEmptyResume(): Resume {
+  return {
+    basics: {
+      name: "",
+      label: "",
+      email: "",
+      phone: "",
+      url: "",
+      summary: "",
+      location: { city: "" },
+      profiles: [],
+    },
+    work: [],
+    volunteer: [],
+    education: [],
+    awards: [],
+    certificates: [],
+    publications: [],
+    skills: [],
+    languages: [],
+    interests: [],
+    references: [],
+    projects: [],
+    meta: {},
+  };
+}
+
 // Initialize resumeData
-const resumeData = reactive<Resume>({
-  basics: {
-    name: "",
-    label: "",
-    email: "",
-    phone: "",
-    url: "",
-    summary: "",
-    location: { city: "" },
-    profiles: [],
-  },
-  work: [],
-  education: [],
-  skills: [],
-});
+const resumeData = reactive<Resume>(createEmptyResume());
 
 onMounted(() => {
   const savedResume = loadResumeFromStorage();
   if (savedResume && Object.keys(savedResume).length > 0) {
-    if (
-      savedResume.basics?.name ||
-      savedResume.work?.length ||
-      savedResume.education?.length
-    ) {
+    if (savedResume.basics?.name || savedResume.work?.length || savedResume.education?.length) {
       Object.assign(resumeData, savedResume);
       if (savedResume.meta?.theme) {
         selectedThemeId.value = savedResume.meta.theme;
@@ -66,12 +76,18 @@ function handleThemeChange(event: Event) {
   Analytics.trackThemeChange(target.value);
 }
 
-function handleFileLoaded(data: any) {
+function handleFileLoaded(data: unknown) {
   try {
-    Object.assign(resumeData, data);
+    if (!data || typeof data !== "object" || Array.isArray(data)) {
+      throw new Error("Invalid resume JSON format");
+    }
+    Object.assign(resumeData, createEmptyResume(), data);
+    if (resumeData.meta?.theme) {
+      selectedThemeId.value = resumeData.meta.theme;
+    }
     saveResumeToStorage(resumeData);
     toast.success("Resume JSON loaded successfully!");
-    router.push("/preview");
+    router.push("/manual");
     Analytics.trackResumeUpload();
   } catch (error) {
     toast.error("Failed to process resume data");
@@ -98,26 +114,26 @@ async function generatePDF() {
   }
 }
 
-function downloadJSON() {
-  const dataStr = JSON.stringify(resumeData, null, 2);
+function downloadJSONFile(payload: unknown, filename: string) {
+  const dataStr = JSON.stringify(payload, null, 2);
   const dataBlob = new Blob([dataStr], { type: "application/json" });
   const url = URL.createObjectURL(dataBlob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `${resumeData.basics?.name?.replace(/\s+/g, "_") || "resume"}.json`;
+  link.download = filename;
   link.click();
+  URL.revokeObjectURL(url);
+}
+
+function downloadJSON() {
+  const filename = `${resumeData.basics?.name?.replace(/\s+/g, "_") || "resume"}.json`;
+  downloadJSONFile(resumeData, filename);
   toast.success("JSON downloaded!");
   Analytics.trackJSONDownload(false);
 }
 
 function downloadExampleJSON() {
-  const dataStr = JSON.stringify(exampleResume, null, 2);
-  const dataBlob = new Blob([dataStr], { type: "application/json" });
-  const url = URL.createObjectURL(dataBlob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "resume-example.json";
-  link.click();
+  downloadJSONFile(exampleResume, "resume-example.json");
   toast.success("Example downloaded!");
   Analytics.trackJSONDownload(true);
 }
@@ -126,33 +142,33 @@ function downloadExampleJSON() {
 <template>
   <div class="min-h-screen bg-background relative overflow-hidden">
     <!-- Background Decor -->
-    <div
-      class="absolute inset-0 bg-dot-pattern opacity-50 pointer-events-none"
-    ></div>
+    <div class="absolute inset-0 bg-dot-pattern opacity-50 pointer-events-none"></div>
     <div
       class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b from-primary/5 to-transparent blur-3xl pointer-events-none"
     ></div>
 
-    <Navbar :is-resume-loaded="!!resumeData.basics?.name" />
+    <Navbar />
 
     <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <router-view v-slot="{ Component }">
         <transition
           mode="out-in"
-          enter-active-class="transition duration-300 ease-out"
-          enter-from-class="opacity-0 translate-y-4"
+          enter-active-class="transition duration-150 ease-out"
+          enter-from-class="opacity-0 translate-y-1"
           enter-to-class="opacity-100 translate-y-0"
-          leave-active-class="transition duration-200 ease-in"
+          leave-active-class="transition duration-75 ease-in"
           leave-from-class="opacity-100 translate-y-0"
-          leave-to-class="opacity-0 -translate-y-4"
+          leave-to-class="opacity-0 -translate-y-1"
         >
           <component
             :is="Component"
             :resume-data="resumeData"
             :themes="themes"
-            :theme-id="selectedThemeId.value"
+            :theme-id="selectedThemeId"
             @update="handleResumeUpdate"
             @file-loaded="handleFileLoaded"
+            @file-error="(msg: string) => toast.error(msg)"
+            @view-current="router.push('/manual')"
             @download-example="downloadExampleJSON"
             @download-json="downloadJSON"
             @export-pdf="generatePDF"
@@ -163,6 +179,7 @@ function downloadExampleJSON() {
     </main>
 
     <Footer />
+    <Toast />
   </div>
 </template>
 

@@ -32,9 +32,21 @@ const localBasicsHideContact = computed({
 const localBasics = reactive({ ...props.basics });
 
 watch(
+  () => props.basics,
+  (newValue) => {
+    if (JSON.stringify(newValue) !== JSON.stringify(localBasics)) {
+      Object.assign(localBasics, JSON.parse(JSON.stringify(newValue)));
+    }
+  },
+  { deep: true },
+);
+
+watch(
   localBasics,
   (newValue) => {
-    emit("update:basics", newValue);
+    if (JSON.stringify(newValue) !== JSON.stringify(props.basics)) {
+      emit("update:basics", newValue);
+    }
   },
   { deep: true },
 );
@@ -56,23 +68,27 @@ function removeProfile(index: number) {
     </CardHeader>
     <CardContent class="space-y-6">
       <!-- Upwork Compliance Mode Switch -->
-      <div class="p-4 border border-amber-500/20 rounded-xl bg-amber-500/5 flex items-center justify-between transition-all">
+      <div
+        class="p-4 border border-amber-500/20 rounded-xl bg-amber-500/5 flex items-center justify-between transition-all"
+      >
         <div class="space-y-1 pr-4">
           <div class="text-sm font-semibold text-foreground flex items-center gap-1.5">
-            <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-500" :class="{ 'animate-pulse': localBasicsHideContact }"></span>
+            <span
+              class="inline-block w-2.5 h-2.5 rounded-full bg-amber-500"
+              :class="{ 'animate-pulse': localBasicsHideContact }"
+            ></span>
             Upwork Compliance Mode
           </div>
           <p class="text-xs text-muted-foreground leading-relaxed">
-            Hides your email, phone, personal website, and social links in preview/exports. Keeps your input intact here.
+            Hides your email, phone, personal website, and social links in preview/exports. Keeps
+            your input intact here.
           </p>
         </div>
         <label class="relative inline-flex items-center cursor-pointer select-none flex-shrink-0">
-          <input
-            type="checkbox"
-            v-model="localBasicsHideContact"
-            class="sr-only peer"
-          />
-          <div class="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-amber-500"></div>
+          <input type="checkbox" v-model="localBasicsHideContact" class="sr-only peer" />
+          <div
+            class="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-amber-500"
+          ></div>
         </label>
       </div>
 
@@ -83,11 +99,7 @@ function removeProfile(index: number) {
         </div>
         <div class="space-y-2">
           <Label for="label">Title</Label>
-          <Input
-            id="label"
-            v-model="localBasics.label"
-            placeholder="Software Engineer"
-          />
+          <Input id="label" v-model="localBasics.label" placeholder="Software Engineer" />
         </div>
         <div class="space-y-2">
           <Label for="email">Email</Label>
@@ -100,19 +112,11 @@ function removeProfile(index: number) {
         </div>
         <div class="space-y-2">
           <Label for="phone">Phone</Label>
-          <Input
-            id="phone"
-            v-model="localBasics.phone"
-            placeholder="+1 (555) 000-0000"
-          />
+          <Input id="phone" v-model="localBasics.phone" placeholder="+1 (555) 000-0000" />
         </div>
         <div class="space-y-2">
           <Label for="url">Website</Label>
-          <Input
-            id="url"
-            v-model="localBasics.url"
-            placeholder="https://johndoe.com"
-          />
+          <Input id="url" v-model="localBasics.url" placeholder="https://johndoe.com" />
         </div>
         <div class="space-y-2">
           <Label for="image">Profile Image URL</Label>
@@ -150,36 +154,22 @@ function removeProfile(index: number) {
           class="space-y-3"
         >
           <template #item="{ element: profile, index }">
-            <div
-              class="flex items-start gap-4 p-4 border rounded-lg bg-muted/30"
-            >
+            <div class="flex items-start gap-4 p-4 border rounded-lg bg-muted/30">
               <div class="handle cursor-grab active:cursor-grabbing mt-2">
                 <GripVertical class="w-4 h-4 text-muted-foreground" />
               </div>
               <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div class="space-y-1">
                   <Label class="text-xs">Network</Label>
-                  <Input
-                    v-model="profile.network"
-                    placeholder="LinkedIn"
-                    size="sm"
-                  />
+                  <Input v-model="profile.network" placeholder="LinkedIn" size="sm" />
                 </div>
                 <div class="space-y-1">
                   <Label class="text-xs">Username</Label>
-                  <Input
-                    v-model="profile.username"
-                    placeholder="johndoe"
-                    size="sm"
-                  />
+                  <Input v-model="profile.username" placeholder="johndoe" size="sm" />
                 </div>
                 <div class="space-y-1">
                   <Label class="text-xs">URL</Label>
-                  <Input
-                    v-model="profile.url"
-                    placeholder="https://..."
-                    size="sm"
-                  />
+                  <Input v-model="profile.url" placeholder="https://..." size="sm" />
                 </div>
               </div>
               <Button

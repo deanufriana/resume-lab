@@ -33,9 +33,7 @@ const otherApps = [
 </script>
 
 <template>
-  <div
-    class="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700"
-  >
+  <div class="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
     <!-- Hero / Vision Section -->
     <section class="max-w-4xl mx-auto text-center space-y-6">
       <div
@@ -44,12 +42,9 @@ const otherApps = [
         <Sparkles class="w-3.5 h-3.5" />
         The Vision
       </div>
-      <h1
-        class="text-4xl md:text-5xl font-black font-outfit tracking-tight text-foreground"
-      >
+      <h1 class="text-4xl md:text-5xl font-black font-outfit tracking-tight text-foreground">
         Crafting Resumes with
-        <span
-          class="bg-gradient-to-r from-primary to-blue-500 bg-clip-text text-transparent"
+        <span class="bg-gradient-to-r from-primary to-blue-500 bg-clip-text text-transparent"
           >Purpose & Precision</span
         >
       </h1>
@@ -67,9 +62,7 @@ const otherApps = [
           <Rocket class="w-4 h-4" /> Portfolio
         </div>
         <h2 class="text-3xl font-bold font-outfit">My Other Apps</h2>
-        <p class="text-muted-foreground">
-          Check out some of my other projects and tools.
-        </p>
+        <p class="text-muted-foreground">Check out some of my other projects and tools.</p>
       </div>
 
       <div class="grid grid-cols-1 gap-6">
@@ -122,13 +115,9 @@ const otherApps = [
 
       <!-- Contact CTA -->
       <Card class="bg-primary text-primary-foreground border-none">
-        <CardContent
-          class="p-8 flex flex-col md:flex-row items-center justify-between gap-6"
-        >
+        <CardContent class="p-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div class="space-y-2 text-center md:text-left">
-            <h3 class="text-2xl font-bold font-outfit">
-              Interested in Collaboration?
-            </h3>
+            <h3 class="text-2xl font-bold font-outfit">Interested in Collaboration?</h3>
             <p class="text-primary-foreground/80">
               I'm always open to discussing new projects and creative ideas.
             </p>
@@ -149,35 +138,27 @@ const otherApps = [
     <section class="max-w-4xl mx-auto space-y-8 pt-12">
       <div class="text-center space-y-2">
         <h2 class="text-3xl font-bold font-outfit">Why I built Resume Lab</h2>
-        <p class="text-muted-foreground">
-          The story behind the ultimate developer resume toolkit.
-        </p>
+        <p class="text-muted-foreground">The story behind the ultimate developer resume toolkit.</p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="p-6 rounded-2xl bg-accent/30 border space-y-4">
-          <div
-            class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center"
-          >
+          <div class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
             <CheckCircle2 class="w-6 h-6 text-primary" />
           </div>
           <h4 class="font-bold text-lg font-outfit">ATS Optimization</h4>
           <p class="text-sm text-muted-foreground">
-            I noticed many beautiful resumes failed automated screens. Resume
-            Lab ensures the content is machine-readable without sacrificing
-            aesthetics.
+            I noticed many beautiful resumes failed automated screens. Resume Lab ensures the
+            content is machine-readable without sacrificing aesthetics.
           </p>
         </div>
         <div class="p-6 rounded-2xl bg-accent/30 border space-y-4">
-          <div
-            class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center"
-          >
+          <div class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
             <FileText class="w-6 h-6 text-primary" />
           </div>
           <h4 class="font-bold text-lg font-outfit">JSON First</h4>
           <p class="text-sm text-muted-foreground">
-            As developers, we love data. Treating your resume as code allows for
-            version control, easy updates, and multiple themes from a single
-            source of truth.
+            As developers, we love data. Treating your resume as code allows for version control,
+            easy updates, and multiple themes from a single source of truth.
           </p>
         </div>
       </div>

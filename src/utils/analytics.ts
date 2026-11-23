@@ -7,9 +7,9 @@
 declare global {
   interface Window {
     gtag: (
-      command: 'event' | 'config' | 'js' | 'set',
+      command: "event" | "config" | "js" | "set",
       targetId: string,
-      config?: ControlParams | EventParams | ConfigParams | CustomParams
+      config?: ControlParams | EventParams | ConfigParams | CustomParams,
     ) => void;
   }
 }
@@ -66,10 +66,10 @@ export const trackEvent = (
   category?: string,
   label?: string,
   value?: number,
-  params: CustomParams = {}
+  params: CustomParams = {},
 ) => {
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('event', action, {
+  if (typeof window !== "undefined" && window.gtag) {
+    window.gtag("event", action, {
       event_category: category,
       event_label: label,
       value: value,
@@ -82,8 +82,8 @@ export const trackEvent = (
  * Track a page view
  */
 export const trackPageView = (pagePath: string, pageTitle?: string) => {
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('config', 'G-T8Z2LRL8SG', {
+  if (typeof window !== "undefined" && window.gtag) {
+    window.gtag("config", "G-T8Z2LRL8SG", {
       page_path: pagePath,
       page_title: pageTitle,
     });
@@ -96,46 +96,46 @@ export const trackPageView = (pagePath: string, pageTitle?: string) => {
 export const Analytics = {
   // Navigation
   trackTabChange: (tabId: string) => {
-    trackEvent('tab_change', 'navigation', tabId);
+    trackEvent("tab_change", "navigation", tabId);
     trackPageView(`/${tabId}`, `Resume Lab - ${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`);
   },
 
   // Resume Actions
   trackResumeUpload: (fileName?: string) => {
-    trackEvent('resume_upload', 'resume', fileName);
+    trackEvent("resume_upload", "resume", fileName);
   },
-  
+
   trackResumeUpdate: () => {
-    trackEvent('resume_update', 'resume');
+    trackEvent("resume_update", "resume");
   },
 
   trackPDFExport: () => {
-    trackEvent('export_pdf', 'engagement');
+    trackEvent("export_pdf", "engagement");
   },
 
   trackJSONDownload: (isExample: boolean = false) => {
-    trackEvent('download_json', 'engagement', isExample ? 'example' : 'user_data');
+    trackEvent("download_json", "engagement", isExample ? "example" : "user_data");
   },
 
   trackThemeChange: (themeId: string) => {
-    trackEvent('theme_change', 'customization', themeId);
+    trackEvent("theme_change", "customization", themeId);
   },
 
   // Signature
   trackSignatureExport: () => {
-    trackEvent('export_signature', 'engagement');
+    trackEvent("export_signature", "engagement");
   },
 
   trackSignatureClear: () => {
-    trackEvent('clear_signature', 'engagement');
+    trackEvent("clear_signature", "engagement");
   },
 
   // General
   trackDarkModeToggle: (isDark: boolean) => {
-    trackEvent('dark_mode_toggle', 'ui', isDark ? 'dark' : 'light');
+    trackEvent("dark_mode_toggle", "ui", isDark ? "dark" : "light");
   },
 
   trackExternalLink: (url: string, name: string) => {
-    trackEvent('external_link_click', 'outbound', name, undefined, { url });
+    trackEvent("external_link_click", "outbound", name, undefined, { url });
   },
 };

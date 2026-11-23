@@ -1,16 +1,11 @@
 <template>
   <Teleport to="body">
-    <div
-      class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm"
-    >
+    <div class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm">
       <TransitionGroup name="toast">
         <div
           v-for="toast in toasts"
           :key="toast.id"
-          :class="cn(
-            'flex items-center gap-3 p-4 rounded-lg border',
-            toastVariants[toast.type]
-          )"
+          :class="cn('flex items-center gap-3 p-4 rounded-lg border', toastVariants[toast.type])"
         >
           <div v-if="toast.type === 'success'" class="flex-shrink-0">
             <svg
@@ -28,12 +23,7 @@
             </svg>
           </div>
           <div v-if="toast.type === 'error'" class="flex-shrink-0">
-            <svg
-              class="w-5 h-5 text-red-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -62,12 +52,7 @@
             @click="removeToast(toast.id)"
             class="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors"
           >
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -83,15 +68,15 @@
 </template>
 
 <script setup lang="ts">
-import { useToast } from '../../composables/useToast';
-import { cn } from '../../utils/cn';
+import { useToast } from "../../composables/useToast";
+import { cn } from "../../utils/cn";
 
 const { toasts, removeToast } = useToast();
 
 const toastVariants = {
-  success: 'bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400',
-  error: 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400',
-  info: 'bg-blue-500/10 border-blue-500/20 text-blue-600 dark:text-blue-400',
+  success: "bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400",
+  error: "bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400",
+  info: "bg-blue-500/10 border-blue-500/20 text-blue-600 dark:text-blue-400",
 };
 </script>
 

@@ -1,6 +1,9 @@
 <template>
-  <div ref="previewContainer" class="resume-content relative"
-    style="font-family: 'Times New Roman', Times, serif;">
+  <div
+    ref="previewContainer"
+    class="resume-content relative"
+    style="font-family: &quot;Times New Roman&quot;, Times, serif"
+  >
     <!-- Header -->
     <div class="border-b-2 border-gray-800 pb-4">
       <h1 class="text-3xl font-bold text-gray-900 mb-4">
@@ -8,28 +11,54 @@
       </h1>
       <div class="flex flex-wrap gap-2 text-sm text-gray-700">
         <div v-if="resumeData.basics?.email">
-          <strong>Email:</strong> <a :href="`mailto:${resumeData.basics.email}`" class="text-blue-600 hover:underline" target="_blank">{{ resumeData.basics.email }}</a>
+          <strong>Email:</strong> <a
+            :href="`mailto:${resumeData.basics.email}`"
+            class="text-blue-600 hover:underline"
+            target="_blank"
+            >{{ resumeData.basics.email }}</a
+          >
         </div>
         <div v-if="resumeData.basics?.phone">
-          <strong>Phone:</strong> <a :href="`tel:${resumeData.basics.phone}`" class="text-blue-600 hover:underline" target="_blank">{{ resumeData.basics.phone }}</a>
+          <strong>Phone:</strong> <a
+            :href="`tel:${resumeData.basics.phone}`"
+            class="text-blue-600 hover:underline"
+            target="_blank"
+            >{{ resumeData.basics.phone }}</a
+          >
         </div>
         <div v-if="resumeData.basics?.url">
-          <strong>Website:</strong> <a :href="resumeData.basics.url" class="text-blue-600 hover:underline" target="_blank">{{ resumeData.basics.url }}</a>
+          <strong>Website:</strong> <a
+            :href="sanitizeUrl(resumeData.basics.url)"
+            class="text-blue-600 hover:underline"
+            target="_blank"
+            rel="noopener noreferrer"
+            >{{ resumeData.basics.url }}</a
+          >
         </div>
         <div v-if="resumeData.basics?.location">
           <strong>Location:</strong>
-          {{ [
-            resumeData.basics.location.address,
-            resumeData.basics.location.city,
-            resumeData.basics.location.region,
-            resumeData.basics.location.postalCode,
-            resumeData.basics.location.countryCode
-          ].filter(Boolean).join(', ') }}
+          {{
+            [
+              resumeData.basics.location.address,
+              resumeData.basics.location.city,
+              resumeData.basics.location.region,
+              resumeData.basics.location.postalCode,
+              resumeData.basics.location.countryCode,
+            ]
+              .filter(Boolean)
+              .join(", ")
+          }}
         </div>
       </div>
       <div v-if="resumeData.basics?.profiles?.length" class="mt-2 flex flex-wrap gap-3 text-sm">
-        <a v-for="(profile, index) in resumeData.basics.profiles" :key="index" :href="profile.url"
-          class="text-blue-600 hover:underline" target="_blank">
+        <a
+          v-for="(profile, index) in resumeData.basics.profiles"
+          :key="index"
+          :href="sanitizeUrl(profile.url)"
+          class="text-blue-600 hover:underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           {{ profile.network }}: {{ profile.username }}
         </a>
       </div>
@@ -37,9 +66,7 @@
 
     <!-- Summary -->
     <div v-if="resumeData.basics?.summary" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2">
-        Summary
-      </h2>
+      <h2 class="text-xl font-bold text-gray-900 mb-2">Summary</h2>
       <p class="text-gray-700 leading-relaxed">{{ resumeData.basics.summary }}</p>
     </div>
 
@@ -57,12 +84,19 @@
             <h4 class="text-base font-medium text-gray-700">
               {{ work.name }}
               <span v-if="work.url" class="text-sm text-gray-600">
-                - <a :href="work.url" class="text-blue-600 hover:underline" target="_blank">{{ work.url }}</a>
+                -
+                <a
+                  :href="sanitizeUrl(work.url)"
+                  class="text-blue-600 hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >{{ work.url }}</a
+                >
               </span>
             </h4>
           </div>
           <div class="text-sm text-gray-600 whitespace-nowrap ml-4">
-            {{ formatDate(work.startDate) }} - {{ formatDate(work.endDate) || 'Present' }}
+            {{ formatDate(work.startDate) }} - {{ formatDate(work.endDate) || "Present" }}
           </div>
         </div>
         <p v-if="work.summary" class="text-gray-700 mb-2 italic">{{ work.summary }}</p>
@@ -73,7 +107,7 @@
         </ul>
         <div v-if="work.skills && work.skills.length > 0" class="mt-2">
           <span class="text-sm font-semibold text-gray-700">Skills: </span>
-          <span class="text-sm text-gray-600">{{ work.skills.join(', ') }}</span>
+          <span class="text-sm text-gray-600">{{ work.skills.join(", ") }}</span>
         </div>
       </div>
     </div>
@@ -92,12 +126,19 @@
             <h4 class="text-base font-medium text-gray-700">
               {{ vol.organization }}
               <span v-if="vol.url" class="text-sm text-gray-600">
-                - <a :href="vol.url" class="text-blue-600 hover:underline" target="_blank">{{ vol.url }}</a>
+                -
+                <a
+                  :href="sanitizeUrl(vol.url)"
+                  class="text-blue-600 hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >{{ vol.url }}</a
+                >
               </span>
             </h4>
           </div>
           <div class="text-sm text-gray-600 whitespace-nowrap ml-4">
-            {{ formatDate(vol.startDate) }} - {{ formatDate(vol.endDate) || 'Present' }}
+            {{ formatDate(vol.startDate) }} - {{ formatDate(vol.endDate) || "Present" }}
           </div>
         </div>
         <p v-if="vol.summary" class="text-gray-700 mb-2 italic">{{ vol.summary }}</p>
@@ -123,11 +164,16 @@
             <h4 class="text-base font-medium text-gray-700">
               {{ edu.institution }}
               <span v-if="edu.url" class="text-sm text-blue-600">
-                - <a :href="edu.url" class="text-blue-600 hover:underline" target="_blank">{{ edu.url }}</a>
+                -
+                <a
+                  :href="sanitizeUrl(edu.url)"
+                  class="text-blue-600 hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >{{ edu.url }}</a
+                >
               </span>
-              <span v-if="edu.score" class="text-sm text-gray-600">
-                - GPA: {{ edu.score }}
-              </span>
+              <span v-if="edu.score" class="text-sm text-gray-600"> - GPA: {{ edu.score }} </span>
             </h4>
           </div>
           <div class="text-sm text-gray-600 whitespace-nowrap ml-4">
@@ -136,23 +182,19 @@
         </div>
         <div v-if="edu.courses && edu.courses.length > 0" class="mt-2">
           <span class="text-sm font-semibold text-gray-700">Courses: </span>
-          <span class="text-sm text-gray-600">{{ edu.courses.join(', ') }}</span>
+          <span class="text-sm text-gray-600">{{ edu.courses.join(", ") }}</span>
         </div>
       </div>
     </div>
 
     <!-- Skills -->
     <div v-if="resumeData.skills && resumeData.skills.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">
-        Skills
-      </h2>
+      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">Skills</h2>
       <div v-for="(skill, index) in resumeData.skills" :key="index" class="mb-3">
         <div class="font-semibold text-gray-900">{{ skill.name }}</div>
-        <div v-if="skill.level" class="text-sm text-gray-600 mb-1">
-          Level: {{ skill.level }}
-        </div>
+        <div v-if="skill.level" class="text-sm text-gray-600 mb-1">Level: {{ skill.level }}</div>
         <div v-if="skill.keywords && skill.keywords.length > 0" class="text-gray-700">
-          {{ skill.keywords.join(', ') }}
+          {{ skill.keywords.join(", ") }}
         </div>
       </div>
     </div>
@@ -164,22 +206,24 @@
       </h2>
       <div v-for="(cert, index) in resumeData.certificates" :key="index" class="mb-2">
         <div class="font-semibold text-gray-900">{{ cert.name }}</div>
-        <div class="text-sm text-gray-600">
-          {{ cert.issuer }} - {{ formatDate(cert.date) }}
-        </div>
+        <div class="text-sm text-gray-600">{{ cert.issuer }} - {{ formatDate(cert.date) }}</div>
       </div>
     </div>
 
     <!-- Projects -->
     <div v-if="resumeData.projects && resumeData.projects.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">
-        Projects
-      </h2>
+      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">Projects</h2>
       <div v-for="(project, index) in resumeData.projects" :key="index" class="mb-4">
         <div class="flex justify-between items-start mb-1">
           <div>
             <h3 class="text-lg font-semibold text-gray-900">{{ project.name }}</h3>
-            <a v-if="project.url" :href="project.url" class="text-sm text-blue-600 hover:underline" target="_blank">
+            <a
+              v-if="project.url"
+              :href="sanitizeUrl(project.url)"
+              class="text-sm text-blue-600 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               {{ project.url }}
             </a>
           </div>
@@ -200,14 +244,10 @@
 
     <!-- Awards -->
     <div v-if="resumeData.awards && resumeData.awards.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">
-        Awards
-      </h2>
+      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">Awards</h2>
       <div v-for="(award, index) in resumeData.awards" :key="index" class="mb-3">
         <div class="font-semibold text-gray-900">{{ award.title }}</div>
-        <div class="text-sm text-gray-600">
-          {{ award.awarder }} - {{ formatDate(award.date) }}
-        </div>
+        <div class="text-sm text-gray-600">{{ award.awarder }} - {{ formatDate(award.date) }}</div>
         <p v-if="award.summary" class="text-gray-700 mt-1">{{ award.summary }}</p>
       </div>
     </div>
@@ -222,7 +262,13 @@
           <div>
             <h3 class="text-lg font-semibold text-gray-900">{{ pub.name }}</h3>
             <div class="text-base font-medium text-gray-700">{{ pub.publisher }}</div>
-            <a v-if="pub.url" :href="pub.url" class="text-sm text-blue-600 hover:underline" target="_blank">
+            <a
+              v-if="pub.url"
+              :href="sanitizeUrl(pub.url)"
+              class="text-sm text-blue-600 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               {{ pub.url }}
             </a>
           </div>
@@ -254,16 +300,14 @@
       <div v-for="(interest, index) in resumeData.interests" :key="index" class="mb-3">
         <div class="font-semibold text-gray-900">{{ interest.name }}</div>
         <div v-if="interest.keywords && interest.keywords.length > 0" class="text-gray-700">
-          {{ interest.keywords.join(', ') }}
+          {{ interest.keywords.join(", ") }}
         </div>
       </div>
     </div>
 
     <!-- References -->
     <div v-if="resumeData.references && resumeData.references.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2">
-        References
-      </h2>
+      <h2 class="text-xl font-bold text-gray-900 mb-2">References</h2>
       <div v-for="(ref, index) in resumeData.references" :key="index" class="mb-3">
         <div class="font-semibold text-gray-900">{{ ref.name }}</div>
         <p v-if="ref.reference" class="text-gray-700 mt-1">{{ ref.reference }}</p>
@@ -273,10 +317,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import type { Resume } from '../types/resume';
-import { formatDate } from '../utils/date';
-import { useResumePreview } from '../composables/useResumePreview';
+import { ref, watch } from "vue";
+import type { Resume } from "../types/resume";
+import { formatDate } from "../utils/date";
+import { sanitizeUrl } from "../utils/url";
+import { useResumePreview } from "../composables/useResumePreview";
 
 interface Props {
   resumeData: Resume;
@@ -287,9 +332,13 @@ const props = defineProps<Props>();
 const previewContainer = ref<HTMLElement | null>(null);
 const { calculateContentHeight } = useResumePreview(previewContainer);
 
-watch(() => props.resumeData, () => {
-  calculateContentHeight();
-}, { deep: true });
+watch(
+  () => props.resumeData,
+  () => {
+    calculateContentHeight();
+  },
+  { deep: true },
+);
 </script>
 
 <style scoped>
@@ -312,7 +361,7 @@ watch(() => props.resumeData, () => {
 }
 
 .resume-list li::before {
-  content: '•';
+  content: "•";
   position: absolute;
   left: 0.5rem;
   color: #374151;

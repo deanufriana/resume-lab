@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { watch, ref } from "vue";
 import type { Work } from "../../types/resume";
+import { useStableList } from "../../composables/useStableList";
 import {
   Input,
   Label,
@@ -10,15 +10,10 @@ import {
   CardTitle,
   CardContent,
   Button,
+  EmptyState,
 } from "../ui/index";
 import Draggable from "vuedraggable";
-import {
-  GripVertical,
-  Plus,
-  Trash2,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-vue-next";
+import { Briefcase, GripVertical, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-vue-next";
 
 const props = defineProps<{
   work: Work[];
@@ -28,15 +23,14 @@ const emit = defineEmits<{
   (e: "update:work", value: Work[]): void;
 }>();
 
-const localWork = ref([...props.work]);
-const collapsedItems = ref<Record<number, boolean>>({});
-
-watch(
-  localWork,
-  (newValue) => {
-    emit("update:work", newValue);
-  },
-  { deep: true },
+const {
+  localItems: localWork,
+  getItemKey,
+  isCollapsed,
+  toggleCollapse,
+} = useStableList(
+  () => props.work,
+  (val) => emit("update:work", val),
 );
 
 function addWork() {
@@ -56,14 +50,8 @@ function removeWork(index: number) {
   localWork.value.splice(index, 1);
 }
 
-function toggleCollapse(index: number) {
-  collapsedItems.value[index] = !collapsedItems.value[index];
-}
-
 function updateHighlights(index: number, value: string) {
-  localWork.value[index].highlights = value
-    .split("\n")
-    .filter((h) => h.trim() !== "");
+  localWork.value[index].highlights = value.split("\n").filter((h) => h.trim() !== "");
 }
 
 function updateSkills(index: number, value: string) {
@@ -78,17 +66,19 @@ function updateSkills(index: number, value: string) {
   <div class="space-y-4">
     <div class="flex items-center justify-between">
       <h3 class="text-lg font-semibold">Work Experience</h3>
-      <Button @click="addWork" size="sm">
-        <Plus class="w-4 h-4 mr-2" /> Add Experience
-      </Button>
+      <Button @click="addWork" size="sm"> <Plus class="w-4 h-4 mr-2" /> Add Experience </Button>
     </div>
 
-    <Draggable
-      v-model="localWork"
-      item-key="name"
-      handle=".handle"
-      class="space-y-4"
+    <EmptyState
+      v-if="localWork.length === 0"
+      :icon="Briefcase"
+      title="No work experience yet"
+      description="Add your current or past roles to highlight your career history."
     >
+      <Button size="sm" @click="addWork"> <Plus class="w-4 h-4 mr-2" /> Add Experience </Button>
+    </EmptyState>
+
+    <Draggable v-else v-model="localWork" :item-key="getItemKey" handle=".handle" class="space-y-4">
       <template #item="{ element: exp, index }">
         <Card>
           <CardHeader class="p-4">
@@ -102,12 +92,8 @@ function updateSkills(index: number, value: string) {
                 </CardTitle>
               </div>
               <div class="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  @click="toggleCollapse(index)"
-                >
-                  <ChevronUp v-if="!collapsedItems[index]" class="w-4 h-4" />
+                <Button variant="ghost" size="sm" @click="toggleCollapse(exp)">
+                  <ChevronUp v-if="!isCollapsed(exp)" class="w-4 h-4" />
                   <ChevronDown v-else class="w-4 h-4" />
                 </Button>
                 <Button
@@ -121,10 +107,7 @@ function updateSkills(index: number, value: string) {
               </div>
             </div>
           </CardHeader>
-          <CardContent
-            v-show="!collapsedItems[index]"
-            class="p-4 pt-0 space-y-4"
-          >
+          <CardContent v-show="!isCollapsed(exp)" class="p-4 pt-0 space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="space-y-1">
                 <Label class="text-xs">Company Name</Label>
@@ -151,18 +134,13 @@ function updateSkills(index: number, value: string) {
             </div>
             <div class="space-y-1">
               <Label class="text-xs">Summary</Label>
-              <Textarea
-                v-model="exp.summary"
-                placeholder="Brief overview of your role..."
-              />
+              <Textarea v-model="exp.summary" placeholder="Brief overview of your role..." />
             </div>
             <div class="space-y-1">
               <Label class="text-xs">Skills (comma-separated)</Label>
               <Input
                 :model-value="exp.skills?.join(', ')"
-                @update:model-value="
-                  (val) => updateSkills(index, val as string)
-                "
+                @update:model-value="(val) => updateSkills(index, val as string)"
                 placeholder="React, Vue, Node.js"
               />
             </div>
@@ -170,9 +148,7 @@ function updateSkills(index: number, value: string) {
               <Label class="text-xs">Highlights (one per line)</Label>
               <Textarea
                 :model-value="exp.highlights?.join('\n')"
-                @update:model-value="
-                  (val) => updateHighlights(index, val as string)
-                "
+                @update:model-value="(val) => updateHighlights(index, val as string)"
                 placeholder="Led the frontend team...&#10;Reduced load times by 40%..."
                 class="min-h-[100px]"
               />

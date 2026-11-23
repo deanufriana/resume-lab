@@ -10,10 +10,8 @@ const nativeSelectVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          "border border-input bg-background/50 hover:bg-accent/50 focus:border-primary/30",
-        outline:
-          "border border-input bg-transparent hover:bg-accent hover:text-accent-foreground",
+        default: "border border-input bg-background/50 hover:bg-accent/50 focus:border-primary/30",
+        outline: "border border-input bg-transparent hover:bg-accent hover:text-accent-foreground",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80 border-transparent",
       },
@@ -27,7 +25,7 @@ const nativeSelectVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 interface Props {
@@ -55,23 +53,13 @@ const modelValue = useVModel(props, "modelValue", emits, {
 
 <template>
   <div class="relative w-full group">
-    <select
-      v-model="modelValue"
-      :class="cn(nativeSelectVariants({ variant, size }), props.class)"
-    >
+    <select v-model="modelValue" :class="cn(nativeSelectVariants({ variant, size }), props.class)">
       <slot />
     </select>
     <div
       class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground group-hover:text-foreground transition-colors"
     >
-      <ChevronDown
-        :class="
-          cn(
-            'opacity-70',
-            size === 'sm' ? 'w-3 h-3' : 'w-4 h-4'
-          )
-        "
-      />
+      <ChevronDown :class="cn('opacity-70', size === 'sm' ? 'w-3 h-3' : 'w-4 h-4')" />
     </div>
   </div>
 </template>

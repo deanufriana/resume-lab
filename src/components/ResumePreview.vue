@@ -8,7 +8,7 @@
         height: `${contentHeight}px`,
       }"
     >
-      <div id="resume-preview" class="bg-white min-h-full p-10">
+      <div id="resume-preview" ref="previewRef" class="bg-white min-h-full p-10">
         <component :is="themeComponent" :resume-data="filteredResumeData" />
       </div>
     </div>
@@ -21,6 +21,7 @@
 import { computed, ref, onMounted, onUnmounted, watch } from "vue";
 import type { Resume } from "../types/resume";
 import { getTheme, getDefaultTheme } from "../themes";
+import { useResumePreview } from "../composables/useResumePreview";
 
 interface Props {
   resumeData: Resume;
@@ -51,7 +52,9 @@ const filteredResumeData = computed(() => {
 const baseWidth = 800; // Base width for "desktop" look
 const scale = ref(1);
 const wrapperRef = ref<HTMLElement | null>(null);
-const contentHeight = ref(300); // Start small to avoid excessive white space
+const previewRef = ref<HTMLElement | null>(null);
+const { contentHeight, calculateContentHeight } = useResumePreview(previewRef);
+let wrapperObserver: ResizeObserver | null = null;
 
 function updateScale() {
   if (!wrapperRef.value) return;
@@ -60,14 +63,6 @@ function updateScale() {
     scale.value = containerWidth / baseWidth;
   } else {
     scale.value = 1;
-  }
-}
-
-// Update height based on actual content
-function updateHeight() {
-  const el = document.getElementById("resume-preview");
-  if (el) {
-    contentHeight.value = el.scrollHeight;
   }
 }
 
@@ -81,28 +76,22 @@ const themeComponent = computed(() => selectedTheme.value.component);
 onMounted(() => {
   updateScale();
   window.addEventListener("resize", updateScale);
-
-  // Initial height measurement
-  setTimeout(updateHeight, 500);
+  if (wrapperRef.value) {
+    wrapperObserver = new ResizeObserver(updateScale);
+    wrapperObserver.observe(wrapperRef.value);
+  }
 });
 
 onUnmounted(() => {
   window.removeEventListener("resize", updateScale);
+  wrapperObserver?.disconnect();
 });
 
-// Watch for data changes to re-measure height
 watch(
-  () => props.resumeData,
+  [() => props.resumeData, () => props.themeId],
   () => {
-    setTimeout(updateHeight, 100);
+    calculateContentHeight();
   },
   { deep: true },
-);
-
-watch(
-  () => props.themeId,
-  () => {
-    setTimeout(updateHeight, 300);
-  },
 );
 </script>

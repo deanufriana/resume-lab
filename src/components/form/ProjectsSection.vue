@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { watch, ref } from "vue";
 import type { Project } from "../../types/resume";
+import { useStableList } from "../../composables/useStableList";
 import {
   Input,
   Label,
@@ -10,15 +10,10 @@ import {
   CardTitle,
   CardContent,
   Button,
+  EmptyState,
 } from "../ui/index";
 import Draggable from "vuedraggable";
-import {
-  GripVertical,
-  Plus,
-  Trash2,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-vue-next";
+import { FolderGit2, GripVertical, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-vue-next";
 
 const props = defineProps<{
   projects: Project[];
@@ -28,15 +23,14 @@ const emit = defineEmits<{
   (e: "update:projects", value: Project[]): void;
 }>();
 
-const localProjects = ref([...props.projects]);
-const collapsedItems = ref<Record<number, boolean>>({});
-
-watch(
-  localProjects,
-  (newValue) => {
-    emit("update:projects", newValue);
-  },
-  { deep: true },
+const {
+  localItems: localProjects,
+  getItemKey,
+  isCollapsed,
+  toggleCollapse,
+} = useStableList(
+  () => props.projects,
+  (val) => emit("update:projects", val),
 );
 
 function addProject() {
@@ -54,14 +48,8 @@ function removeProject(index: number) {
   localProjects.value.splice(index, 1);
 }
 
-function toggleCollapse(index: number) {
-  collapsedItems.value[index] = !collapsedItems.value[index];
-}
-
 function updateHighlights(index: number, value: string) {
-  localProjects.value[index].highlights = value
-    .split("\n")
-    .filter((h) => h.trim() !== "");
+  localProjects.value[index].highlights = value.split("\n").filter((h) => h.trim() !== "");
 }
 </script>
 
@@ -69,14 +57,22 @@ function updateHighlights(index: number, value: string) {
   <div class="space-y-4">
     <div class="flex items-center justify-between">
       <h3 class="text-lg font-semibold">Projects</h3>
-      <Button @click="addProject" size="sm">
-        <Plus class="w-4 h-4 mr-2" /> Add Project
-      </Button>
+      <Button @click="addProject" size="sm"> <Plus class="w-4 h-4 mr-2" /> Add Project </Button>
     </div>
 
+    <EmptyState
+      v-if="localProjects.length === 0"
+      :icon="FolderGit2"
+      title="No projects added yet"
+      description="Showcase personal, open-source, or side projects."
+    >
+      <Button size="sm" @click="addProject"> <Plus class="w-4 h-4 mr-2" /> Add Project </Button>
+    </EmptyState>
+
     <Draggable
+      v-else
       v-model="localProjects"
-      item-key="name"
+      :item-key="getItemKey"
       handle=".handle"
       class="space-y-4"
     >
@@ -93,12 +89,8 @@ function updateHighlights(index: number, value: string) {
                 </CardTitle>
               </div>
               <div class="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  @click="toggleCollapse(index)"
-                >
-                  <ChevronUp v-if="!collapsedItems[index]" class="w-4 h-4" />
+                <Button variant="ghost" size="sm" @click="toggleCollapse(project)">
+                  <ChevronUp v-if="!isCollapsed(project)" class="w-4 h-4" />
                   <ChevronDown v-else class="w-4 h-4" />
                 </Button>
                 <Button
@@ -112,10 +104,7 @@ function updateHighlights(index: number, value: string) {
               </div>
             </div>
           </CardHeader>
-          <CardContent
-            v-show="!collapsedItems[index]"
-            class="p-4 pt-0 space-y-4"
-          >
+          <CardContent v-show="!isCollapsed(project)" class="p-4 pt-0 space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="space-y-1">
                 <Label class="text-xs">Project Name</Label>
@@ -147,9 +136,7 @@ function updateHighlights(index: number, value: string) {
               <Label class="text-xs">Highlights (one per line)</Label>
               <Textarea
                 :model-value="project.highlights?.join('\n')"
-                @update:model-value="
-                  (val) => updateHighlights(index, val as string)
-                "
+                @update:model-value="(val) => updateHighlights(index, val as string)"
                 placeholder="Implemented SSR with Nuxt.js...&#10;Integrated AWS S3 for uploads..."
                 class="min-h-[100px]"
               />
