@@ -157,16 +157,6 @@ async function generatePDF() {
   }
 }
 
-function printVectorPDF() {
-  const previewElement = document.getElementById("resume-preview");
-  if (!previewElement) {
-    toast.error("Add some resume content before printing.");
-    return;
-  }
-  window.print();
-  Analytics.trackPDFExport();
-}
-
 function downloadJSON() {
   const filename = `${resumeData.basics?.name?.replace(/\s+/g, "_") || "resume"}.json`;
   const dataStr = JSON.stringify(resumeData, null, 2);
