@@ -70,43 +70,16 @@ const resolvedFont = () =>
       </div>
 
       <SegmentedControl
-        class="hidden xl:inline-flex"
         :model-value="resolvedFont()"
         :options="fontOptions"
         @update:model-value="(val) => emit('update-meta', 'fontFamily', val)"
       />
 
       <SegmentedControl
-        class="hidden xl:inline-flex"
         :model-value="props.meta?.density || 'standard'"
         :options="densityOptions"
         @update:model-value="(val) => emit('update-meta', 'density', val)"
       />
-
-      <!-- On < XL screens, show dropdowns so mobile & tablet users can configure font and density -->
-      <NativeSelect
-        class="xl:hidden"
-        size="sm"
-        :model-value="resolvedFont()"
-        @update:model-value="(val) => emit('update-meta', 'fontFamily', String(val))"
-        aria-label="Font family"
-      >
-        <NativeSelectOption value="sans">Sans</NativeSelectOption>
-        <NativeSelectOption value="serif">Serif</NativeSelectOption>
-        <NativeSelectOption value="mono">Mono</NativeSelectOption>
-      </NativeSelect>
-
-      <NativeSelect
-        class="xl:hidden"
-        size="sm"
-        :model-value="props.meta?.density || 'standard'"
-        @update:model-value="(val) => emit('update-meta', 'density', String(val))"
-        aria-label="Layout density"
-      >
-        <NativeSelectOption value="compact">Compact</NativeSelectOption>
-        <NativeSelectOption value="standard">Standard</NativeSelectOption>
-        <NativeSelectOption value="spacious">Spacious</NativeSelectOption>
-      </NativeSelect>
     </div>
 
     <div class="flex items-center gap-2 sm:gap-2.5">
