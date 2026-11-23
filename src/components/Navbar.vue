@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted } from "vue";
 import {
   FileText,
   PenTool,
@@ -10,6 +11,8 @@ import {
   Sparkles,
   CheckCircle2,
   Loader2,
+  MoreVertical,
+  Trash2,
 } from "lucide-vue-next";
 import { useDark } from "@vueuse/core";
 import { Button } from "./ui/index";
@@ -25,8 +28,26 @@ const emit = defineEmits<{
   (e: "open-signature"): void;
   (e: "open-about"): void;
   (e: "load-sample"): void;
+  (e: "clear-resume"): void;
   (e: "export-pdf"): void;
 }>();
+
+const isMobileMenuOpen = ref(false);
+const menuRef = ref<HTMLElement | null>(null);
+
+function handleMenuClickOutside(e: MouseEvent) {
+  if (menuRef.value && !menuRef.value.contains(e.target as Node)) {
+    isMobileMenuOpen.value = false;
+  }
+}
+
+onMounted(() => {
+  document.addEventListener("pointerdown", handleMenuClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener("pointerdown", handleMenuClickOutside);
+});
 
 const isDark = useDark({
   selector: "html",
@@ -79,14 +100,14 @@ const toggleDark = (event: MouseEvent) => {
   <header
     class="sticky top-0 z-40 w-full h-14 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/70 no-print"
   >
-    <div class="h-full px-4 flex items-center justify-between gap-3">
+    <div class="h-full px-3 sm:px-4 flex items-center justify-between gap-2 sm:gap-3">
       <!-- Brand + Save Status -->
-      <div class="flex items-center gap-3 min-w-0">
+      <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
         <div class="flex items-center gap-2">
           <div class="w-7 h-7 rounded-md bg-primary flex items-center justify-center flex-shrink-0">
             <FileText class="w-4 h-4 text-primary-foreground" />
           </div>
-          <span class="text-base font-bold tracking-tight font-outfit">Resume Lab</span>
+          <span class="text-base font-bold tracking-tight font-outfit truncate">Resume Lab</span>
         </div>
 
         <span
@@ -104,7 +125,7 @@ const toggleDark = (event: MouseEvent) => {
       </div>
 
       <!-- Studio Actions -->
-      <div class="flex items-center gap-1.5 sm:gap-2">
+      <div class="flex items-center gap-1 sm:gap-2">
         <Button
           variant="ghost"
           size="sm"
@@ -114,25 +135,30 @@ const toggleDark = (event: MouseEvent) => {
           <Sparkles class="w-3.5 h-3.5" /> Sample
         </Button>
 
-        <Button variant="outline" size="sm" class="h-8 text-xs gap-1.5" @click="emit('open-json')">
+        <Button
+          variant="outline"
+          size="sm"
+          class="h-8 text-xs gap-1.5 hidden sm:inline-flex"
+          @click="emit('open-json')"
+        >
           <FileCode2 class="w-3.5 h-3.5" />
-          <span class="hidden sm:inline">JSON</span>
+          <span>JSON</span>
         </Button>
 
         <Button
           variant="outline"
           size="sm"
-          class="h-8 text-xs gap-1.5"
+          class="h-8 text-xs gap-1.5 hidden sm:inline-flex"
           @click="emit('open-signature')"
         >
           <PenTool class="w-3.5 h-3.5" />
-          <span class="hidden sm:inline">Signature</span>
+          <span>Signature</span>
         </Button>
 
         <Button
           variant="ghost"
           size="icon"
-          class="h-8 w-8"
+          class="h-8 w-8 hidden sm:inline-flex"
           @click="emit('open-about')"
           aria-label="About Resume Lab"
         >
@@ -160,11 +186,101 @@ const toggleDark = (event: MouseEvent) => {
           </Transition>
         </Button>
 
+        <!-- Mobile More Menu (hidden on sm+) -->
+        <div class="relative sm:hidden" ref="menuRef">
+          <Button
+            variant="ghost"
+            size="icon"
+            class="h-8 w-8"
+            @click="isMobileMenuOpen = !isMobileMenuOpen"
+            aria-label="Open more actions"
+          >
+            <MoreVertical class="w-4 h-4" />
+          </Button>
+
+          <Transition
+            enter-active-class="transition duration-150 ease-out"
+            enter-from-class="opacity-0 scale-95 -translate-y-1"
+            enter-to-class="opacity-100 scale-100 translate-y-0"
+            leave-active-class="transition duration-100 ease-in"
+            leave-from-class="opacity-100 scale-100 translate-y-0"
+            leave-to-class="opacity-0 scale-95 -translate-y-1"
+          >
+            <div
+              v-if="isMobileMenuOpen"
+              class="absolute right-0 top-full mt-1.5 w-48 rounded-lg border bg-popover p-1.5 shadow-lg text-popover-foreground z-50 text-xs space-y-0.5"
+            >
+              <button
+                type="button"
+                class="w-full flex items-center gap-2 px-2.5 py-2 rounded-md hover:bg-accent text-left font-medium"
+                @click="
+                  emit('load-sample');
+                  isMobileMenuOpen = false;
+                "
+              >
+                <Sparkles class="w-3.5 h-3.5 text-amber-500" />
+                <span>Load Sample Resume</span>
+              </button>
+
+              <button
+                type="button"
+                class="w-full flex items-center gap-2 px-2.5 py-2 rounded-md hover:bg-accent text-left font-medium"
+                @click="
+                  emit('open-json');
+                  isMobileMenuOpen = false;
+                "
+              >
+                <FileCode2 class="w-3.5 h-3.5" />
+                <span>JSON Schema</span>
+              </button>
+
+              <button
+                type="button"
+                class="w-full flex items-center gap-2 px-2.5 py-2 rounded-md hover:bg-accent text-left font-medium"
+                @click="
+                  emit('open-signature');
+                  isMobileMenuOpen = false;
+                "
+              >
+                <PenTool class="w-3.5 h-3.5" />
+                <span>Signature Studio</span>
+              </button>
+
+              <button
+                type="button"
+                class="w-full flex items-center gap-2 px-2.5 py-2 rounded-md hover:bg-accent text-left font-medium"
+                @click="
+                  emit('open-about');
+                  isMobileMenuOpen = false;
+                "
+              >
+                <Info class="w-3.5 h-3.5" />
+                <span>About Resume Lab</span>
+              </button>
+
+              <div v-if="hasContent" class="h-px bg-border my-1"></div>
+
+              <button
+                v-if="hasContent"
+                type="button"
+                class="w-full flex items-center gap-2 px-2.5 py-2 rounded-md hover:bg-destructive/10 text-destructive text-left font-medium"
+                @click="
+                  emit('clear-resume');
+                  isMobileMenuOpen = false;
+                "
+              >
+                <Trash2 class="w-3.5 h-3.5" />
+                <span>Clear All Resume</span>
+              </button>
+            </div>
+          </Transition>
+        </div>
+
         <div class="h-4 w-px bg-border mx-0.5 hidden sm:block"></div>
 
         <Button
           size="sm"
-          class="h-8 text-xs gap-1.5"
+          class="h-8 text-xs gap-1.5 touch-manipulation"
           :disabled="!hasContent"
           @click="emit('export-pdf')"
         >

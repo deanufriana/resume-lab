@@ -90,8 +90,9 @@ function removeItem(arrayName: keyof Resume, index: number) {
               <Button
                 variant="ghost"
                 size="icon"
-                class="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
+                class="h-8 w-8 sm:h-7 sm:w-7 text-muted-foreground hover:text-destructive flex-shrink-0 touch-manipulation"
                 @click="removeItem('awards', index)"
+                aria-label="Remove award"
               >
                 <Trash2 class="w-4 h-4" />
               </Button>
@@ -104,7 +105,7 @@ function removeItem(arrayName: keyof Resume, index: number) {
                 <Input
                   v-model="award.title"
                   placeholder="Employee of the Month"
-                  class="h-8 text-xs"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
                 />
               </div>
               <div class="space-y-1">
@@ -113,19 +114,23 @@ function removeItem(arrayName: keyof Resume, index: number) {
                   type="month"
                   :model-value="toMonthInput(award.date)"
                   @update:model-value="(v) => (award.date = String(v))"
-                  class="h-8 text-xs"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
                 />
               </div>
               <div class="space-y-1 sm:col-span-2">
                 <Label class="text-xs">Awarder</Label>
-                <Input v-model="award.awarder" placeholder="Company Name" class="h-8 text-xs" />
+                <Input
+                  v-model="award.awarder"
+                  placeholder="Company Name"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
+                />
               </div>
               <div class="space-y-1 sm:col-span-2">
                 <Label class="text-xs">Summary</Label>
                 <Textarea
                   v-model="award.summary"
                   placeholder="Brief description of the award..."
-                  class="min-h-[60px] text-xs"
+                  class="min-h-[60px] text-base sm:text-xs"
                 />
               </div>
             </div>
@@ -172,8 +177,9 @@ function removeItem(arrayName: keyof Resume, index: number) {
               <Button
                 variant="ghost"
                 size="icon"
-                class="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
+                class="h-8 w-8 sm:h-7 sm:w-7 text-muted-foreground hover:text-destructive flex-shrink-0 touch-manipulation"
                 @click="removeItem('certificates', index)"
+                aria-label="Remove certificate"
               >
                 <Trash2 class="w-4 h-4" />
               </Button>
@@ -186,7 +192,7 @@ function removeItem(arrayName: keyof Resume, index: number) {
                 <Input
                   v-model="cert.name"
                   placeholder="AWS Certified Architect"
-                  class="h-8 text-xs"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
                 />
               </div>
               <div class="space-y-1">
@@ -195,7 +201,7 @@ function removeItem(arrayName: keyof Resume, index: number) {
                   type="month"
                   :model-value="toMonthInput(cert.date)"
                   @update:model-value="(v) => (cert.date = String(v))"
-                  class="h-8 text-xs"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
                 />
               </div>
               <div class="space-y-1">
@@ -203,12 +209,16 @@ function removeItem(arrayName: keyof Resume, index: number) {
                 <Input
                   v-model="cert.issuer"
                   placeholder="Amazon Web Services"
-                  class="h-8 text-xs"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
                 />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">URL</Label>
-                <Input v-model="cert.url" placeholder="https://..." class="h-8 text-xs" />
+                <Input
+                  v-model="cert.url"
+                  placeholder="https://..."
+                  class="h-9 sm:h-8 text-base sm:text-xs"
+                />
               </div>
             </div>
           </CardContent>
@@ -244,21 +254,30 @@ function removeItem(arrayName: keyof Resume, index: number) {
         <div
           v-for="(lang, index) in localResume.languages"
           :key="index"
-          class="flex items-end gap-2.5 p-3 border border-border/80 rounded-md bg-card"
+          class="flex flex-col sm:flex-row sm:items-end gap-2.5 p-3 border border-border/80 rounded-md bg-card"
         >
-          <div class="flex-1 space-y-1">
+          <div class="w-full sm:flex-1 space-y-1">
             <Label class="text-xs">Language</Label>
-            <Input v-model="lang.language" placeholder="English" class="h-8 text-xs" />
+            <Input
+              v-model="lang.language"
+              placeholder="English"
+              class="h-9 sm:h-8 text-base sm:text-xs"
+            />
           </div>
-          <div class="flex-1 space-y-1">
+          <div class="w-full sm:flex-1 space-y-1">
             <Label class="text-xs">Fluency</Label>
-            <Input v-model="lang.fluency" placeholder="Native / Professional" class="h-8 text-xs" />
+            <Input
+              v-model="lang.fluency"
+              placeholder="Native / Professional"
+              class="h-9 sm:h-8 text-base sm:text-xs"
+            />
           </div>
           <Button
             variant="ghost"
             size="icon"
-            class="h-8 w-8 text-muted-foreground hover:text-destructive flex-shrink-0"
+            class="h-8 w-8 self-end sm:self-auto text-muted-foreground hover:text-destructive flex-shrink-0 touch-manipulation"
             @click="removeItem('languages', index)"
+            aria-label="Remove language"
           >
             <Trash2 class="w-4 h-4" />
           </Button>
@@ -304,8 +323,9 @@ function removeItem(arrayName: keyof Resume, index: number) {
               <Button
                 variant="ghost"
                 size="icon"
-                class="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
+                class="h-8 w-8 sm:h-7 sm:w-7 text-muted-foreground hover:text-destructive flex-shrink-0 touch-manipulation"
                 @click="removeItem('interests', index)"
+                aria-label="Remove interest"
               >
                 <Trash2 class="w-4 h-4" />
               </Button>
@@ -314,7 +334,11 @@ function removeItem(arrayName: keyof Resume, index: number) {
           <CardContent class="p-3.5 pt-0 space-y-3">
             <div class="space-y-1">
               <Label class="text-xs">Name</Label>
-              <Input v-model="interest.name" placeholder="Photography" class="h-8 text-xs" />
+              <Input
+                v-model="interest.name"
+                placeholder="Photography"
+                class="h-9 sm:h-8 text-base sm:text-xs"
+              />
             </div>
             <div class="space-y-1">
               <Label class="text-xs">Keywords</Label>
@@ -377,8 +401,9 @@ function removeItem(arrayName: keyof Resume, index: number) {
               <Button
                 variant="ghost"
                 size="icon"
-                class="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
+                class="h-8 w-8 sm:h-7 sm:w-7 text-muted-foreground hover:text-destructive flex-shrink-0 touch-manipulation"
                 @click="removeItem('volunteer', index)"
+                aria-label="Remove volunteer entry"
               >
                 <Trash2 class="w-4 h-4" />
               </Button>
@@ -388,18 +413,26 @@ function removeItem(arrayName: keyof Resume, index: number) {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div class="space-y-1">
                 <Label class="text-xs">Organization</Label>
-                <Input v-model="vol.organization" placeholder="Red Cross" class="h-8 text-xs" />
+                <Input
+                  v-model="vol.organization"
+                  placeholder="Red Cross"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">Position</Label>
-                <Input v-model="vol.position" placeholder="Volunteer" class="h-8 text-xs" />
+                <Input
+                  v-model="vol.position"
+                  placeholder="Volunteer"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
+                />
               </div>
               <div class="space-y-1 sm:col-span-2">
                 <Label class="text-xs">Summary</Label>
                 <Textarea
                   v-model="vol.summary"
                   placeholder="Brief description of your volunteering..."
-                  class="min-h-[60px] text-xs"
+                  class="min-h-[60px] text-base sm:text-xs"
                 />
               </div>
             </div>
@@ -454,8 +487,9 @@ function removeItem(arrayName: keyof Resume, index: number) {
               <Button
                 variant="ghost"
                 size="icon"
-                class="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
+                class="h-8 w-8 sm:h-7 sm:w-7 text-muted-foreground hover:text-destructive flex-shrink-0 touch-manipulation"
                 @click="removeItem('publications', index)"
+                aria-label="Remove publication"
               >
                 <Trash2 class="w-4 h-4" />
               </Button>
@@ -465,11 +499,19 @@ function removeItem(arrayName: keyof Resume, index: number) {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div class="space-y-1">
                 <Label class="text-xs">Name</Label>
-                <Input v-model="pub.name" placeholder="Article Title" class="h-8 text-xs" />
+                <Input
+                  v-model="pub.name"
+                  placeholder="Article Title"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">Publisher</Label>
-                <Input v-model="pub.publisher" placeholder="Journal Name" class="h-8 text-xs" />
+                <Input
+                  v-model="pub.publisher"
+                  placeholder="Journal Name"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">Release Date</Label>
@@ -477,12 +519,16 @@ function removeItem(arrayName: keyof Resume, index: number) {
                   type="month"
                   :model-value="toMonthInput(pub.releaseDate)"
                   @update:model-value="(v) => (pub.releaseDate = String(v))"
-                  class="h-8 text-xs"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
                 />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">URL</Label>
-                <Input v-model="pub.url" placeholder="https://..." class="h-8 text-xs" />
+                <Input
+                  v-model="pub.url"
+                  placeholder="https://..."
+                  class="h-9 sm:h-8 text-base sm:text-xs"
+                />
               </div>
             </div>
           </CardContent>

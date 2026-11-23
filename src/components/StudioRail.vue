@@ -28,16 +28,18 @@ const emit = defineEmits<{
 
 <template>
   <!-- Mobile View Switcher Bar -->
-  <div class="lg:hidden flex items-center justify-between px-4 py-2 border-b bg-card no-print">
+  <div
+    class="lg:hidden flex-shrink-0 flex items-center justify-between px-3 sm:px-4 py-2 border-b bg-card no-print"
+  >
     <div class="inline-flex rounded-md bg-muted p-0.5">
       <Button
         variant="ghost"
         size="sm"
         @click="emit('update:mobileView', 'edit')"
         :class="[
-          'h-7 px-3 text-xs gap-1.5',
+          'h-7 px-3 text-xs gap-1.5 touch-manipulation',
           mobileView === 'edit'
-            ? 'bg-background text-foreground shadow-sm hover:bg-background'
+            ? 'bg-background text-foreground shadow-sm hover:bg-background font-medium'
             : 'text-muted-foreground',
         ]"
       >
@@ -48,18 +50,31 @@ const emit = defineEmits<{
         size="sm"
         @click="emit('update:mobileView', 'preview')"
         :class="[
-          'h-7 px-3 text-xs gap-1.5',
+          'h-7 px-3 text-xs gap-1.5 touch-manipulation',
           mobileView === 'preview'
-            ? 'bg-background text-foreground shadow-sm hover:bg-background'
+            ? 'bg-background text-foreground shadow-sm hover:bg-background font-medium'
             : 'text-muted-foreground',
         ]"
       >
         <Eye class="w-3.5 h-3.5" /> Preview
       </Button>
     </div>
-    <span class="text-[11px] font-medium text-muted-foreground">
-      {{ completeness }}% complete
-    </span>
+
+    <div class="flex items-center gap-2">
+      <span class="text-[11px] font-medium text-muted-foreground tabular-nums">
+        {{ completeness }}% complete
+      </span>
+      <Button
+        v-if="hasContent"
+        variant="ghost"
+        size="icon"
+        @click="emit('clear-resume')"
+        title="Clear all resume data"
+        class="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+      >
+        <Trash2 class="w-3.5 h-3.5" />
+      </Button>
+    </div>
   </div>
 
   <!-- Left Icon Rail (Desktop) / Horizontal Pills (Mobile Edit) -->
@@ -67,7 +82,7 @@ const emit = defineEmits<{
     :class="[
       'lg:w-16 lg:border-r bg-card/50 flex-shrink-0 no-print',
       mobileView === 'preview' ? 'hidden lg:flex' : 'flex',
-      'flex-row lg:flex-col items-center justify-between border-b lg:border-b-0 px-2 py-2 lg:py-4 gap-2 overflow-x-auto no-scrollbar',
+      'flex-row lg:flex-col items-center justify-start lg:justify-between border-b lg:border-b-0 px-2 py-1.5 lg:py-4 gap-1.5 lg:gap-2 overflow-x-auto no-scrollbar',
     ]"
   >
     <nav class="flex flex-row lg:flex-col items-center gap-1.5">
@@ -78,7 +93,7 @@ const emit = defineEmits<{
         @click="emit('update:activeSection', section.id)"
         :title="section.label"
         :class="[
-          'relative flex flex-col items-center justify-center w-12 h-11 p-0 text-[10px] font-medium gap-0.5 flex-shrink-0',
+          'relative flex flex-col items-center justify-center min-w-[3.25rem] h-11 p-1 text-[10px] font-medium gap-0.5 flex-shrink-0 touch-manipulation',
           activeSection === section.id ? 'shadow-sm' : 'text-muted-foreground',
         ]"
       >

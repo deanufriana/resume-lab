@@ -146,17 +146,17 @@ function handlePaste(e: ClipboardEvent, index: number) {
             @input="updateItem(index, ($event.target as HTMLTextAreaElement).value)"
             @keydown="handleKeydown($event, index)"
             @paste="handlePaste($event, index)"
-            class="auto-fit-textarea flex-1 min-h-[34px] rounded-md border border-input bg-transparent px-2.5 py-1.5 text-xs leading-relaxed transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
+            class="auto-fit-textarea flex-1 min-h-[38px] sm:min-h-[34px] rounded-md border border-input bg-transparent px-2.5 py-1.5 text-base sm:text-xs leading-relaxed transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
           />
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            class="h-7 w-7 mt-0.5 text-muted-foreground hover:text-destructive flex-shrink-0"
+            class="h-8 w-8 sm:h-7 sm:w-7 mt-0.5 text-muted-foreground hover:text-destructive flex-shrink-0"
             @click="removeItem(index)"
             aria-label="Remove highlight"
           >
-            <X class="w-3.5 h-3.5" />
+            <X class="w-4 h-4 sm:w-3.5 sm:h-3.5" />
           </Button>
         </div>
       </template>

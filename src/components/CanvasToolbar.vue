@@ -34,9 +34,9 @@ const resolvedFont = () =>
 
 <template>
   <div
-    class="px-4 py-2 border-b bg-background/90 backdrop-blur-sm flex flex-wrap items-center justify-between gap-3 z-20 no-print"
+    class="px-3 sm:px-4 py-2 border-b bg-background/90 backdrop-blur-sm flex flex-wrap items-center justify-between gap-2 sm:gap-3 z-20 no-print"
   >
-    <div class="flex flex-wrap items-center gap-2.5">
+    <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
       <NativeSelect
         size="sm"
         :model-value="props.themeId"
@@ -47,8 +47,8 @@ const resolvedFont = () =>
         </NativeSelectOption>
       </NativeSelect>
 
-      <!-- Accent Color Swatches -->
-      <div class="flex items-center gap-1.5 px-2.5 border-l border-r">
+      <!-- Accent Color Swatches with enlarged touch target -->
+      <div class="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 border-l border-r">
         <Button
           v-for="color in accentColors"
           :key="color.value"
@@ -57,13 +57,16 @@ const resolvedFont = () =>
           size="icon"
           :title="color.name"
           @click="emit('update-meta', 'accentColor', color.value)"
-          class="w-4 h-4 p-0 rounded-sm border border-black/20 dark:border-white/25 transition-transform hover:scale-110"
+          class="w-6 h-6 sm:w-5 sm:h-5 p-0.5 rounded-sm flex items-center justify-center transition-transform hover:scale-110 touch-manipulation"
           :class="{
-            'ring-1 ring-foreground scale-110':
-              (props.meta?.accentColor || '#2563eb') === color.value,
+            'ring-1 ring-foreground': (props.meta?.accentColor || '#2563eb') === color.value,
           }"
-          :style="{ backgroundColor: color.value }"
-        />
+        >
+          <span
+            class="w-4 h-4 sm:w-3.5 sm:h-3.5 rounded-sm border border-black/20 dark:border-white/25 block"
+            :style="{ backgroundColor: color.value }"
+          />
+        </Button>
       </div>
 
       <SegmentedControl
@@ -79,21 +82,46 @@ const resolvedFont = () =>
         :options="densityOptions"
         @update:model-value="(val) => emit('update-meta', 'density', val)"
       />
+
+      <!-- On < XL screens, show dropdowns so mobile & tablet users can configure font and density -->
+      <NativeSelect
+        class="xl:hidden"
+        size="sm"
+        :model-value="resolvedFont()"
+        @update:model-value="(val) => emit('update-meta', 'fontFamily', String(val))"
+        aria-label="Font family"
+      >
+        <NativeSelectOption value="sans">Sans</NativeSelectOption>
+        <NativeSelectOption value="serif">Serif</NativeSelectOption>
+        <NativeSelectOption value="mono">Mono</NativeSelectOption>
+      </NativeSelect>
+
+      <NativeSelect
+        class="xl:hidden"
+        size="sm"
+        :model-value="props.meta?.density || 'standard'"
+        @update:model-value="(val) => emit('update-meta', 'density', String(val))"
+        aria-label="Layout density"
+      >
+        <NativeSelectOption value="compact">Compact</NativeSelectOption>
+        <NativeSelectOption value="standard">Standard</NativeSelectOption>
+        <NativeSelectOption value="spacious">Spacious</NativeSelectOption>
+      </NativeSelect>
     </div>
 
-    <div class="flex items-center gap-2.5">
+    <div class="flex items-center gap-2 sm:gap-2.5">
       <label
-        class="flex items-center gap-1.5 cursor-pointer select-none text-[11px] font-medium text-muted-foreground hover:text-foreground"
+        class="flex items-center gap-1.5 cursor-pointer select-none text-[11px] font-medium text-muted-foreground hover:text-foreground py-1"
         title="Hide email, phone, website, and social links for Upwork"
       >
         <input
           type="checkbox"
           :checked="props.meta?.hideContact || false"
           @change="emit('update-meta', 'hideContact', ($event.target as HTMLInputElement).checked)"
-          class="rounded border-input accent-amber-500"
+          class="rounded border-input accent-amber-500 w-3.5 h-3.5"
         />
         <EyeOff v-if="props.meta?.hideContact" class="w-3.5 h-3.5 text-amber-500" />
-        <span>Hide Contact</span>
+        <span class="whitespace-nowrap">Hide Contact</span>
       </label>
 
       <NativeSelect

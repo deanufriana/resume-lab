@@ -81,11 +81,12 @@ function removeProject(index: number) {
     >
       <template #item="{ element: project, index }">
         <Card class="border-border/80 shadow-none">
-          <CardHeader class="p-3.5">
+          <CardHeader class="p-3.5 cursor-pointer select-none" @click="toggleCollapse(project)">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2.5 min-w-0">
                 <div
                   class="handle cursor-grab active:cursor-grabbing p-1 -ml-1 text-muted-foreground hover:text-foreground"
+                  @click.stop
                 >
                   <GripVertical class="w-4 h-4" />
                 </div>
@@ -93,12 +94,15 @@ function removeProject(index: number) {
                   {{ project.name || `Project #${index + 1}` }}
                 </CardTitle>
               </div>
-              <div class="flex items-center gap-1 flex-shrink-0">
+              <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0" @click.stop>
                 <Button
                   variant="ghost"
                   size="icon"
-                  class="h-7 w-7"
+                  class="h-8 w-8 sm:h-7 sm:w-7 touch-manipulation"
                   @click="toggleCollapse(project)"
+                  :aria-label="
+                    isCollapsed(project) ? 'Expand project details' : 'Collapse project details'
+                  "
                 >
                   <ChevronUp v-if="!isCollapsed(project)" class="w-4 h-4" />
                   <ChevronDown v-else class="w-4 h-4" />
@@ -106,8 +110,9 @@ function removeProject(index: number) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  class="h-7 w-7 text-muted-foreground hover:text-destructive"
+                  class="h-8 w-8 sm:h-7 sm:w-7 text-muted-foreground hover:text-destructive touch-manipulation"
                   @click="removeProject(index)"
+                  aria-label="Remove project"
                 >
                   <Trash2 class="w-4 h-4" />
                 </Button>
@@ -118,29 +123,39 @@ function removeProject(index: number) {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div class="space-y-1">
                 <Label class="text-xs">Project Name</Label>
-                <Input v-model="project.name" placeholder="Portfolio Website" class="h-8 text-xs" />
+                <Input
+                  v-model="project.name"
+                  placeholder="Portfolio Website"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">URL</Label>
-                <Input v-model="project.url" placeholder="https://..." class="h-8 text-xs" />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-xs">Start Month</Label>
                 <Input
-                  type="month"
-                  :model-value="toMonthInput(project.startDate)"
-                  @update:model-value="(v) => (project.startDate = String(v))"
-                  class="h-8 text-xs"
+                  v-model="project.url"
+                  placeholder="https://..."
+                  class="h-9 sm:h-8 text-base sm:text-xs"
                 />
               </div>
-              <div class="space-y-1">
-                <Label class="text-xs">End Month</Label>
-                <Input
-                  type="month"
-                  :model-value="toMonthInput(project.endDate)"
-                  @update:model-value="(v) => (project.endDate = String(v))"
-                  class="h-8 text-xs"
-                />
+              <div class="grid grid-cols-1 min-[440px]:grid-cols-2 gap-2">
+                <div class="space-y-1">
+                  <Label class="text-xs">Start Month</Label>
+                  <Input
+                    type="month"
+                    :model-value="toMonthInput(project.startDate)"
+                    @update:model-value="(v) => (project.startDate = String(v))"
+                    class="h-9 sm:h-8 text-base sm:text-xs"
+                  />
+                </div>
+                <div class="space-y-1">
+                  <Label class="text-xs">End Month</Label>
+                  <Input
+                    type="month"
+                    :model-value="toMonthInput(project.endDate)"
+                    @update:model-value="(v) => (project.endDate = String(v))"
+                    class="h-9 sm:h-8 text-base sm:text-xs"
+                  />
+                </div>
               </div>
             </div>
             <div class="space-y-1">
@@ -148,7 +163,7 @@ function removeProject(index: number) {
               <Textarea
                 v-model="project.description"
                 placeholder="Short description of the project..."
-                class="min-h-[64px] text-xs"
+                class="min-h-[64px] text-base sm:text-xs"
               />
             </div>
             <div class="space-y-1.5">

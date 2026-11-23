@@ -16,9 +16,9 @@ const nativeSelectVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80 border-transparent",
       },
       size: {
-        default: "h-9 pl-3 pr-8 text-sm",
-        sm: "h-7 pl-2.5 pr-7 text-xs",
-        lg: "h-10 pl-4 pr-9 text-sm",
+        default: "h-9 pl-3 pr-8 text-base sm:text-sm",
+        sm: "h-8 sm:h-7 pl-2.5 pr-7 text-base sm:text-xs",
+        lg: "h-10 pl-4 pr-9 text-base sm:text-sm",
       },
     },
     defaultVariants: {

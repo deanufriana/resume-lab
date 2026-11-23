@@ -156,7 +156,7 @@ function handleFileUpload(e: Event) {
           </div>
 
           <!-- Editor -->
-          <div class="flex-1 p-4 overflow-hidden flex flex-col gap-2">
+          <div class="flex-1 p-3 sm:p-4 overflow-hidden flex flex-col gap-2">
             <div
               v-if="parseError"
               class="flex items-center gap-2 px-3 py-2 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-xs"
@@ -167,7 +167,7 @@ function handleFileUpload(e: Event) {
             <textarea
               v-model="jsonText"
               spellcheck="false"
-              class="flex-1 w-full rounded-lg border bg-muted/20 p-3 font-mono text-xs leading-relaxed outline-none focus:ring-2 focus:ring-ring resize-none custom-scrollbar"
+              class="flex-1 min-h-0 w-full rounded-lg border bg-muted/20 p-3 font-mono text-base sm:text-xs leading-relaxed outline-none focus:ring-2 focus:ring-ring resize-none custom-scrollbar"
             />
           </div>
 

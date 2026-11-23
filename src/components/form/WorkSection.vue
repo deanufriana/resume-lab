@@ -87,11 +87,12 @@ function toggleCurrentRole(exp: Work, isCurrent: boolean) {
     <Draggable v-else v-model="localWork" :item-key="getItemKey" handle=".handle" class="space-y-3">
       <template #item="{ element: exp, index }">
         <Card class="border-border/80 shadow-none">
-          <CardHeader class="p-3.5">
+          <CardHeader class="p-3.5 cursor-pointer select-none" @click="toggleCollapse(exp)">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2.5 min-w-0">
                 <div
                   class="handle cursor-grab active:cursor-grabbing p-1 -ml-1 text-muted-foreground hover:text-foreground"
+                  @click.stop
                 >
                   <GripVertical class="w-4 h-4" />
                 </div>
@@ -104,16 +105,23 @@ function toggleCurrentRole(exp: Work, isCurrent: boolean) {
                   </p>
                 </div>
               </div>
-              <div class="flex items-center gap-1 flex-shrink-0">
-                <Button variant="ghost" size="icon" class="h-7 w-7" @click="toggleCollapse(exp)">
+              <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0" @click.stop>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  class="h-8 w-8 sm:h-7 sm:w-7 touch-manipulation"
+                  @click="toggleCollapse(exp)"
+                  :aria-label="isCollapsed(exp) ? 'Expand role details' : 'Collapse role details'"
+                >
                   <ChevronUp v-if="!isCollapsed(exp)" class="w-4 h-4" />
                   <ChevronDown v-else class="w-4 h-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  class="h-7 w-7 text-muted-foreground hover:text-destructive"
+                  class="h-8 w-8 sm:h-7 sm:w-7 text-muted-foreground hover:text-destructive touch-manipulation"
                   @click="removeWork(index)"
+                  aria-label="Remove role"
                 >
                   <Trash2 class="w-4 h-4" />
                 </Button>
@@ -124,28 +132,36 @@ function toggleCurrentRole(exp: Work, isCurrent: boolean) {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div class="space-y-1">
                 <Label class="text-xs">Company Name</Label>
-                <Input v-model="exp.name" placeholder="Acme Corp" class="h-8 text-xs" />
+                <Input
+                  v-model="exp.name"
+                  placeholder="Acme Corp"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">Position</Label>
                 <Input
                   v-model="exp.position"
                   placeholder="Senior Software Engineer"
-                  class="h-8 text-xs"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
                 />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">Company URL</Label>
-                <Input v-model="exp.url" placeholder="https://..." class="h-8 text-xs" />
+                <Input
+                  v-model="exp.url"
+                  placeholder="https://..."
+                  class="h-9 sm:h-8 text-base sm:text-xs"
+                />
               </div>
-              <div class="grid grid-cols-2 gap-2">
+              <div class="grid grid-cols-1 min-[440px]:grid-cols-2 gap-2">
                 <div class="space-y-1">
                   <Label class="text-xs block leading-4">Start</Label>
                   <Input
                     type="month"
                     :model-value="toMonthInput(exp.startDate)"
                     @update:model-value="(v) => (exp.startDate = String(v))"
-                    class="h-8 text-xs"
+                    class="h-9 sm:h-8 text-base sm:text-xs"
                   />
                 </div>
                 <div class="space-y-1">
@@ -160,7 +176,7 @@ function toggleCurrentRole(exp: Work, isCurrent: boolean) {
                         @change="
                           toggleCurrentRole(exp, ($event.target as HTMLInputElement).checked)
                         "
-                        class="rounded border-input accent-foreground h-3 w-3"
+                        class="rounded border-input accent-foreground h-3.5 w-3.5 sm:h-3 sm:w-3"
                       />
                       Current
                     </label>
@@ -170,7 +186,7 @@ function toggleCurrentRole(exp: Work, isCurrent: boolean) {
                     :disabled="!exp.endDate"
                     :model-value="toMonthInput(exp.endDate)"
                     @update:model-value="(v) => (exp.endDate = String(v))"
-                    class="h-8 text-xs disabled:opacity-40"
+                    class="h-9 sm:h-8 text-base sm:text-xs disabled:opacity-40"
                   />
                 </div>
               </div>
@@ -180,7 +196,7 @@ function toggleCurrentRole(exp: Work, isCurrent: boolean) {
               <Textarea
                 v-model="exp.summary"
                 placeholder="Brief overview of your role and scope..."
-                class="min-h-[68px] text-xs"
+                class="min-h-[68px] text-base sm:text-xs"
               />
             </div>
             <div class="space-y-1.5">

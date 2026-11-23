@@ -76,11 +76,12 @@ function removeSkill(index: number) {
     >
       <template #item="{ element: skill, index }">
         <Card class="border-border/80 shadow-none">
-          <CardHeader class="p-3.5">
+          <CardHeader class="p-3.5 cursor-pointer select-none" @click="toggleCollapse(skill)">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2.5 min-w-0">
                 <div
                   class="handle cursor-grab active:cursor-grabbing p-1 -ml-1 text-muted-foreground hover:text-foreground"
+                  @click.stop
                 >
                   <GripVertical class="w-4 h-4" />
                 </div>
@@ -88,16 +89,25 @@ function removeSkill(index: number) {
                   {{ skill.name || `Skill Group #${index + 1}` }}
                 </CardTitle>
               </div>
-              <div class="flex items-center gap-1 flex-shrink-0">
-                <Button variant="ghost" size="icon" class="h-7 w-7" @click="toggleCollapse(skill)">
+              <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0" @click.stop>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  class="h-8 w-8 sm:h-7 sm:w-7 touch-manipulation"
+                  @click="toggleCollapse(skill)"
+                  :aria-label="
+                    isCollapsed(skill) ? 'Expand skills details' : 'Collapse skills details'
+                  "
+                >
                   <ChevronUp v-if="!isCollapsed(skill)" class="w-4 h-4" />
                   <ChevronDown v-else class="w-4 h-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  class="h-7 w-7 text-muted-foreground hover:text-destructive"
+                  class="h-8 w-8 sm:h-7 sm:w-7 text-muted-foreground hover:text-destructive touch-manipulation"
                   @click="removeSkill(index)"
+                  aria-label="Remove skill group"
                 >
                   <Trash2 class="w-4 h-4" />
                 </Button>
@@ -111,12 +121,16 @@ function removeSkill(index: number) {
                 <Input
                   v-model="skill.name"
                   placeholder="Frontend Development"
-                  class="h-8 text-xs"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
                 />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">Level (optional)</Label>
-                <Input v-model="skill.level" placeholder="Expert / Advanced" class="h-8 text-xs" />
+                <Input
+                  v-model="skill.level"
+                  placeholder="Expert / Advanced"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
+                />
               </div>
             </div>
             <div class="space-y-1.5">

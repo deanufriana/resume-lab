@@ -194,13 +194,15 @@ function applyToResume() {
   <Teleport to="body">
     <div
       v-if="open"
-      class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 no-print"
+      class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-2 sm:p-4 no-print"
       @click.self="emit('close')"
     >
       <div
-        class="w-full max-w-xl bg-white dark:bg-zinc-950 text-foreground border rounded-md shadow-lg overflow-hidden"
+        class="w-full max-w-xl max-h-[92dvh] bg-white dark:bg-zinc-950 text-foreground border rounded-t-xl sm:rounded-md shadow-lg overflow-hidden flex flex-col"
       >
-        <div class="flex items-center justify-between px-5 py-4 border-b">
+        <div
+          class="flex items-center justify-between px-4 sm:px-5 py-3.5 sm:py-4 border-b flex-shrink-0"
+        >
           <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-md bg-secondary flex items-center justify-center">
               <PenTool class="w-4 h-4 text-foreground" />
@@ -217,11 +219,11 @@ function applyToResume() {
           </Button>
         </div>
 
-        <div class="p-5 space-y-4">
+        <div class="p-3.5 sm:p-5 space-y-3 sm:space-y-4 overflow-y-auto flex-1">
           <div
             class="w-full bg-white border border-dashed border-border rounded-md overflow-hidden relative"
           >
-            <div class="relative w-full h-56">
+            <div class="relative w-full h-44 sm:h-56">
               <canvas
                 ref="canvas"
                 class="absolute inset-0 w-full h-full cursor-crosshair touch-none"
@@ -239,12 +241,12 @@ function applyToResume() {
             </div>
           </div>
 
-          <div class="flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
             <label class="flex items-center gap-2 cursor-pointer select-none">
               <input
                 type="checkbox"
                 v-model="transparentBg"
-                class="rounded border-input accent-primary"
+                class="rounded border-input accent-primary w-3.5 h-3.5"
               />
               <span>Transparent PNG background</span>
             </label>
@@ -253,7 +255,7 @@ function applyToResume() {
               <input
                 type="checkbox"
                 v-model="includeOnResume"
-                class="rounded border-input accent-primary"
+                class="rounded border-input accent-primary w-3.5 h-3.5"
               />
               <span class="font-medium">Include signature on resume footer</span>
             </label>
@@ -261,7 +263,7 @@ function applyToResume() {
         </div>
 
         <div
-          class="px-5 py-3.5 border-t bg-muted/20 flex flex-wrap items-center justify-between gap-2"
+          class="px-4 sm:px-5 py-3 sm:py-3.5 border-t bg-muted/20 flex flex-wrap items-center justify-between gap-2 flex-shrink-0"
         >
           <Button variant="outline" size="sm" class="gap-1.5" @click="clearCanvas">
             <Trash2 class="w-3.5 h-3.5" /> Clear
@@ -277,7 +279,7 @@ function applyToResume() {
               <Download class="w-3.5 h-3.5" /> Export PNG
             </Button>
             <Button size="sm" class="gap-1.5" @click="applyToResume">
-              <Check class="w-3.5 h-3.5" /> Apply to Resume
+              <Check class="w-3.5 h-3.5" /> Apply
             </Button>
           </div>
         </div>

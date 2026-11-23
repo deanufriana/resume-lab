@@ -173,18 +173,20 @@ function downloadJSON() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-background text-foreground flex flex-col">
+  <div class="h-[100dvh] bg-background text-foreground flex flex-col overflow-hidden">
     <Navbar
       :save-status="saveStatus"
       :has-content="hasResumeContent"
+      class="flex-shrink-0"
       @open-json="isJsonOpen = true"
       @open-signature="isSignatureOpen = true"
       @open-about="isAboutOpen = true"
       @load-sample="loadSampleResume"
+      @clear-resume="clearAllResume"
       @export-pdf="generatePDF"
     />
 
-    <main class="flex-1">
+    <main class="flex-1 min-h-0 flex flex-col">
       <router-view v-slot="{ Component }">
         <component
           :is="Component"

@@ -31,13 +31,15 @@ const otherApps = [
   <Teleport to="body">
     <div
       v-if="open"
-      class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 no-print"
+      class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-2 sm:p-4 no-print"
       @click.self="emit('close')"
     >
       <div
-        class="w-full max-w-lg bg-white dark:bg-zinc-950 text-foreground border rounded-md shadow-lg overflow-hidden"
+        class="w-full max-w-lg max-h-[90dvh] bg-white dark:bg-zinc-950 text-foreground border rounded-t-xl sm:rounded-md shadow-lg overflow-hidden flex flex-col"
       >
-        <div class="flex items-center justify-between px-5 py-4 border-b">
+        <div
+          class="flex items-center justify-between px-4 sm:px-5 py-3.5 sm:py-4 border-b flex-shrink-0"
+        >
           <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
               <FileText class="w-4 h-4 text-primary-foreground" />
@@ -54,7 +56,7 @@ const otherApps = [
           </Button>
         </div>
 
-        <div class="p-5 space-y-5 text-sm">
+        <div class="p-4 sm:p-5 space-y-4 sm:space-y-5 text-sm overflow-y-auto flex-1">
           <p class="text-muted-foreground text-xs leading-relaxed">
             Built to craft clean, ATS-friendly resumes from structured JSON Resume data—stored
             locally in your browser with zero tracking of your personal details.

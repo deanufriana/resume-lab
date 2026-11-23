@@ -88,7 +88,7 @@ function removeTag(index: number) {
       :placeholder="modelValue?.length ? '' : placeholder"
       @keydown="handleKeydown"
       @blur="handleBlur"
-      class="flex-1 min-w-[120px] bg-transparent text-xs outline-none placeholder:text-muted-foreground"
+      class="flex-1 min-w-[120px] bg-transparent text-base sm:text-xs outline-none placeholder:text-muted-foreground py-1"
     />
   </div>
 </template>

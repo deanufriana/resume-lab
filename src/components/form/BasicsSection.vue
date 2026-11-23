@@ -121,7 +121,12 @@ function removeProfile(index: number) {
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <div class="space-y-1">
         <Label for="name" class="text-xs">Name</Label>
-        <Input id="name" v-model="localBasics.name" placeholder="John Doe" class="h-8 text-xs" />
+        <Input
+          id="name"
+          v-model="localBasics.name"
+          placeholder="John Doe"
+          class="h-9 sm:h-8 text-base sm:text-xs"
+        />
       </div>
       <div class="space-y-1">
         <Label for="label" class="text-xs">Title</Label>
@@ -129,7 +134,7 @@ function removeProfile(index: number) {
           id="label"
           v-model="localBasics.label"
           placeholder="Software Engineer"
-          class="h-8 text-xs"
+          class="h-9 sm:h-8 text-base sm:text-xs"
         />
       </div>
       <div class="space-y-1">
@@ -139,7 +144,7 @@ function removeProfile(index: number) {
           type="email"
           v-model="localBasics.email"
           placeholder="john@example.com"
-          class="h-8 text-xs"
+          class="h-9 sm:h-8 text-base sm:text-xs"
         />
       </div>
       <div class="space-y-1">
@@ -148,7 +153,7 @@ function removeProfile(index: number) {
           id="phone"
           v-model="localBasics.phone"
           placeholder="+1 (555) 000-0000"
-          class="h-8 text-xs"
+          class="h-9 sm:h-8 text-base sm:text-xs"
         />
       </div>
       <div class="space-y-1">
@@ -157,7 +162,7 @@ function removeProfile(index: number) {
           id="url"
           v-model="localBasics.url"
           placeholder="https://johndoe.com"
-          class="h-8 text-xs"
+          class="h-9 sm:h-8 text-base sm:text-xs"
         />
       </div>
       <div class="space-y-1">
@@ -166,7 +171,7 @@ function removeProfile(index: number) {
           id="image"
           v-model="localBasics.image"
           placeholder="https://example.com/photo.jpg"
-          class="h-8 text-xs"
+          class="h-9 sm:h-8 text-base sm:text-xs"
         />
       </div>
       <div class="space-y-1">
@@ -175,7 +180,7 @@ function removeProfile(index: number) {
           id="city"
           v-model="localBasics.location.city"
           placeholder="Jakarta"
-          class="h-8 text-xs"
+          class="h-9 sm:h-8 text-base sm:text-xs"
         />
       </div>
       <div class="space-y-1">
@@ -184,7 +189,7 @@ function removeProfile(index: number) {
           id="region"
           v-model="localBasics.location.region"
           placeholder="DKI Jakarta"
-          class="h-8 text-xs"
+          class="h-9 sm:h-8 text-base sm:text-xs"
         />
       </div>
       <div class="space-y-1">
@@ -193,7 +198,7 @@ function removeProfile(index: number) {
           id="countryCode"
           v-model="localBasics.location.countryCode"
           placeholder="ID"
-          class="h-8 text-xs"
+          class="h-9 sm:h-8 text-base sm:text-xs"
         />
       </div>
       <div class="space-y-1">
@@ -202,7 +207,7 @@ function removeProfile(index: number) {
           id="address"
           v-model="localBasics.location.address"
           placeholder="Street / Area"
-          class="h-8 text-xs"
+          class="h-9 sm:h-8 text-base sm:text-xs"
         />
       </div>
     </div>
@@ -213,7 +218,7 @@ function removeProfile(index: number) {
         id="summary"
         v-model="localBasics.summary"
         placeholder="Brief professional summary..."
-        class="min-h-[90px] text-xs"
+        class="min-h-[90px] text-base sm:text-xs"
       />
     </div>
 
@@ -233,29 +238,42 @@ function removeProfile(index: number) {
         class="space-y-2.5"
       >
         <template #item="{ element: profile, index }">
-          <div class="flex items-start gap-3 p-3 border rounded-md bg-card">
+          <div class="flex items-start gap-2.5 p-3 border rounded-md bg-card">
             <div class="handle cursor-grab active:cursor-grabbing mt-2">
               <GripVertical class="w-4 h-4 text-muted-foreground" />
             </div>
             <div class="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
               <div class="space-y-1">
                 <Label class="text-xs">Network</Label>
-                <Input v-model="profile.network" placeholder="LinkedIn" class="h-8 text-xs" />
+                <Input
+                  v-model="profile.network"
+                  placeholder="LinkedIn"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">Username</Label>
-                <Input v-model="profile.username" placeholder="johndoe" class="h-8 text-xs" />
+                <Input
+                  v-model="profile.username"
+                  placeholder="johndoe"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">URL</Label>
-                <Input v-model="profile.url" placeholder="https://..." class="h-8 text-xs" />
+                <Input
+                  v-model="profile.url"
+                  placeholder="https://..."
+                  class="h-9 sm:h-8 text-base sm:text-xs"
+                />
               </div>
             </div>
             <Button
               variant="ghost"
               size="icon"
-              class="h-7 w-7 text-muted-foreground hover:text-destructive"
+              class="h-8 w-8 sm:h-7 sm:w-7 text-muted-foreground hover:text-destructive flex-shrink-0 touch-manipulation"
               @click="removeProfile(index)"
+              aria-label="Remove profile"
             >
               <Trash2 class="w-4 h-4" />
             </Button>

@@ -82,11 +82,12 @@ function removeEducation(index: number) {
     >
       <template #item="{ element: edu, index }">
         <Card class="border-border/80 shadow-none">
-          <CardHeader class="p-3.5">
+          <CardHeader class="p-3.5 cursor-pointer select-none" @click="toggleCollapse(edu)">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2.5 min-w-0">
                 <div
                   class="handle cursor-grab active:cursor-grabbing p-1 -ml-1 text-muted-foreground hover:text-foreground"
+                  @click.stop
                 >
                   <GripVertical class="w-4 h-4" />
                 </div>
@@ -94,16 +95,25 @@ function removeEducation(index: number) {
                   {{ edu.institution || `Education #${index + 1}` }}
                 </CardTitle>
               </div>
-              <div class="flex items-center gap-1 flex-shrink-0">
-                <Button variant="ghost" size="icon" class="h-7 w-7" @click="toggleCollapse(edu)">
+              <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0" @click.stop>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  class="h-8 w-8 sm:h-7 sm:w-7 touch-manipulation"
+                  @click="toggleCollapse(edu)"
+                  :aria-label="
+                    isCollapsed(edu) ? 'Expand education details' : 'Collapse education details'
+                  "
+                >
                   <ChevronUp v-if="!isCollapsed(edu)" class="w-4 h-4" />
                   <ChevronDown v-else class="w-4 h-4" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  class="h-7 w-7 text-muted-foreground hover:text-destructive"
+                  class="h-8 w-8 sm:h-7 sm:w-7 text-muted-foreground hover:text-destructive touch-manipulation"
                   @click="removeEducation(index)"
+                  aria-label="Remove education"
                 >
                   <Trash2 class="w-4 h-4" />
                 </Button>
@@ -117,33 +127,49 @@ function removeEducation(index: number) {
                 <Input
                   v-model="edu.institution"
                   placeholder="University of..."
-                  class="h-8 text-xs"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
                 />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">Area of Study</Label>
-                <Input v-model="edu.area" placeholder="Computer Science" class="h-8 text-xs" />
+                <Input
+                  v-model="edu.area"
+                  placeholder="Computer Science"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">Degree Type</Label>
-                <Input v-model="edu.studyType" placeholder="Bachelor's" class="h-8 text-xs" />
+                <Input
+                  v-model="edu.studyType"
+                  placeholder="Bachelor's"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">GPA / Score</Label>
-                <Input v-model="edu.score" placeholder="3.8/4.0" class="h-8 text-xs" />
+                <Input
+                  v-model="edu.score"
+                  placeholder="3.8/4.0"
+                  class="h-9 sm:h-8 text-base sm:text-xs"
+                />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">URL</Label>
-                <Input v-model="edu.url" placeholder="https://..." class="h-8 text-xs" />
+                <Input
+                  v-model="edu.url"
+                  placeholder="https://..."
+                  class="h-9 sm:h-8 text-base sm:text-xs"
+                />
               </div>
-              <div class="grid grid-cols-2 gap-2">
+              <div class="grid grid-cols-1 min-[440px]:grid-cols-2 gap-2">
                 <div class="space-y-1">
                   <Label class="text-xs">Start Month</Label>
                   <Input
                     type="month"
                     :model-value="toMonthInput(edu.startDate)"
                     @update:model-value="(v) => (edu.startDate = String(v))"
-                    class="h-8 text-xs"
+                    class="h-9 sm:h-8 text-base sm:text-xs"
                   />
                 </div>
                 <div class="space-y-1">
@@ -152,7 +178,7 @@ function removeEducation(index: number) {
                     type="month"
                     :model-value="toMonthInput(edu.endDate)"
                     @update:model-value="(v) => (edu.endDate = String(v))"
-                    class="h-8 text-xs"
+                    class="h-9 sm:h-8 text-base sm:text-xs"
                   />
                 </div>
               </div>

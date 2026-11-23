@@ -158,7 +158,7 @@ const currentSection = computed(() => sections.value.find((s) => s.id === active
 
 <template>
   <div
-    class="h-[calc(100vh-3.5rem)] flex flex-col lg:flex-row overflow-hidden print:h-auto print:overflow-visible print:block"
+    class="flex-1 min-h-0 flex flex-col lg:flex-row overflow-hidden print:h-auto print:overflow-visible print:block"
   >
     <StudioRail
       v-model:active-section="activeSection"
@@ -172,12 +172,14 @@ const currentSection = computed(() => sections.value.find((s) => s.id === active
     <!-- Pane 2: Center Editor Inspector -->
     <section
       :class="[
-        'lg:w-[430px] xl:w-[470px] flex-shrink-0 lg:border-r bg-background flex flex-col min-w-0 no-print',
+        'lg:w-[430px] xl:w-[470px] flex-shrink-0 lg:border-r bg-background flex flex-col min-w-0 min-h-0 no-print',
         mobileView === 'edit' ? 'flex-1 lg:flex-none flex' : 'hidden lg:flex',
       ]"
     >
-      <!-- Editor Sub-header -->
-      <div class="px-5 py-2.5 border-b flex items-center justify-between gap-3 bg-card/30">
+      <!-- Editor Sub-header (Desktop only to prevent duplicate header on mobile) -->
+      <div
+        class="hidden lg:flex px-5 py-2.5 border-b items-center justify-between gap-3 bg-card/30 flex-shrink-0"
+      >
         <div class="flex items-center gap-2 min-w-0">
           <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {{ currentSection?.label }}
@@ -195,7 +197,9 @@ const currentSection = computed(() => sections.value.find((s) => s.id === active
       </div>
 
       <!-- Scrollable Form Area -->
-      <div class="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar">
+      <div
+        class="flex-1 min-h-0 overflow-y-auto p-3.5 sm:p-5 space-y-4 sm:space-y-5 custom-scrollbar overscroll-contain"
+      >
         <!-- Welcome Onboarding Banner (when empty) -->
         <div
           v-if="!hasResumeContent && !onboardingDismissed"
@@ -275,7 +279,7 @@ const currentSection = computed(() => sections.value.find((s) => s.id === active
     <!-- Pane 3: Right Live A4 Canvas -->
     <section
       :class="[
-        'flex-1 flex flex-col bg-muted/30 relative min-w-0 overflow-hidden print:overflow-visible print:bg-white',
+        'flex-1 min-h-0 flex flex-col bg-muted/30 relative min-w-0 overflow-hidden print:overflow-visible print:bg-white',
         mobileView === 'preview' ? 'flex' : 'hidden lg:flex print:flex',
       ]"
     >
@@ -284,6 +288,7 @@ const currentSection = computed(() => sections.value.find((s) => s.id === active
         :themes="props.themes"
         :theme-id="props.themeId"
         :meta="localResume.meta"
+        class="flex-shrink-0"
         @theme-change="(id) => emit('theme-change', id)"
         @update-meta="updateMeta"
       />
@@ -291,7 +296,7 @@ const currentSection = computed(() => sections.value.find((s) => s.id === active
       <!-- Upwork Compliance Banner -->
       <div
         v-if="localResume.meta?.hideContact"
-        class="mx-4 mt-3 px-3 py-2 bg-amber-500/10 border border-amber-500/20 rounded-md flex items-center gap-2 text-amber-600 dark:text-amber-400 text-xs no-print"
+        class="mx-4 mt-3 px-3 py-2 bg-amber-500/10 border border-amber-500/20 rounded-md flex items-center gap-2 text-amber-600 dark:text-amber-400 text-xs flex-shrink-0 no-print"
       >
         <EyeOff class="w-4 h-4 flex-shrink-0" />
         <span>
@@ -302,7 +307,7 @@ const currentSection = computed(() => sections.value.find((s) => s.id === active
 
       <!-- Scrollable A4 Dot-Grid Canvas -->
       <div
-        class="flex-1 overflow-y-auto p-4 sm:p-6 bg-dot-pattern custom-scrollbar print:overflow-visible print:p-0 print:bg-none"
+        class="flex-1 min-h-0 overflow-y-auto p-2 sm:p-6 bg-dot-pattern custom-scrollbar overscroll-contain print:overflow-visible print:p-0 print:bg-none"
       >
         <ResumePreview
           v-if="hasResumeContent"
