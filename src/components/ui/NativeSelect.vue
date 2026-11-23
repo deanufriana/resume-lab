@@ -6,19 +6,19 @@ import { ChevronDown } from "lucide-vue-next";
 import { cn } from "../../utils/cn";
 
 const nativeSelectVariants = cva(
-  "flex w-full appearance-none rounded-md text-sm transition-all focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 group-hover:border-border cursor-pointer font-outfit shadow-sm",
+  "block w-full appearance-none rounded-md text-sm transition-colors focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 group-hover:border-border cursor-pointer font-outfit",
   {
     variants: {
       variant: {
-        default: "border border-input bg-background/50 hover:bg-accent/50 focus:border-primary/30",
+        default: "border border-input bg-background hover:bg-accent/50 focus:border-ring",
         outline: "border border-input bg-transparent hover:bg-accent hover:text-accent-foreground",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80 border-transparent",
       },
       size: {
-        default: "h-9 px-4 py-2",
-        sm: "h-8 px-3 text-xs",
-        lg: "h-10 px-8",
+        default: "h-9 pl-3 pr-8 text-sm",
+        sm: "h-7 pl-2.5 pr-7 text-xs",
+        lg: "h-10 pl-4 pr-9 text-sm",
       },
     },
     defaultVariants: {
@@ -52,12 +52,16 @@ const modelValue = useVModel(props, "modelValue", emits, {
 </script>
 
 <template>
-  <div class="relative w-full group">
-    <select v-model="modelValue" :class="cn(nativeSelectVariants({ variant, size }), props.class)">
+  <div class="relative inline-flex items-center group">
+    <select
+      v-model="modelValue"
+      v-bind="$attrs"
+      :class="cn(nativeSelectVariants({ variant, size }), props.class)"
+    >
       <slot />
     </select>
     <div
-      class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground group-hover:text-foreground transition-colors"
+      class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground group-hover:text-foreground transition-colors"
     >
       <ChevronDown :class="cn('opacity-70', size === 'sm' ? 'w-3 h-3' : 'w-4 h-4')" />
     </div>

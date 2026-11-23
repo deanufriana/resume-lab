@@ -1,327 +1,365 @@
 <template>
   <div
-    ref="previewContainer"
     class="resume-content relative"
-    style="font-family: &quot;Times New Roman&quot;, Times, serif"
+    :class="densityClass"
+    :style="{ fontFamily: resolvedFontFamily, '--resume-accent': accentColor }"
   >
     <!-- Header -->
-    <div class="border-b-2 border-gray-800 pb-4">
-      <h1 class="text-3xl font-bold text-gray-900 mb-4">
-        {{ resumeData.basics?.name }} | {{ resumeData.basics?.label }}
+    <header class="border-b-2 pb-3 mb-5" :style="{ borderColor: accentColor }">
+      <h1 class="text-2xl font-bold text-gray-900 mb-2 leading-tight">
+        {{ resumeData.basics?.name || "Your Name" }}
+        <span v-if="resumeData.basics?.label" class="font-normal text-gray-600">
+          | {{ resumeData.basics.label }}
+        </span>
       </h1>
-      <div class="flex flex-wrap gap-2 text-sm text-gray-700">
+      <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-700">
         <div v-if="resumeData.basics?.email">
-          <strong>Email:</strong> <a
-            :href="`mailto:${resumeData.basics.email}`"
-            class="text-blue-600 hover:underline"
-            target="_blank"
-            >{{ resumeData.basics.email }}</a
-          >
+          <strong class="mr-1">Email:</strong>
+          <a :href="`mailto:${resumeData.basics.email}`" class="hover:underline" target="_blank">
+            {{ resumeData.basics.email }}
+          </a>
         </div>
         <div v-if="resumeData.basics?.phone">
-          <strong>Phone:</strong> <a
-            :href="`tel:${resumeData.basics.phone}`"
-            class="text-blue-600 hover:underline"
-            target="_blank"
-            >{{ resumeData.basics.phone }}</a
-          >
+          <strong class="mr-1">Phone:</strong>
+          <a :href="`tel:${resumeData.basics.phone}`" class="hover:underline" target="_blank">
+            {{ resumeData.basics.phone }}
+          </a>
         </div>
         <div v-if="resumeData.basics?.url">
-          <strong>Website:</strong> <a
+          <strong class="mr-1">Website:</strong>
+          <a
             :href="sanitizeUrl(resumeData.basics.url)"
-            class="text-blue-600 hover:underline"
+            class="hover:underline"
             target="_blank"
             rel="noopener noreferrer"
-            >{{ resumeData.basics.url }}</a
           >
+            {{ resumeData.basics.url }}
+          </a>
         </div>
-        <div v-if="resumeData.basics?.location">
+        <div v-if="formattedLocation">
           <strong>Location:</strong>
-          {{
-            [
-              resumeData.basics.location.address,
-              resumeData.basics.location.city,
-              resumeData.basics.location.region,
-              resumeData.basics.location.postalCode,
-              resumeData.basics.location.countryCode,
-            ]
-              .filter(Boolean)
-              .join(", ")
-          }}
+          {{ formattedLocation }}
         </div>
       </div>
-      <div v-if="resumeData.basics?.profiles?.length" class="mt-2 flex flex-wrap gap-3 text-sm">
+      <div
+        v-if="resumeData.basics?.profiles?.length"
+        class="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-sm"
+      >
         <a
           v-for="(profile, index) in resumeData.basics.profiles"
           :key="index"
           :href="sanitizeUrl(profile.url)"
-          class="text-blue-600 hover:underline"
+          class="hover:underline"
           target="_blank"
           rel="noopener noreferrer"
         >
           {{ profile.network }}: {{ profile.username }}
         </a>
       </div>
-    </div>
+    </header>
 
     <!-- Summary -->
-    <div v-if="resumeData.basics?.summary" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2">Summary</h2>
+    <section v-if="resumeData.basics?.summary" class="section-block">
+      <h2 class="section-heading">Summary</h2>
       <p class="text-gray-700 leading-relaxed">{{ resumeData.basics.summary }}</p>
-    </div>
+    </section>
 
     <!-- Work Experience -->
-    <div v-if="resumeData.work && resumeData.work.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">
-        Work Experience
-      </h2>
-      <div v-for="(work, index) in resumeData.work" :key="index" class="mb-4">
-        <div class="flex justify-between items-start mb-1">
-          <div>
-            <h3 class="text-lg font-semibold text-gray-900">
-              {{ work.position }}
-            </h3>
-            <h4 class="text-base font-medium text-gray-700">
-              {{ work.name }}
-              <span v-if="work.url" class="text-sm text-gray-600">
-                -
-                <a
-                  :href="sanitizeUrl(work.url)"
-                  class="text-blue-600 hover:underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  >{{ work.url }}</a
-                >
-              </span>
-            </h4>
+    <section v-if="resumeData.work?.length" class="section-block">
+      <h2 class="section-heading">Work Experience</h2>
+      <div class="space-y-3.5">
+        <div v-for="(work, index) in resumeData.work" :key="index" class="break-inside-avoid">
+          <div class="flex justify-between items-baseline mb-1 gap-4">
+            <div>
+              <h3 class="text-base font-bold text-gray-900 leading-snug">
+                {{ work.position }}
+              </h3>
+              <div class="text-sm font-medium text-gray-700">
+                {{ work.name }}
+                <span v-if="work.url" class="text-gray-600">
+                  —
+                  <a
+                    :href="sanitizeUrl(work.url)"
+                    class="hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {{ work.url }}
+                  </a>
+                </span>
+              </div>
+            </div>
+            <div class="text-xs text-gray-600 whitespace-nowrap">
+              {{ formatDate(work.startDate) }} - {{ formatDate(work.endDate) || "Present" }}
+            </div>
           </div>
-          <div class="text-sm text-gray-600 whitespace-nowrap ml-4">
-            {{ formatDate(work.startDate) }} - {{ formatDate(work.endDate) || "Present" }}
+          <p v-if="work.summary" class="text-gray-700 mb-1.5 italic leading-snug">
+            {{ work.summary }}
+          </p>
+          <ul v-if="work.highlights?.length" class="resume-list text-gray-700 space-y-1">
+            <li v-for="(highlight, hIndex) in work.highlights" :key="hIndex">
+              {{ highlight }}
+            </li>
+          </ul>
+          <div v-if="work.skills?.length" class="mt-1.5 text-xs text-gray-600">
+            <span class="font-semibold text-gray-700">Skills:</span>
+            {{ work.skills.join(", ") }}
           </div>
-        </div>
-        <p v-if="work.summary" class="text-gray-700 mb-2 italic">{{ work.summary }}</p>
-        <ul v-if="work.highlights" class="resume-list text-gray-700 space-y-1">
-          <li v-for="(highlight, hIndex) in work.highlights" :key="hIndex">
-            {{ highlight }}
-          </li>
-        </ul>
-        <div v-if="work.skills && work.skills.length > 0" class="mt-2">
-          <span class="text-sm font-semibold text-gray-700">Skills: </span>
-          <span class="text-sm text-gray-600">{{ work.skills.join(", ") }}</span>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- Volunteer Experience -->
-    <div v-if="resumeData.volunteer && resumeData.volunteer.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">
-        Volunteer Experience
-      </h2>
-      <div v-for="(vol, index) in resumeData.volunteer" :key="index" class="mb-4">
-        <div class="flex justify-between items-start mb-1">
-          <div>
-            <h3 class="text-lg font-semibold text-gray-900">
-              {{ vol.position }}
-            </h3>
-            <h4 class="text-base font-medium text-gray-700">
-              {{ vol.organization }}
-              <span v-if="vol.url" class="text-sm text-gray-600">
-                -
-                <a
-                  :href="sanitizeUrl(vol.url)"
-                  class="text-blue-600 hover:underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  >{{ vol.url }}</a
-                >
-              </span>
-            </h4>
+    <section v-if="resumeData.volunteer?.length" class="section-block">
+      <h2 class="section-heading">Volunteer Experience</h2>
+      <div class="space-y-3">
+        <div v-for="(vol, index) in resumeData.volunteer" :key="index" class="break-inside-avoid">
+          <div class="flex justify-between items-baseline mb-1 gap-4">
+            <div>
+              <h3 class="text-base font-bold text-gray-900">{{ vol.position }}</h3>
+              <div class="text-sm font-medium text-gray-700">
+                {{ vol.organization }}
+                <span v-if="vol.url" class="text-gray-600">
+                  —
+                  <a
+                    :href="sanitizeUrl(vol.url)"
+                    class="hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {{ vol.url }}
+                  </a>
+                </span>
+              </div>
+            </div>
+            <div class="text-xs text-gray-600 whitespace-nowrap">
+              {{ formatDate(vol.startDate) }} - {{ formatDate(vol.endDate) || "Present" }}
+            </div>
           </div>
-          <div class="text-sm text-gray-600 whitespace-nowrap ml-4">
-            {{ formatDate(vol.startDate) }} - {{ formatDate(vol.endDate) || "Present" }}
-          </div>
+          <p v-if="vol.summary" class="text-gray-700 mb-1.5 italic leading-snug">
+            {{ vol.summary }}
+          </p>
+          <ul v-if="vol.highlights?.length" class="resume-list text-gray-700 space-y-1">
+            <li v-for="(highlight, hIndex) in vol.highlights" :key="hIndex">
+              {{ highlight }}
+            </li>
+          </ul>
         </div>
-        <p v-if="vol.summary" class="text-gray-700 mb-2 italic">{{ vol.summary }}</p>
-        <ul v-if="vol.highlights" class="resume-list text-gray-700 space-y-1">
-          <li v-for="(highlight, hIndex) in vol.highlights" :key="hIndex">
-            {{ highlight }}
-          </li>
-        </ul>
       </div>
-    </div>
+    </section>
 
     <!-- Education -->
-    <div v-if="resumeData.education && resumeData.education.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">
-        Education
-      </h2>
-      <div v-for="(edu, index) in resumeData.education" :key="index" class="mb-4">
-        <div class="flex justify-between items-start mb-1">
-          <div>
-            <h3 class="text-lg font-semibold text-gray-900">
-              {{ edu.studyType }} - {{ edu.area }}
-            </h3>
-            <h4 class="text-base font-medium text-gray-700">
-              {{ edu.institution }}
-              <span v-if="edu.url" class="text-sm text-blue-600">
-                -
-                <a
-                  :href="sanitizeUrl(edu.url)"
-                  class="text-blue-600 hover:underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  >{{ edu.url }}</a
-                >
-              </span>
-              <span v-if="edu.score" class="text-sm text-gray-600"> - GPA: {{ edu.score }} </span>
-            </h4>
+    <section v-if="resumeData.education?.length" class="section-block">
+      <h2 class="section-heading">Education</h2>
+      <div class="space-y-3">
+        <div v-for="(edu, index) in resumeData.education" :key="index" class="break-inside-avoid">
+          <div class="flex justify-between items-baseline mb-0.5 gap-4">
+            <div>
+              <h3 class="text-base font-bold text-gray-900">
+                {{ [edu.studyType, edu.area].filter(Boolean).join(" — ") }}
+              </h3>
+              <div class="text-sm font-medium text-gray-700">
+                {{ edu.institution }}
+                <span v-if="edu.url" class="text-gray-600">
+                  —
+                  <a
+                    :href="sanitizeUrl(edu.url)"
+                    class="hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {{ edu.url }}
+                  </a>
+                </span>
+                <span v-if="edu.score" class="text-gray-600"> · GPA: {{ edu.score }}</span>
+              </div>
+            </div>
+            <div class="text-xs text-gray-600 whitespace-nowrap">
+              {{ formatDate(edu.startDate) }} - {{ formatDate(edu.endDate) || "Present" }}
+            </div>
           </div>
-          <div class="text-sm text-gray-600 whitespace-nowrap ml-4">
-            {{ formatDate(edu.startDate) }} - {{ formatDate(edu.endDate) }}
+          <div v-if="edu.courses?.length" class="mt-1 text-xs text-gray-600">
+            <span class="font-semibold text-gray-700">Courses:</span>
+            {{ edu.courses.join(", ") }}
           </div>
-        </div>
-        <div v-if="edu.courses && edu.courses.length > 0" class="mt-2">
-          <span class="text-sm font-semibold text-gray-700">Courses: </span>
-          <span class="text-sm text-gray-600">{{ edu.courses.join(", ") }}</span>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- Skills -->
-    <div v-if="resumeData.skills && resumeData.skills.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">Skills</h2>
-      <div v-for="(skill, index) in resumeData.skills" :key="index" class="mb-3">
-        <div class="font-semibold text-gray-900">{{ skill.name }}</div>
-        <div v-if="skill.level" class="text-sm text-gray-600 mb-1">Level: {{ skill.level }}</div>
-        <div v-if="skill.keywords && skill.keywords.length > 0" class="text-gray-700">
-          {{ skill.keywords.join(", ") }}
+    <section v-if="resumeData.skills?.length" class="section-block">
+      <h2 class="section-heading">Skills</h2>
+      <div class="space-y-2">
+        <div v-for="(skill, index) in resumeData.skills" :key="index">
+          <span class="font-bold text-gray-900">{{ skill.name }}</span>
+          <span v-if="skill.level" class="text-xs text-gray-600"> ({{ skill.level }})</span>
+          <span v-if="skill.keywords?.length" class="text-gray-700">
+            : {{ skill.keywords.join(", ") }}
+          </span>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- Certificates -->
-    <div v-if="resumeData.certificates && resumeData.certificates.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">
-        Certificates
-      </h2>
-      <div v-for="(cert, index) in resumeData.certificates" :key="index" class="mb-2">
-        <div class="font-semibold text-gray-900">{{ cert.name }}</div>
-        <div class="text-sm text-gray-600">{{ cert.issuer }} - {{ formatDate(cert.date) }}</div>
+    <section v-if="resumeData.certificates?.length" class="section-block">
+      <h2 class="section-heading">Certificates</h2>
+      <div class="space-y-1.5">
+        <div v-for="(cert, index) in resumeData.certificates" :key="index">
+          <span class="font-bold text-gray-900">{{ cert.name }}</span>
+          <span class="text-sm text-gray-600">
+            — {{ cert.issuer }}<span v-if="cert.date"> · {{ formatDate(cert.date) }}</span>
+          </span>
+        </div>
       </div>
-    </div>
+    </section>
 
     <!-- Projects -->
-    <div v-if="resumeData.projects && resumeData.projects.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">Projects</h2>
-      <div v-for="(project, index) in resumeData.projects" :key="index" class="mb-4">
-        <div class="flex justify-between items-start mb-1">
-          <div>
-            <h3 class="text-lg font-semibold text-gray-900">{{ project.name }}</h3>
-            <a
-              v-if="project.url"
-              :href="sanitizeUrl(project.url)"
-              class="text-sm text-blue-600 hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
+    <section v-if="resumeData.projects?.length" class="section-block">
+      <h2 class="section-heading">Projects</h2>
+      <div class="space-y-3">
+        <div
+          v-for="(project, index) in resumeData.projects"
+          :key="index"
+          class="break-inside-avoid"
+        >
+          <div class="flex justify-between items-baseline mb-1 gap-4">
+            <div>
+              <h3 class="text-base font-bold text-gray-900">
+                {{ project.name }}
+                <a
+                  v-if="project.url"
+                  :href="sanitizeUrl(project.url)"
+                  class="text-xs font-normal hover:underline ml-1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {{ project.url }}
+                </a>
+              </h3>
+            </div>
+            <div
+              v-if="project.startDate || project.endDate"
+              class="text-xs text-gray-600 whitespace-nowrap"
             >
-              {{ project.url }}
-            </a>
+              {{ formatDate(project.startDate) }} - {{ formatDate(project.endDate) || "Present" }}
+            </div>
           </div>
-          <div class="text-sm text-gray-600 whitespace-nowrap ml-4">
-            {{ formatDate(project.startDate) }} - {{ formatDate(project.endDate) }}
-          </div>
+          <p v-if="project.description" class="text-gray-700 mb-1.5 leading-snug">
+            {{ project.description }}
+          </p>
+          <ul v-if="project.highlights?.length" class="resume-list text-gray-700 space-y-1">
+            <li v-for="(highlight, hIndex) in project.highlights" :key="hIndex">
+              {{ highlight }}
+            </li>
+          </ul>
         </div>
-        <p v-if="project.description" class="text-gray-700 mb-2">
-          {{ project.description }}
-        </p>
-        <ul v-if="project.highlights" class="resume-list text-gray-700 space-y-1">
-          <li v-for="(highlight, hIndex) in project.highlights" :key="hIndex">
-            {{ highlight }}
-          </li>
-        </ul>
       </div>
-    </div>
+    </section>
 
     <!-- Awards -->
-    <div v-if="resumeData.awards && resumeData.awards.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">Awards</h2>
-      <div v-for="(award, index) in resumeData.awards" :key="index" class="mb-3">
-        <div class="font-semibold text-gray-900">{{ award.title }}</div>
-        <div class="text-sm text-gray-600">{{ award.awarder }} - {{ formatDate(award.date) }}</div>
-        <p v-if="award.summary" class="text-gray-700 mt-1">{{ award.summary }}</p>
+    <section v-if="resumeData.awards?.length" class="section-block">
+      <h2 class="section-heading">Awards</h2>
+      <div class="space-y-2">
+        <div v-for="(award, index) in resumeData.awards" :key="index">
+          <div class="font-bold text-gray-900">
+            {{ award.title }}
+            <span class="text-sm font-normal text-gray-600">
+              — {{ award.awarder }}<span v-if="award.date"> · {{ formatDate(award.date) }}</span>
+            </span>
+          </div>
+          <p v-if="award.summary" class="text-gray-700 mt-0.5 leading-snug">{{ award.summary }}</p>
+        </div>
       </div>
-    </div>
+    </section>
 
     <!-- Publications -->
-    <div v-if="resumeData.publications && resumeData.publications.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">
-        Publications
-      </h2>
-      <div v-for="(pub, index) in resumeData.publications" :key="index" class="mb-4">
-        <div class="flex justify-between items-start mb-1">
-          <div>
-            <h3 class="text-lg font-semibold text-gray-900">{{ pub.name }}</h3>
-            <div class="text-base font-medium text-gray-700">{{ pub.publisher }}</div>
-            <a
-              v-if="pub.url"
-              :href="sanitizeUrl(pub.url)"
-              class="text-sm text-blue-600 hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {{ pub.url }}
-            </a>
+    <section v-if="resumeData.publications?.length" class="section-block">
+      <h2 class="section-heading">Publications</h2>
+      <div class="space-y-2.5">
+        <div v-for="(pub, index) in resumeData.publications" :key="index">
+          <div class="flex justify-between items-baseline gap-4">
+            <div>
+              <h3 class="text-base font-bold text-gray-900">{{ pub.name }}</h3>
+              <div class="text-sm font-medium text-gray-700">
+                {{ pub.publisher }}
+                <a
+                  v-if="pub.url"
+                  :href="sanitizeUrl(pub.url)"
+                  class="text-xs font-normal hover:underline ml-1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {{ pub.url }}
+                </a>
+              </div>
+            </div>
+            <div v-if="pub.releaseDate" class="text-xs text-gray-600 whitespace-nowrap">
+              {{ formatDate(pub.releaseDate) }}
+            </div>
           </div>
-          <div class="text-sm text-gray-600 whitespace-nowrap ml-4">
-            {{ formatDate(pub.releaseDate) }}
-          </div>
+          <p v-if="pub.summary" class="text-gray-700 mt-1 leading-snug">{{ pub.summary }}</p>
         </div>
-        <p v-if="pub.summary" class="text-gray-700 mt-2">{{ pub.summary }}</p>
       </div>
-    </div>
+    </section>
 
     <!-- Languages -->
-    <div v-if="resumeData.languages && resumeData.languages.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">
-        Languages
-      </h2>
-      <div class="flex flex-wrap gap-4">
+    <section v-if="resumeData.languages?.length" class="section-block">
+      <h2 class="section-heading">Languages</h2>
+      <div class="flex flex-wrap gap-x-6 gap-y-1">
         <div v-for="(lang, index) in resumeData.languages" :key="index" class="text-gray-700">
           <strong>{{ lang.language }}:</strong> {{ lang.fluency }}
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- Interests -->
-    <div v-if="resumeData.interests && resumeData.interests.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2 border-b-2 border-gray-800 pb-4">
-        Interests
-      </h2>
-      <div v-for="(interest, index) in resumeData.interests" :key="index" class="mb-3">
-        <div class="font-semibold text-gray-900">{{ interest.name }}</div>
-        <div v-if="interest.keywords && interest.keywords.length > 0" class="text-gray-700">
-          {{ interest.keywords.join(", ") }}
+    <section v-if="resumeData.interests?.length" class="section-block">
+      <h2 class="section-heading">Interests</h2>
+      <div class="space-y-1.5">
+        <div v-for="(interest, index) in resumeData.interests" :key="index">
+          <span class="font-bold text-gray-900">{{ interest.name }}</span>
+          <span v-if="interest.keywords?.length" class="text-gray-700">
+            : {{ interest.keywords.join(", ") }}
+          </span>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- References -->
-    <div v-if="resumeData.references && resumeData.references.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2">References</h2>
-      <div v-for="(ref, index) in resumeData.references" :key="index" class="mb-3">
-        <div class="font-semibold text-gray-900">{{ ref.name }}</div>
-        <p v-if="ref.reference" class="text-gray-700 mt-1">{{ ref.reference }}</p>
+    <section v-if="resumeData.references?.length" class="section-block">
+      <h2 class="section-heading">References</h2>
+      <div class="space-y-2">
+        <div v-for="(ref, index) in resumeData.references" :key="index">
+          <div class="font-bold text-gray-900">{{ ref.name }}</div>
+          <p v-if="ref.reference" class="text-gray-700 mt-0.5 leading-snug">{{ ref.reference }}</p>
+        </div>
       </div>
-    </div>
+    </section>
+
+    <!-- Optional Signature Footer -->
+    <footer
+      v-if="resumeData.meta?.showSignature && resumeData.meta?.signatureDataUrl"
+      class="mt-8 pt-4 border-t border-gray-300 flex justify-end"
+    >
+      <div class="text-center">
+        <img
+          :src="resumeData.meta.signatureDataUrl"
+          alt="Signature"
+          class="h-12 object-contain mx-auto"
+        />
+        <div class="text-xs text-gray-700 mt-1 border-t border-gray-400 pt-1 px-4">
+          {{ resumeData.basics?.name }}
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed } from "vue";
 import type { Resume } from "../types/resume";
 import { formatDate } from "../utils/date";
 import { sanitizeUrl } from "../utils/url";
-import { useResumePreview } from "../composables/useResumePreview";
 
 interface Props {
   resumeData: Resume;
@@ -329,21 +367,65 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const previewContainer = ref<HTMLElement | null>(null);
-const { calculateContentHeight } = useResumePreview(previewContainer);
+const accentColor = computed(() => props.resumeData.meta?.accentColor || "#1f2937");
 
-watch(
-  () => props.resumeData,
-  () => {
-    calculateContentHeight();
-  },
-  { deep: true },
-);
+const resolvedFontFamily = computed(() => {
+  const f = props.resumeData.meta?.fontFamily;
+  if (f === "sans") return '"Inter", system-ui, sans-serif';
+  if (f === "mono") return '"JetBrains Mono", monospace';
+  return '"Times New Roman", Times, serif';
+});
+
+const densityClass = computed(() => {
+  const d = props.resumeData.meta?.density || "standard";
+  if (d === "compact") return "density-compact text-[13px]";
+  if (d === "spacious") return "density-spacious text-[15px]";
+  return "density-standard text-[14px]";
+});
+
+const formattedLocation = computed(() => {
+  const loc = props.resumeData.basics?.location;
+  if (!loc) return "";
+  return [loc.address, loc.city, loc.region, loc.postalCode, loc.countryCode]
+    .filter(Boolean)
+    .join(", ");
+});
 </script>
 
 <style scoped>
-.resume-content {
-  page-break-inside: avoid;
+.density-compact {
+  line-height: 1.35;
+}
+.density-compact .section-block {
+  margin-bottom: 0.9rem;
+}
+
+.density-standard {
+  line-height: 1.5;
+}
+.density-standard .section-block {
+  margin-bottom: 1.25rem;
+}
+
+.density-spacious {
+  line-height: 1.65;
+}
+.density-spacious .section-block {
+  margin-bottom: 1.6rem;
+}
+
+.section-heading {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--resume-accent, #111827);
+  border-bottom: 1.5px solid var(--resume-accent, #1f2937);
+  padding-bottom: 0.25rem;
+  margin-bottom: 0.65rem;
+}
+
+.resume-content :deep(a),
+.resume-content a {
+  color: var(--resume-accent, #1f2937) !important;
 }
 
 /* Fix bullet point alignment for PDF generation */
@@ -355,57 +437,24 @@ watch(
 
 .resume-list li {
   position: relative;
-  padding-left: 1.5rem;
+  padding-left: 1.25rem;
   margin-left: 0;
-  line-height: 1.6;
+  line-height: 1.45;
 }
 
 .resume-list li::before {
   content: "•";
   position: absolute;
-  left: 0.5rem;
-  color: #374151;
+  left: 0.35rem;
+  color: var(--resume-accent, #374151);
   font-weight: bold;
-  font-size: 1em;
-  line-height: 1.6;
-  vertical-align: middle;
 }
 
-/* Fix image and SVG centering for PDF generation */
 img {
   display: block !important;
   margin-left: auto !important;
   margin-right: auto !important;
   max-width: 100%;
   height: auto;
-}
-
-svg {
-  display: inline-block !important;
-  vertical-align: middle !important;
-}
-
-/* Ensure flex containers properly center content in PDF */
-.flex.items-center {
-  display: flex !important;
-  align-items: center !important;
-}
-
-.flex.items-center svg {
-  display: inline-block !important;
-  vertical-align: middle !important;
-  flex-shrink: 0 !important;
-}
-
-/* Force alignment for all flex containers */
-[class*="flex"][class*="items-center"] {
-  display: flex !important;
-  align-items: center !important;
-}
-
-[class*="flex"][class*="items-center"] svg {
-  display: inline-block !important;
-  vertical-align: middle !important;
-  flex-shrink: 0 !important;
 }
 </style>

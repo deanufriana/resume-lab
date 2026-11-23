@@ -1,6 +1,7 @@
 import type { Component } from "vue";
 import SimplePreview from "./Simple.vue";
 import ProfessionalPreview from "./Professional.vue";
+import ModernPreview from "./Modern.vue";
 
 export interface Theme {
   id: string;
@@ -11,15 +12,21 @@ export interface Theme {
 
 export const themes: Theme[] = [
   {
+    id: "modern",
+    name: "Modern",
+    description: "Two-column layout with crisp hierarchy and accent colors",
+    component: ModernPreview,
+  },
+  {
     id: "simple",
     name: "Simple",
-    description: "Clean and straightforward ATS-friendly format",
+    description: "Clean and straightforward ATS-friendly single-column format",
     component: SimplePreview,
   },
   {
     id: "professional",
     name: "Professional",
-    description: "Bold, high-contrast design with efficient space usage",
+    description: "Bold, high-contrast executive layout with structured sections",
     component: ProfessionalPreview,
   },
 ];

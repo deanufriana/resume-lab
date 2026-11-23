@@ -1,14 +1,33 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { Menu, X, Upload, FileText, PenTool, Sun, Moon, Info } from "lucide-vue-next";
+import {
+  FileText,
+  PenTool,
+  Sun,
+  Moon,
+  Info,
+  FileCode2,
+  Printer,
+  Download,
+  Sparkles,
+  CheckCircle2,
+  Loader2,
+} from "lucide-vue-next";
 import { useDark } from "@vueuse/core";
-import { cn } from "../utils/cn";
 import { Button } from "./ui/index";
 import { Analytics } from "../utils/analytics";
 
-const route = useRoute();
-const router = useRouter();
+defineProps<{
+  saveStatus: "saved" | "saving" | "idle";
+  hasContent: boolean;
+}>();
+
+const emit = defineEmits<{
+  (e: "open-json"): void;
+  (e: "open-signature"): void;
+  (e: "open-about"): void;
+  (e: "load-sample"): void;
+  (e: "export-pdf"): void;
+}>();
 
 const isDark = useDark({
   selector: "html",
@@ -16,143 +35,145 @@ const isDark = useDark({
   valueDark: "dark",
   valueLight: "",
 });
-const toggleDark = () => {
-  isDark.value = !isDark.value;
-  Analytics.trackDarkModeToggle(isDark.value);
+
+const toggleDark = (event: MouseEvent) => {
+  const nextDark = !isDark.value;
+  Analytics.trackDarkModeToggle(nextDark);
+
+  const supportsViewTransition =
+    typeof document !== "undefined" &&
+    "startViewTransition" in document &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (!supportsViewTransition) {
+    isDark.value = nextDark;
+    return;
+  }
+
+  const x = event.clientX;
+  const y = event.clientY;
+  const endRadius = Math.hypot(
+    Math.max(x, window.innerWidth - x),
+    Math.max(y, window.innerHeight - y),
+  );
+
+  const transition = document.startViewTransition(() => {
+    isDark.value = nextDark;
+  });
+
+  void transition.ready.then(() => {
+    document.documentElement.animate(
+      {
+        clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`],
+      },
+      {
+        duration: 420,
+        easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+        pseudoElement: "::view-transition-new(root)",
+      },
+    );
+  });
 };
-
-const isMenuOpen = ref(false);
-
-const activeTab = computed(() => {
-  const path = route.path.replace("/", "");
-  return path || "upload";
-});
-
-const navItems = [
-  { id: "upload", path: "/upload", label: "Upload JSON", icon: Upload },
-  { id: "manual", path: "/manual", label: "Manual Entry", icon: FileText },
-  { id: "signature", path: "/signature", label: "Signature", icon: PenTool },
-  { id: "about", path: "/about", label: "About", icon: Info },
-];
-
-function handleNavClick(path: string) {
-  router.push(path);
-  isMenuOpen.value = false;
-}
 </script>
 
 <template>
   <header
-    class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+    class="sticky top-0 z-40 w-full h-14 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/70 no-print"
   >
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex h-16 items-center justify-between">
-        <!-- Logo -->
+    <div class="h-full px-4 flex items-center justify-between gap-3">
+      <!-- Brand + Save Status -->
+      <div class="flex items-center gap-3 min-w-0">
         <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-sm bg-primary flex items-center justify-center">
-            <FileText class="w-5 h-5 text-primary-foreground" />
+          <div class="w-7 h-7 rounded-md bg-primary flex items-center justify-center flex-shrink-0">
+            <FileText class="w-4 h-4 text-primary-foreground" />
           </div>
-          <div class="flex flex-col">
-            <span class="text-lg font-bold tracking-tight font-outfit">Resume Lab</span>
-          </div>
+          <span class="text-base font-bold tracking-tight font-outfit">Resume Lab</span>
         </div>
 
-        <!-- Desktop Nav -->
-        <nav class="hidden md:flex items-center gap-1">
-          <button
-            v-for="item in navItems"
-            :key="item.id"
-            @click="handleNavClick(item.path)"
-            :class="
-              cn(
-                'relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors duration-150',
-                activeTab === item.id
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-accent hover:text-foreground',
-              )
-            "
-          >
-            <component :is="item.icon" class="w-4 h-4" />
-            {{ item.label }}
-          </button>
-        </nav>
+        <span
+          v-if="saveStatus === 'saving'"
+          class="hidden sm:inline-flex items-center gap-1 text-[11px] text-muted-foreground"
+        >
+          <Loader2 class="w-3 h-3 animate-spin" /> Saving
+        </span>
+        <span
+          v-else-if="saveStatus === 'saved'"
+          class="hidden sm:inline-flex items-center gap-1 text-[11px] text-muted-foreground"
+        >
+          <CheckCircle2 class="w-3 h-3" /> Saved
+        </span>
+      </div>
 
-        <!-- GitHub/CTA etc -->
-        <div class="flex items-center gap-2 sm:gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            @click="toggleDark()"
-            class="rounded-lg"
-            aria-label="Toggle theme"
-          >
-            <Sun v-if="isDark" class="w-5 h-5 text-yellow-500" />
-            <Moon v-else class="w-5 h-5 text-slate-700" />
-          </Button>
+      <!-- Studio Actions -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          class="h-8 text-xs gap-1.5 hidden md:inline-flex"
+          @click="emit('load-sample')"
+        >
+          <Sparkles class="w-3.5 h-3.5" /> Sample
+        </Button>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            as="a"
-            href="https://github.com/deanufriana/resume-lab"
-            target="_blank"
-            class="hidden sm:flex"
-            @click="
-              Analytics.trackExternalLink('https://github.com/deanufriana/resume-lab', 'GitHub')
-            "
-          >
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path
-                d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
-              />
-            </svg>
-          </Button>
+        <Button variant="outline" size="sm" class="h-8 text-xs gap-1.5" @click="emit('open-json')">
+          <FileCode2 class="w-3.5 h-3.5" />
+          <span class="hidden sm:inline">JSON</span>
+        </Button>
 
-          <!-- Mobile Toggle -->
-          <button
-            @click="isMenuOpen = !isMenuOpen"
-            class="md:hidden p-2 text-muted-foreground hover:bg-accent rounded-lg transition-colors"
+        <Button
+          variant="outline"
+          size="sm"
+          class="h-8 text-xs gap-1.5"
+          @click="emit('open-signature')"
+        >
+          <PenTool class="w-3.5 h-3.5" />
+          <span class="hidden sm:inline">Signature</span>
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          class="h-8 w-8"
+          @click="emit('open-about')"
+          aria-label="About Resume Lab"
+        >
+          <Info class="w-4 h-4" />
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          class="h-8 w-8"
+          @click="toggleDark($event)"
+          aria-label="Toggle theme"
+        >
+          <Transition
+            mode="out-in"
+            enter-active-class="transition duration-150 ease-out"
+            enter-from-class="opacity-0 -rotate-90 scale-75"
+            enter-to-class="opacity-100 rotate-0 scale-100"
+            leave-active-class="transition duration-100 ease-in"
+            leave-from-class="opacity-100 rotate-0 scale-100"
+            leave-to-class="opacity-0 rotate-90 scale-75"
           >
-            <Menu v-if="!isMenuOpen" class="w-6 h-6" />
-            <X v-else class="w-6 h-6" />
-          </button>
-        </div>
+            <Sun v-if="isDark" class="w-4 h-4 text-amber-400" />
+            <Moon v-else class="w-4 h-4" />
+          </Transition>
+        </Button>
+
+        <div class="h-4 w-px bg-border mx-0.5 hidden sm:block"></div>
+
+        <Button
+          size="sm"
+          class="h-8 text-xs gap-1.5"
+          :disabled="!hasContent"
+          @click="emit('export-pdf')"
+        >
+          <Download class="w-3.5 h-3.5" />
+          <span class="hidden sm:inline">Download PDF</span>
+          <span class="sm:hidden">PDF</span>
+        </Button>
       </div>
     </div>
-
-    <!-- Mobile Menu -->
-    <transition
-      enter-active-class="transition duration-200 ease-out"
-      enter-from-class="opacity-0 -translate-y-4"
-      enter-to-class="opacity-100 translate-y-0"
-      leave-active-class="transition duration-150 ease-in"
-      leave-from-class="opacity-100 translate-y-0"
-      leave-to-class="opacity-0 -translate-y-4"
-    >
-      <div v-if="isMenuOpen" class="md:hidden border-t bg-background px-4 py-4 space-y-2">
-        <button
-          v-for="item in navItems"
-          :key="item.id"
-          @click="handleNavClick(item.path)"
-          :class="
-            cn(
-              'flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all',
-              activeTab === item.id
-                ? 'bg-primary text-primary-foreground'
-                : 'hover:bg-accent text-muted-foreground',
-            )
-          "
-        >
-          <component :is="item.icon" class="w-5 h-5" />
-          {{ item.label }}
-        </button>
-      </div>
-    </transition>
   </header>
 </template>
-
-<style scoped>
-.font-outfit {
-  font-family: "Outfit", sans-serif;
-}
-</style>

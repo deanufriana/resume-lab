@@ -94,12 +94,6 @@ export const trackPageView = (pagePath: string, pageTitle?: string) => {
  * Common App Events
  */
 export const Analytics = {
-  // Navigation
-  trackTabChange: (tabId: string) => {
-    trackEvent("tab_change", "navigation", tabId);
-    trackPageView(`/${tabId}`, `Resume Lab - ${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`);
-  },
-
   // Resume Actions
   trackResumeUpload: (fileName?: string) => {
     trackEvent("resume_upload", "resume", fileName);

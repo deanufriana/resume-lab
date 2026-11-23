@@ -14,16 +14,16 @@ const props = defineProps<{
   <div
     :class="
       cn(
-        'flex flex-col items-center justify-center text-center p-8 sm:p-12 border-2 border-dashed border-border rounded-xl bg-muted/20',
+        'flex flex-col items-center justify-center text-center p-8 sm:p-10 border border-dashed border-border rounded-md bg-muted/20',
         props.class,
       )
     "
   >
     <div
       v-if="props.icon"
-      class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-4"
+      class="w-10 h-10 rounded-md bg-primary/10 text-primary flex items-center justify-center mb-3"
     >
-      <component :is="props.icon" class="w-6 h-6" />
+      <component :is="props.icon" class="w-5 h-5" />
     </div>
     <h4 class="text-base font-semibold text-foreground">{{ props.title }}</h4>
     <p v-if="props.description" class="text-sm text-muted-foreground mt-1 max-w-md">

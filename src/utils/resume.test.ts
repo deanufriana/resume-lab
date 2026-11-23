@@ -1,6 +1,7 @@
 import { describe, expect, it, beforeEach } from "vite-plus/test";
 import { ref } from "vue";
-import { formatDate } from "./date";
+import { formatDate, toMonthInput } from "./date";
+import { stripContactInfo } from "./privacy";
 import { sanitizeUrl } from "./url";
 import { saveResumeToStorage, loadResumeFromStorage, clearResumeFromStorage } from "./storage";
 import { useStableList } from "../composables/useStableList";
@@ -15,6 +16,16 @@ describe("formatDate", () => {
     expect(formatDate()).toBe("");
     expect(formatDate("")).toBe("");
     expect(formatDate("not-a-date")).toBe("not-a-date");
+  });
+});
+
+describe("toMonthInput", () => {
+  it("extracts YYYY-MM from ISO dates and returns empty string for invalid or missing input", () => {
+    expect(toMonthInput("2020-01-15")).toBe("2020-01");
+    expect(toMonthInput("2024-12")).toBe("2024-12");
+    expect(toMonthInput("")).toBe("");
+    expect(toMonthInput(undefined)).toBe("");
+    expect(toMonthInput("invalid")).toBe("");
   });
 });
 
@@ -85,5 +96,37 @@ describe("useStableList", () => {
     localItems.value = [second, first];
     expect(isCollapsed(first)).toBe(true);
     expect(isCollapsed(second)).toBe(false);
+  });
+});
+
+describe("stripContactInfo", () => {
+  it("strips email, phone, url, profiles, and street address when hideContact is true", () => {
+    const resume = {
+      basics: {
+        name: "Jane Doe",
+        email: "jane@example.com",
+        phone: "+123456",
+        url: "https://jane.dev",
+        profiles: [{ network: "GitHub", username: "jane", url: "https://github.com/jane" }],
+        location: { city: "Jakarta", address: "123 Main St" },
+      },
+      meta: { hideContact: true },
+    };
+
+    const result = stripContactInfo(resume);
+    expect(result.basics?.name).toBe("Jane Doe");
+    expect(result.basics?.email).toBe("");
+    expect(result.basics?.phone).toBe("");
+    expect(result.basics?.url).toBe("");
+    expect(result.basics?.profiles).toEqual([]);
+    expect(result.basics?.location?.city).toBe("Jakarta");
+    expect(result.basics?.location?.address).toBe("");
+    // Original object remains untouched
+    expect(resume.basics.email).toBe("jane@example.com");
+  });
+
+  it("returns the resume unchanged when hideContact is false", () => {
+    const resume = { basics: { name: "Jane Doe", email: "jane@example.com" }, meta: {} };
+    expect(stripContactInfo(resume)).toBe(resume);
   });
 });

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Project } from "../../types/resume";
 import { useStableList } from "../../composables/useStableList";
+import { toMonthInput } from "../../utils/date";
 import {
   Input,
   Label,
@@ -11,6 +12,7 @@ import {
   CardContent,
   Button,
   EmptyState,
+  BulletListInput,
 } from "../ui/index";
 import Draggable from "vuedraggable";
 import { FolderGit2, GripVertical, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-vue-next";
@@ -47,17 +49,18 @@ function addProject() {
 function removeProject(index: number) {
   localProjects.value.splice(index, 1);
 }
-
-function updateHighlights(index: number, value: string) {
-  localProjects.value[index].highlights = value.split("\n").filter((h) => h.trim() !== "");
-}
 </script>
 
 <template>
   <div class="space-y-4">
     <div class="flex items-center justify-between">
-      <h3 class="text-lg font-semibold">Projects</h3>
-      <Button @click="addProject" size="sm"> <Plus class="w-4 h-4 mr-2" /> Add Project </Button>
+      <div>
+        <h3 class="text-base font-semibold">Projects</h3>
+        <p class="text-xs text-muted-foreground">Personal, open-source, or key initiatives.</p>
+      </div>
+      <Button @click="addProject" size="sm" class="h-8 text-xs">
+        <Plus class="w-3.5 h-3.5 mr-1.5" /> Add Project
+      </Button>
     </div>
 
     <EmptyState
@@ -74,29 +77,36 @@ function updateHighlights(index: number, value: string) {
       v-model="localProjects"
       :item-key="getItemKey"
       handle=".handle"
-      class="space-y-4"
+      class="space-y-3"
     >
       <template #item="{ element: project, index }">
-        <Card>
-          <CardHeader class="p-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="handle cursor-grab active:cursor-grabbing">
-                  <GripVertical class="w-4 h-4 text-muted-foreground" />
+        <Card class="border-border/80 shadow-none">
+          <CardHeader class="p-3.5">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div
+                  class="handle cursor-grab active:cursor-grabbing p-1 -ml-1 text-muted-foreground hover:text-foreground"
+                >
+                  <GripVertical class="w-4 h-4" />
                 </div>
-                <CardTitle class="text-base">
+                <CardTitle class="text-sm font-semibold truncate">
                   {{ project.name || `Project #${index + 1}` }}
                 </CardTitle>
               </div>
-              <div class="flex items-center gap-2">
-                <Button variant="ghost" size="sm" @click="toggleCollapse(project)">
+              <div class="flex items-center gap-1 flex-shrink-0">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  class="h-7 w-7"
+                  @click="toggleCollapse(project)"
+                >
                   <ChevronUp v-if="!isCollapsed(project)" class="w-4 h-4" />
                   <ChevronDown v-else class="w-4 h-4" />
                 </Button>
                 <Button
                   variant="ghost"
-                  size="sm"
-                  class="text-destructive"
+                  size="icon"
+                  class="h-7 w-7 text-muted-foreground hover:text-destructive"
                   @click="removeProject(index)"
                 >
                   <Trash2 class="w-4 h-4" />
@@ -104,25 +114,33 @@ function updateHighlights(index: number, value: string) {
               </div>
             </div>
           </CardHeader>
-          <CardContent v-show="!isCollapsed(project)" class="p-4 pt-0 space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CardContent v-show="!isCollapsed(project)" class="p-3.5 pt-0 space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div class="space-y-1">
                 <Label class="text-xs">Project Name</Label>
-                <Input v-model="project.name" placeholder="Portfolio Website" />
+                <Input v-model="project.name" placeholder="Portfolio Website" class="h-8 text-xs" />
               </div>
               <div class="space-y-1">
                 <Label class="text-xs">URL</Label>
-                <Input v-model="project.url" placeholder="https://..." />
+                <Input v-model="project.url" placeholder="https://..." class="h-8 text-xs" />
               </div>
-              <div class="grid grid-cols-2 gap-2">
-                <div class="space-y-1">
-                  <Label class="text-xs">Start Date</Label>
-                  <Input v-model="project.startDate" type="date" />
-                </div>
-                <div class="space-y-1">
-                  <Label class="text-xs">End Date</Label>
-                  <Input v-model="project.endDate" type="date" />
-                </div>
+              <div class="space-y-1">
+                <Label class="text-xs">Start Month</Label>
+                <Input
+                  type="month"
+                  :model-value="toMonthInput(project.startDate)"
+                  @update:model-value="(v) => (project.startDate = String(v))"
+                  class="h-8 text-xs"
+                />
+              </div>
+              <div class="space-y-1">
+                <Label class="text-xs">End Month</Label>
+                <Input
+                  type="month"
+                  :model-value="toMonthInput(project.endDate)"
+                  @update:model-value="(v) => (project.endDate = String(v))"
+                  class="h-8 text-xs"
+                />
               </div>
             </div>
             <div class="space-y-1">
@@ -130,15 +148,16 @@ function updateHighlights(index: number, value: string) {
               <Textarea
                 v-model="project.description"
                 placeholder="Short description of the project..."
+                class="min-h-[64px] text-xs"
               />
             </div>
-            <div class="space-y-1">
-              <Label class="text-xs">Highlights (one per line)</Label>
-              <Textarea
-                :model-value="project.highlights?.join('\n')"
-                @update:model-value="(val) => updateHighlights(index, val as string)"
-                placeholder="Implemented SSR with Nuxt.js...&#10;Integrated AWS S3 for uploads..."
-                class="min-h-[100px]"
+            <div class="space-y-1.5">
+              <Label class="text-xs">Highlights</Label>
+              <BulletListInput
+                :model-value="project.highlights || []"
+                @update:model-value="(val) => (project.highlights = val)"
+                placeholder="Implemented SSR with Nuxt.js..."
+                add-label="Add highlight"
               />
             </div>
           </CardContent>

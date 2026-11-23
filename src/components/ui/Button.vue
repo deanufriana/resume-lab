@@ -34,6 +34,8 @@ interface Props extends PrimitiveProps {
   variant?: VariantProps<typeof buttonVariants>["variant"];
   size?: VariantProps<typeof buttonVariants>["size"];
   class?: HTMLAttributes["class"];
+  style?: HTMLAttributes["style"];
+  title?: string;
   disabled?: boolean;
   type?: "button" | "submit" | "reset";
   href?: string;
@@ -56,6 +58,10 @@ const emit = defineEmits<{
     :as="props.as"
     :as-child="props.asChild"
     :class="cn(buttonVariants({ variant, size }), props.class)"
+    v-bind="{
+      ...(props.title !== undefined ? { title: props.title } : {}),
+      ...(props.style !== undefined ? { style: props.style } : {}),
+    }"
     v-on="{ click: (e: MouseEvent) => emit('click', e) }"
   >
     <slot />

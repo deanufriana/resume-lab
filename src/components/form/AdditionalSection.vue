@@ -1,7 +1,19 @@
 <script setup lang="ts">
-import { reactive, watch } from "vue";
+import { ref, watch } from "vue";
 import type { Resume } from "../../types/resume";
-import { Input, Label, Textarea, Button, Separator } from "../ui/index";
+import { toMonthInput } from "../../utils/date";
+import {
+  Input,
+  Label,
+  Textarea,
+  Button,
+  Separator,
+  TagInput,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "../ui/index";
 import { Plus, Trash2 } from "lucide-vue-next";
 
 const props = defineProps<{
@@ -12,13 +24,13 @@ const emit = defineEmits<{
   (e: "update:resume", value: Resume): void;
 }>();
 
-const localResume = reactive({ ...props.resume });
+const localResume = ref<Resume>(JSON.parse(JSON.stringify(props.resume)));
 
 watch(
   () => props.resume,
   (newValue) => {
-    if (JSON.stringify(newValue) !== JSON.stringify(localResume)) {
-      Object.assign(localResume, JSON.parse(JSON.stringify(newValue)));
+    if (JSON.stringify(newValue) !== JSON.stringify(localResume.value)) {
+      localResume.value = JSON.parse(JSON.stringify(newValue));
     }
   },
   { deep: true },
@@ -28,72 +40,101 @@ watch(
   localResume,
   (newValue) => {
     if (JSON.stringify(newValue) !== JSON.stringify(props.resume)) {
-      emit("update:resume", newValue);
+      emit("update:resume", JSON.parse(JSON.stringify(newValue)));
     }
   },
   { deep: true },
 );
 
-// Helper functions for adding/removing items
-function addItem(arrayName: keyof Resume, defaultItem: any) {
-  if (!localResume[arrayName]) (localResume as any)[arrayName] = [];
-  (localResume as any)[arrayName].push(defaultItem);
+function addItem(arrayName: keyof Resume, defaultItem: unknown) {
+  if (!localResume.value[arrayName]) {
+    (localResume.value as Record<string, unknown>)[arrayName] = [];
+  }
+  (localResume.value[arrayName] as unknown[]).push(defaultItem);
 }
 
 function removeItem(arrayName: keyof Resume, index: number) {
-  (localResume as any)[arrayName].splice(index, 1);
+  (localResume.value[arrayName] as unknown[] | undefined)?.splice(index, 1);
 }
 </script>
 
 <template>
-  <div class="space-y-8 pb-10">
-    <!-- Awards Section -->
-    <section class="space-y-4">
+  <div class="space-y-6 pb-8">
+    <!-- Awards -->
+    <section class="space-y-3">
       <div class="flex items-center justify-between">
-        <h3 class="text-lg font-semibold">Awards</h3>
+        <div>
+          <h3 class="text-base font-semibold">Awards</h3>
+          <p class="text-xs text-muted-foreground">Honors, prizes, or recognitions.</p>
+        </div>
         <Button
-          variant="outline"
           size="sm"
+          class="h-8 text-xs"
           @click="addItem('awards', { title: '', date: '', awarder: '', summary: '' })"
         >
-          <Plus class="w-4 h-4 mr-2" /> Add Award
+          <Plus class="w-3.5 h-3.5 mr-1.5" /> Add Award
         </Button>
       </div>
-      <div
-        v-for="(award, index) in localResume.awards"
-        :key="index"
-        class="p-4 border rounded-lg bg-muted/20 relative group"
-      >
-        <Button
-          variant="ghost"
-          size="icon"
-          class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-destructive"
-          @click="removeItem('awards', index)"
+
+      <div v-if="localResume.awards?.length" class="space-y-3">
+        <Card
+          v-for="(award, index) in localResume.awards"
+          :key="index"
+          class="border-border/80 shadow-none"
         >
-          <Trash2 class="w-4 h-4" />
-        </Button>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-          <div class="space-y-1">
-            <Label class="text-xs">Title</Label>
-            <Input v-model="award.title" placeholder="Employee of the Month" />
-          </div>
-          <div class="space-y-1">
-            <Label class="text-xs">Date</Label>
-            <Input v-model="award.date" type="date" />
-          </div>
-          <div class="space-y-1 md:col-span-2">
-            <Label class="text-xs">Awarder</Label>
-            <Input v-model="award.awarder" placeholder="Company Name" />
-          </div>
-          <div class="space-y-1 md:col-span-2">
-            <Label class="text-xs">Summary</Label>
-            <Textarea v-model="award.summary" placeholder="Brief description of the award..." />
-          </div>
-        </div>
+          <CardHeader class="p-3.5">
+            <div class="flex items-center justify-between gap-2">
+              <CardTitle class="text-sm font-semibold truncate">
+                {{ award.title || `Award #${index + 1}` }}
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                class="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
+                @click="removeItem('awards', index)"
+              >
+                <Trash2 class="w-4 h-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent class="p-3.5 pt-0 space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="space-y-1">
+                <Label class="text-xs">Title</Label>
+                <Input
+                  v-model="award.title"
+                  placeholder="Employee of the Month"
+                  class="h-8 text-xs"
+                />
+              </div>
+              <div class="space-y-1">
+                <Label class="text-xs">Date</Label>
+                <Input
+                  type="month"
+                  :model-value="toMonthInput(award.date)"
+                  @update:model-value="(v) => (award.date = String(v))"
+                  class="h-8 text-xs"
+                />
+              </div>
+              <div class="space-y-1 sm:col-span-2">
+                <Label class="text-xs">Awarder</Label>
+                <Input v-model="award.awarder" placeholder="Company Name" class="h-8 text-xs" />
+              </div>
+              <div class="space-y-1 sm:col-span-2">
+                <Label class="text-xs">Summary</Label>
+                <Textarea
+                  v-model="award.summary"
+                  placeholder="Brief description of the award..."
+                  class="min-h-[60px] text-xs"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
       <p
-        v-if="!localResume.awards?.length"
-        class="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg"
+        v-else
+        class="text-xs text-muted-foreground text-center py-4 border border-dashed rounded-md bg-muted/20"
       >
         No awards added yet.
       </p>
@@ -101,53 +142,81 @@ function removeItem(arrayName: keyof Resume, index: number) {
 
     <Separator />
 
-    <!-- Certificates Section -->
-    <section class="space-y-4">
+    <!-- Certificates -->
+    <section class="space-y-3">
       <div class="flex items-center justify-between">
-        <h3 class="text-lg font-semibold">Certificates</h3>
+        <div>
+          <h3 class="text-base font-semibold">Certificates</h3>
+          <p class="text-xs text-muted-foreground">Professional certifications and licenses.</p>
+        </div>
         <Button
-          variant="outline"
           size="sm"
+          class="h-8 text-xs"
           @click="addItem('certificates', { name: '', date: '', issuer: '', url: '' })"
         >
-          <Plus class="w-4 h-4 mr-2" /> Add Certificate
+          <Plus class="w-3.5 h-3.5 mr-1.5" /> Add Certificate
         </Button>
       </div>
-      <div
-        v-for="(cert, index) in localResume.certificates"
-        :key="index"
-        class="p-4 border rounded-lg bg-muted/20 relative group"
-      >
-        <Button
-          variant="ghost"
-          size="icon"
-          class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-destructive"
-          @click="removeItem('certificates', index)"
+
+      <div v-if="localResume.certificates?.length" class="space-y-3">
+        <Card
+          v-for="(cert, index) in localResume.certificates"
+          :key="index"
+          class="border-border/80 shadow-none"
         >
-          <Trash2 class="w-4 h-4" />
-        </Button>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-          <div class="space-y-1">
-            <Label class="text-xs">Name</Label>
-            <Input v-model="cert.name" placeholder="AWS Certified Architect" />
-          </div>
-          <div class="space-y-1">
-            <Label class="text-xs">Date</Label>
-            <Input v-model="cert.date" type="date" />
-          </div>
-          <div class="space-y-1">
-            <Label class="text-xs">Issuer</Label>
-            <Input v-model="cert.issuer" placeholder="Amazon Web Services" />
-          </div>
-          <div class="space-y-1">
-            <Label class="text-xs">URL</Label>
-            <Input v-model="cert.url" placeholder="https://..." />
-          </div>
-        </div>
+          <CardHeader class="p-3.5">
+            <div class="flex items-center justify-between gap-2">
+              <CardTitle class="text-sm font-semibold truncate">
+                {{ cert.name || `Certificate #${index + 1}` }}
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                class="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
+                @click="removeItem('certificates', index)"
+              >
+                <Trash2 class="w-4 h-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent class="p-3.5 pt-0 space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="space-y-1">
+                <Label class="text-xs">Name</Label>
+                <Input
+                  v-model="cert.name"
+                  placeholder="AWS Certified Architect"
+                  class="h-8 text-xs"
+                />
+              </div>
+              <div class="space-y-1">
+                <Label class="text-xs">Date</Label>
+                <Input
+                  type="month"
+                  :model-value="toMonthInput(cert.date)"
+                  @update:model-value="(v) => (cert.date = String(v))"
+                  class="h-8 text-xs"
+                />
+              </div>
+              <div class="space-y-1">
+                <Label class="text-xs">Issuer</Label>
+                <Input
+                  v-model="cert.issuer"
+                  placeholder="Amazon Web Services"
+                  class="h-8 text-xs"
+                />
+              </div>
+              <div class="space-y-1">
+                <Label class="text-xs">URL</Label>
+                <Input v-model="cert.url" placeholder="https://..." class="h-8 text-xs" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
       <p
-        v-if="!localResume.certificates?.length"
-        class="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg"
+        v-else
+        class="text-xs text-muted-foreground text-center py-4 border border-dashed rounded-md bg-muted/20"
       >
         No certificates added yet.
       </p>
@@ -155,23 +224,27 @@ function removeItem(arrayName: keyof Resume, index: number) {
 
     <Separator />
 
-    <!-- Languages Section -->
-    <section class="space-y-4">
+    <!-- Languages -->
+    <section class="space-y-3">
       <div class="flex items-center justify-between">
-        <h3 class="text-lg font-semibold">Languages</h3>
+        <div>
+          <h3 class="text-base font-semibold">Languages</h3>
+          <p class="text-xs text-muted-foreground">Spoken or written languages.</p>
+        </div>
         <Button
-          variant="outline"
           size="sm"
+          class="h-8 text-xs"
           @click="addItem('languages', { language: '', fluency: '' })"
         >
-          <Plus class="w-4 h-4 mr-2" /> Add Language
+          <Plus class="w-3.5 h-3.5 mr-1.5" /> Add Language
         </Button>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <div v-if="localResume.languages?.length" class="space-y-2.5">
         <div
           v-for="(lang, index) in localResume.languages"
           :key="index"
-          class="flex items-end gap-2 p-3 border rounded-lg bg-muted/20 relative group"
+          class="flex items-end gap-2.5 p-3 border border-border/80 rounded-md bg-card"
         >
           <div class="flex-1 space-y-1">
             <Label class="text-xs">Language</Label>
@@ -184,7 +257,7 @@ function removeItem(arrayName: keyof Resume, index: number) {
           <Button
             variant="ghost"
             size="icon"
-            class="text-destructive h-8 w-8"
+            class="h-8 w-8 text-muted-foreground hover:text-destructive flex-shrink-0"
             @click="removeItem('languages', index)"
           >
             <Trash2 class="w-4 h-4" />
@@ -192,8 +265,8 @@ function removeItem(arrayName: keyof Resume, index: number) {
         </div>
       </div>
       <p
-        v-if="!localResume.languages?.length"
-        class="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg"
+        v-else
+        class="text-xs text-muted-foreground text-center py-4 border border-dashed rounded-md bg-muted/20"
       >
         No languages added yet.
       </p>
@@ -201,56 +274,62 @@ function removeItem(arrayName: keyof Resume, index: number) {
 
     <Separator />
 
-    <!-- Interests Section -->
-    <section class="space-y-4">
+    <!-- Interests -->
+    <section class="space-y-3">
       <div class="flex items-center justify-between">
-        <h3 class="text-lg font-semibold">Interests</h3>
+        <div>
+          <h3 class="text-base font-semibold">Interests</h3>
+          <p class="text-xs text-muted-foreground">Hobbies or personal topics.</p>
+        </div>
         <Button
-          variant="outline"
           size="sm"
+          class="h-8 text-xs"
           @click="addItem('interests', { name: '', keywords: [] })"
         >
-          <Plus class="w-4 h-4 mr-2" /> Add Interest
+          <Plus class="w-3.5 h-3.5 mr-1.5" /> Add Interest
         </Button>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div
+
+      <div v-if="localResume.interests?.length" class="space-y-3">
+        <Card
           v-for="(interest, index) in localResume.interests"
           :key="index"
-          class="space-y-1 p-3 border rounded-lg bg-muted/20 relative group"
+          class="border-border/80 shadow-none"
         >
-          <Button
-            variant="ghost"
-            size="icon"
-            class="absolute top-1 right-1 h-6 w-6 text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-            @click="removeItem('interests', index)"
-          >
-            <Trash2 class="w-3 h-3" />
-          </Button>
-          <div class="space-y-1">
-            <Label class="text-xs">Name</Label>
-            <Input v-model="interest.name" placeholder="Photography" class="h-8 text-xs" />
-          </div>
-          <div class="space-y-1">
-            <Label class="text-xs">Keywords (comma-separated)</Label>
-            <Input
-              :model-value="interest.keywords?.join(', ')"
-              @update:model-value="
-                (val) =>
-                  (interest.keywords = (val as string)
-                    .split(',')
-                    .map((s) => s.trim())
-                    .filter(Boolean))
-              "
-              placeholder="Nature, Urban, Portrait"
-              class="h-8 text-xs"
-            />
-          </div>
-        </div>
+          <CardHeader class="p-3.5">
+            <div class="flex items-center justify-between gap-2">
+              <CardTitle class="text-sm font-semibold truncate">
+                {{ interest.name || `Interest #${index + 1}` }}
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                class="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
+                @click="removeItem('interests', index)"
+              >
+                <Trash2 class="w-4 h-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent class="p-3.5 pt-0 space-y-3">
+            <div class="space-y-1">
+              <Label class="text-xs">Name</Label>
+              <Input v-model="interest.name" placeholder="Photography" class="h-8 text-xs" />
+            </div>
+            <div class="space-y-1">
+              <Label class="text-xs">Keywords</Label>
+              <TagInput
+                :model-value="interest.keywords || []"
+                @update:model-value="(val) => (interest.keywords = val)"
+                placeholder="Nature, Urban, Portrait..."
+              />
+            </div>
+          </CardContent>
+        </Card>
       </div>
       <p
-        v-if="!localResume.interests?.length"
-        class="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg"
+        v-else
+        class="text-xs text-muted-foreground text-center py-4 border border-dashed rounded-md bg-muted/20"
       >
         No interests added yet.
       </p>
@@ -258,13 +337,16 @@ function removeItem(arrayName: keyof Resume, index: number) {
 
     <Separator />
 
-    <!-- Volunteer Section -->
-    <section class="space-y-4">
+    <!-- Volunteer -->
+    <section class="space-y-3">
       <div class="flex items-center justify-between">
-        <h3 class="text-lg font-semibold">Volunteer</h3>
+        <div>
+          <h3 class="text-base font-semibold">Volunteer</h3>
+          <p class="text-xs text-muted-foreground">Community or open-source contributions.</p>
+        </div>
         <Button
-          variant="outline"
           size="sm"
+          class="h-8 text-xs"
           @click="
             addItem('volunteer', {
               organization: '',
@@ -277,43 +359,56 @@ function removeItem(arrayName: keyof Resume, index: number) {
             })
           "
         >
-          <Plus class="w-4 h-4 mr-2" /> Add Volunteer
+          <Plus class="w-3.5 h-3.5 mr-1.5" /> Add Volunteer
         </Button>
       </div>
-      <div
-        v-for="(vol, index) in localResume.volunteer"
-        :key="index"
-        class="p-4 border rounded-lg bg-muted/20 relative group"
-      >
-        <Button
-          variant="ghost"
-          size="icon"
-          class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-destructive"
-          @click="removeItem('volunteer', index)"
+
+      <div v-if="localResume.volunteer?.length" class="space-y-3">
+        <Card
+          v-for="(vol, index) in localResume.volunteer"
+          :key="index"
+          class="border-border/80 shadow-none"
         >
-          <Trash2 class="w-4 h-4" />
-        </Button>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-          <div class="space-y-1">
-            <Label class="text-xs">Organization</Label>
-            <Input v-model="vol.organization" placeholder="Red Cross" />
-          </div>
-          <div class="space-y-1">
-            <Label class="text-xs">Position</Label>
-            <Input v-model="vol.position" placeholder="Volunteer" />
-          </div>
-          <div class="space-y-1 md:col-span-2">
-            <Label class="text-xs">Summary</Label>
-            <Textarea
-              v-model="vol.summary"
-              placeholder="Brief description of your volunteering..."
-            />
-          </div>
-        </div>
+          <CardHeader class="p-3.5">
+            <div class="flex items-center justify-between gap-2">
+              <CardTitle class="text-sm font-semibold truncate">
+                {{ vol.organization || `Volunteer #${index + 1}` }}
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                class="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
+                @click="removeItem('volunteer', index)"
+              >
+                <Trash2 class="w-4 h-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent class="p-3.5 pt-0 space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="space-y-1">
+                <Label class="text-xs">Organization</Label>
+                <Input v-model="vol.organization" placeholder="Red Cross" class="h-8 text-xs" />
+              </div>
+              <div class="space-y-1">
+                <Label class="text-xs">Position</Label>
+                <Input v-model="vol.position" placeholder="Volunteer" class="h-8 text-xs" />
+              </div>
+              <div class="space-y-1 sm:col-span-2">
+                <Label class="text-xs">Summary</Label>
+                <Textarea
+                  v-model="vol.summary"
+                  placeholder="Brief description of your volunteering..."
+                  class="min-h-[60px] text-xs"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
       <p
-        v-if="!localResume.volunteer?.length"
-        class="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg"
+        v-else
+        class="text-xs text-muted-foreground text-center py-4 border border-dashed rounded-md bg-muted/20"
       >
         No volunteer experience added yet.
       </p>
@@ -321,13 +416,16 @@ function removeItem(arrayName: keyof Resume, index: number) {
 
     <Separator />
 
-    <!-- Publications Section -->
-    <section class="space-y-4">
+    <!-- Publications -->
+    <section class="space-y-3">
       <div class="flex items-center justify-between">
-        <h3 class="text-lg font-semibold">Publications</h3>
+        <div>
+          <h3 class="text-base font-semibold">Publications</h3>
+          <p class="text-xs text-muted-foreground">Articles, papers, or talks.</p>
+        </div>
         <Button
-          variant="outline"
           size="sm"
+          class="h-8 text-xs"
           @click="
             addItem('publications', {
               name: '',
@@ -338,36 +436,61 @@ function removeItem(arrayName: keyof Resume, index: number) {
             })
           "
         >
-          <Plus class="w-4 h-4 mr-2" /> Add Publication
+          <Plus class="w-3.5 h-3.5 mr-1.5" /> Add Publication
         </Button>
       </div>
-      <div
-        v-for="(pub, index) in localResume.publications"
-        :key="index"
-        class="p-4 border rounded-lg bg-muted/20 relative group"
-      >
-        <Button
-          variant="ghost"
-          size="icon"
-          class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-destructive"
-          @click="removeItem('publications', index)"
+
+      <div v-if="localResume.publications?.length" class="space-y-3">
+        <Card
+          v-for="(pub, index) in localResume.publications"
+          :key="index"
+          class="border-border/80 shadow-none"
         >
-          <Trash2 class="w-4 h-4" />
-        </Button>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-          <div class="space-y-1">
-            <Label class="text-xs">Name</Label>
-            <Input v-model="pub.name" placeholder="Article Title" />
-          </div>
-          <div class="space-y-1">
-            <Label class="text-xs">Publisher</Label>
-            <Input v-model="pub.publisher" placeholder="Journal Name" />
-          </div>
-        </div>
+          <CardHeader class="p-3.5">
+            <div class="flex items-center justify-between gap-2">
+              <CardTitle class="text-sm font-semibold truncate">
+                {{ pub.name || `Publication #${index + 1}` }}
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                class="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
+                @click="removeItem('publications', index)"
+              >
+                <Trash2 class="w-4 h-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent class="p-3.5 pt-0 space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="space-y-1">
+                <Label class="text-xs">Name</Label>
+                <Input v-model="pub.name" placeholder="Article Title" class="h-8 text-xs" />
+              </div>
+              <div class="space-y-1">
+                <Label class="text-xs">Publisher</Label>
+                <Input v-model="pub.publisher" placeholder="Journal Name" class="h-8 text-xs" />
+              </div>
+              <div class="space-y-1">
+                <Label class="text-xs">Release Date</Label>
+                <Input
+                  type="month"
+                  :model-value="toMonthInput(pub.releaseDate)"
+                  @update:model-value="(v) => (pub.releaseDate = String(v))"
+                  class="h-8 text-xs"
+                />
+              </div>
+              <div class="space-y-1">
+                <Label class="text-xs">URL</Label>
+                <Input v-model="pub.url" placeholder="https://..." class="h-8 text-xs" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
       <p
-        v-if="!localResume.publications?.length"
-        class="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-lg"
+        v-else
+        class="text-xs text-muted-foreground text-center py-4 border border-dashed rounded-md bg-muted/20"
       >
         No publications added yet.
       </p>

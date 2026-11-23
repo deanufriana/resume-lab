@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <div class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm">
+    <div class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm no-print">
       <TransitionGroup name="toast">
         <div
           v-for="toast in toasts"
@@ -48,9 +48,12 @@
             </svg>
           </div>
           <p class="flex-1 text-sm font-medium">{{ toast.message }}</p>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             @click="removeToast(toast.id)"
-            class="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+            class="h-6 w-6 flex-shrink-0 text-muted-foreground hover:text-foreground"
+            aria-label="Close notification"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -60,7 +63,7 @@
                 d="M6 18L18 6M6 6l12 12"
               />
             </svg>
-          </button>
+          </Button>
         </div>
       </TransitionGroup>
     </div>
@@ -70,6 +73,7 @@
 <script setup lang="ts">
 import { useToast } from "../../composables/useToast";
 import { cn } from "../../utils/cn";
+import Button from "./Button.vue";
 
 const { toasts, removeToast } = useToast();
 

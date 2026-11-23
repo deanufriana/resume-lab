@@ -1,28 +1,29 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { ref, reactive, computed, onMounted } from "vue";
 import type { Resume } from "./types/resume";
-import { Navbar, Footer } from "./components";
+import Navbar from "./components/Navbar.vue";
+import JsonDrawer from "./components/JsonDrawer.vue";
+import SignatureModal from "./components/SignatureModal.vue";
+import AboutModal from "./components/AboutModal.vue";
 import Toast from "./components/ui/Toast.vue";
 import { generatePDFFromElement } from "./utils/pdf";
 import { useToast } from "./composables/useToast";
-import { saveResumeToStorage, loadResumeFromStorage } from "./utils/storage";
+import {
+  saveResumeToStorage,
+  loadResumeFromStorage,
+  clearResumeFromStorage,
+} from "./utils/storage";
 import { themes, getDefaultTheme } from "./themes";
 import exampleResume from "./data/resume.json";
 import { Analytics } from "./utils/analytics";
 
-const router = useRouter();
-const route = useRoute();
 const toast = useToast();
 const selectedThemeId = ref(getDefaultTheme().id);
-
-// Track route changes
-watch(
-  () => route.path,
-  (newPath) => {
-    Analytics.trackTabChange(newPath.replace("/", "") || "upload");
-  },
-);
+const saveStatus = ref<"saved" | "saving" | "idle">("idle");
+const isJsonOpen = ref(false);
+const isSignatureOpen = ref(false);
+const isAboutOpen = ref(false);
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
 function createEmptyResume(): Resume {
   return {
@@ -33,7 +34,7 @@ function createEmptyResume(): Resume {
       phone: "",
       url: "",
       summary: "",
-      location: { city: "" },
+      location: { city: "", region: "", countryCode: "", address: "" },
       profiles: [],
     },
     work: [],
@@ -47,75 +48,128 @@ function createEmptyResume(): Resume {
     interests: [],
     references: [],
     projects: [],
-    meta: {},
+    meta: { theme: getDefaultTheme().id },
   };
 }
 
-// Initialize resumeData
 const resumeData = reactive<Resume>(createEmptyResume());
+
+const hasResumeContent = computed(() => {
+  const b = resumeData.basics;
+  return Boolean(
+    b?.name?.trim() ||
+    b?.label?.trim() ||
+    b?.summary?.trim() ||
+    resumeData.work?.length ||
+    resumeData.education?.length ||
+    resumeData.skills?.length ||
+    resumeData.projects?.length,
+  );
+});
 
 onMounted(() => {
   const savedResume = loadResumeFromStorage();
   if (savedResume && Object.keys(savedResume).length > 0) {
     if (savedResume.basics?.name || savedResume.work?.length || savedResume.education?.length) {
-      Object.assign(resumeData, savedResume);
+      Object.assign(resumeData, createEmptyResume(), savedResume);
       if (savedResume.meta?.theme) {
         selectedThemeId.value = savedResume.meta.theme;
       }
-      toast.info("Session restored from local storage");
+      saveStatus.value = "saved";
     }
   }
 });
 
-function handleThemeChange(event: Event) {
-  const target = event.target as HTMLSelectElement;
-  selectedThemeId.value = target.value;
-  if (!resumeData.meta) resumeData.meta = {};
-  resumeData.meta.theme = selectedThemeId.value;
-  saveResumeToStorage(resumeData);
-  Analytics.trackThemeChange(target.value);
-}
-
-function handleFileLoaded(data: unknown) {
-  try {
-    if (!data || typeof data !== "object" || Array.isArray(data)) {
-      throw new Error("Invalid resume JSON format");
-    }
-    Object.assign(resumeData, createEmptyResume(), data);
-    if (resumeData.meta?.theme) {
-      selectedThemeId.value = resumeData.meta.theme;
-    }
+function persistResume(immediate = false) {
+  if (saveTimer) clearTimeout(saveTimer);
+  if (immediate) {
     saveResumeToStorage(resumeData);
-    toast.success("Resume JSON loaded successfully!");
-    router.push("/manual");
-    Analytics.trackResumeUpload();
-  } catch (error) {
-    toast.error("Failed to process resume data");
+    saveStatus.value = "saved";
+    return;
   }
+  saveStatus.value = "saving";
+  saveTimer = setTimeout(() => {
+    saveResumeToStorage(resumeData);
+    saveStatus.value = "saved";
+  }, 350);
 }
 
 function handleResumeUpdate(data: Resume) {
   Object.assign(resumeData, data);
-  saveResumeToStorage(resumeData);
-  toast.success("Resume updated!");
-  Analytics.trackResumeUpdate();
+  persistResume(false);
+}
+
+function handleThemeChange(themeId: string) {
+  selectedThemeId.value = themeId;
+  if (!resumeData.meta) resumeData.meta = {};
+  resumeData.meta.theme = themeId;
+  persistResume(true);
+  Analytics.trackThemeChange(themeId);
+}
+
+function applyJsonData(data: Resume) {
+  Object.assign(resumeData, createEmptyResume(), data);
+  if (resumeData.meta?.theme) {
+    selectedThemeId.value = resumeData.meta.theme;
+  }
+  persistResume(true);
+  isJsonOpen.value = false;
+  Analytics.trackResumeUpload();
+}
+
+function loadSampleResume() {
+  Object.assign(resumeData, createEmptyResume(), structuredClone(exampleResume));
+  if (!resumeData.meta) resumeData.meta = {};
+  resumeData.meta.theme = selectedThemeId.value;
+  persistResume(true);
+  toast.success("Sample resume loaded!");
+}
+
+function clearAllResume() {
+  Object.assign(resumeData, createEmptyResume());
+  clearResumeFromStorage();
+  saveStatus.value = "idle";
+  toast.info("Resume cleared");
+}
+
+function handleSaveSignature(payload: { dataUrl: string; showSignature: boolean }) {
+  if (!resumeData.meta) resumeData.meta = {};
+  if (payload.dataUrl) {
+    resumeData.meta.signatureDataUrl = payload.dataUrl;
+  }
+  resumeData.meta.showSignature = payload.showSignature;
+  persistResume(true);
 }
 
 async function generatePDF() {
   try {
     const previewElement = document.getElementById("resume-preview");
-    if (!previewElement) throw new Error("Preview element not found");
+    if (!previewElement) {
+      toast.error("Add some resume content before exporting.");
+      return;
+    }
     toast.info("Generating PDF...");
     await generatePDFFromElement(resumeData, previewElement);
-    toast.success("PDF generated successfully!");
+    toast.success("PDF downloaded!");
     Analytics.trackPDFExport();
-  } catch (error) {
+  } catch {
     toast.error("Failed to generate PDF");
   }
 }
 
-function downloadJSONFile(payload: unknown, filename: string) {
-  const dataStr = JSON.stringify(payload, null, 2);
+function printVectorPDF() {
+  const previewElement = document.getElementById("resume-preview");
+  if (!previewElement) {
+    toast.error("Add some resume content before printing.");
+    return;
+  }
+  window.print();
+  Analytics.trackPDFExport();
+}
+
+function downloadJSON() {
+  const filename = `${resumeData.basics?.name?.replace(/\s+/g, "_") || "resume"}.json`;
+  const dataStr = JSON.stringify(resumeData, null, 2);
   const dataBlob = new Blob([dataStr], { type: "application/json" });
   const url = URL.createObjectURL(dataBlob);
   const link = document.createElement("a");
@@ -123,68 +177,57 @@ function downloadJSONFile(payload: unknown, filename: string) {
   link.download = filename;
   link.click();
   URL.revokeObjectURL(url);
-}
-
-function downloadJSON() {
-  const filename = `${resumeData.basics?.name?.replace(/\s+/g, "_") || "resume"}.json`;
-  downloadJSONFile(resumeData, filename);
   toast.success("JSON downloaded!");
   Analytics.trackJSONDownload(false);
-}
-
-function downloadExampleJSON() {
-  downloadJSONFile(exampleResume, "resume-example.json");
-  toast.success("Example downloaded!");
-  Analytics.trackJSONDownload(true);
 }
 </script>
 
 <template>
-  <div class="min-h-screen bg-background relative overflow-hidden">
-    <!-- Background Decor -->
-    <div class="absolute inset-0 bg-dot-pattern opacity-50 pointer-events-none"></div>
-    <div
-      class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b from-primary/5 to-transparent blur-3xl pointer-events-none"
-    ></div>
+  <div class="min-h-screen bg-background text-foreground flex flex-col">
+    <Navbar
+      :save-status="saveStatus"
+      :has-content="hasResumeContent"
+      @open-json="isJsonOpen = true"
+      @open-signature="isSignatureOpen = true"
+      @open-about="isAboutOpen = true"
+      @load-sample="loadSampleResume"
+      @export-pdf="generatePDF"
+    />
 
-    <Navbar />
-
-    <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="flex-1">
       <router-view v-slot="{ Component }">
-        <transition
-          mode="out-in"
-          enter-active-class="transition duration-150 ease-out"
-          enter-from-class="opacity-0 translate-y-1"
-          enter-to-class="opacity-100 translate-y-0"
-          leave-active-class="transition duration-75 ease-in"
-          leave-from-class="opacity-100 translate-y-0"
-          leave-to-class="opacity-0 -translate-y-1"
-        >
-          <component
-            :is="Component"
-            :resume-data="resumeData"
-            :themes="themes"
-            :theme-id="selectedThemeId"
-            @update="handleResumeUpdate"
-            @file-loaded="handleFileLoaded"
-            @file-error="(msg: string) => toast.error(msg)"
-            @view-current="router.push('/manual')"
-            @download-example="downloadExampleJSON"
-            @download-json="downloadJSON"
-            @export-pdf="generatePDF"
-            @theme-change="handleThemeChange"
-          />
-        </transition>
+        <component
+          :is="Component"
+          :resume-data="resumeData"
+          :themes="themes"
+          :theme-id="selectedThemeId"
+          @update="handleResumeUpdate"
+          @load-sample="loadSampleResume"
+          @open-json="isJsonOpen = true"
+          @clear-resume="clearAllResume"
+          @theme-change="handleThemeChange"
+        />
       </router-view>
     </main>
 
-    <Footer />
+    <JsonDrawer
+      :open="isJsonOpen"
+      :resume-data="resumeData"
+      @close="isJsonOpen = false"
+      @apply-json="applyJsonData"
+      @download-json="downloadJSON"
+    />
+
+    <SignatureModal
+      :open="isSignatureOpen"
+      :show-signature="resumeData.meta?.showSignature"
+      :existing-signature-url="resumeData.meta?.signatureDataUrl"
+      @close="isSignatureOpen = false"
+      @save-signature="handleSaveSignature"
+    />
+
+    <AboutModal :open="isAboutOpen" @close="isAboutOpen = false" />
+
     <Toast />
   </div>
 </template>
-
-<style scoped>
-.font-outfit {
-  font-family: "Outfit", sans-serif;
-}
-</style>

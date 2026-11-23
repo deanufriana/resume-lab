@@ -111,6 +111,11 @@ export interface Project {
 export interface Meta {
   theme?: string;
   hideContact?: boolean;
+  accentColor?: string;
+  fontFamily?: "sans" | "serif" | "mono";
+  density?: "compact" | "standard" | "spacious";
+  signatureDataUrl?: string;
+  showSignature?: boolean;
 }
 
 export interface Resume {

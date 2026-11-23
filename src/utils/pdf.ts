@@ -1,5 +1,12 @@
-import html2pdf from "html2pdf.js";
+import { domToCanvas } from "modern-screenshot";
+import { jsPDF } from "jspdf";
 import type { Resume } from "../types/resume";
+
+const A4_WIDTH_MM = 210;
+const A4_HEIGHT_MM = 297;
+const PAGE_MARGIN_Y_MM = 10;
+const PRINTABLE_HEIGHT_MM = A4_HEIGHT_MM - PAGE_MARGIN_Y_MM * 2;
+const PREVIEW_BASE_WIDTH_PX = 800;
 
 export async function generatePDFFromElement(
   resumeData: Resume,
@@ -8,72 +15,146 @@ export async function generatePDFFromElement(
   const container = document.createElement("div");
 
   try {
-    // 1. Create a deep clone of the element to avoid mutating the live DOM
     const clone = element.cloneNode(true) as HTMLElement;
 
-    // 2. Setup an off-screen container with the same width as the capture window
-    // This prevents any visual "glitches" or layout jumps in the main UI
     Object.assign(container.style, {
-      position: "absolute",
-      left: "-9999px",
+      position: "fixed",
+      left: "-99999px",
       top: "0",
-      width: "800px",
+      width: `${PREVIEW_BASE_WIDTH_PX}px`,
       backgroundColor: "#ffffff",
-      zIndex: "-1000",
+      zIndex: "-1",
+      pointerEvents: "none",
     });
 
-    container.appendChild(clone);
-    document.body.appendChild(container);
-
-    // 3. Prepare the clone (hide non-print elements, ensure visible overflow)
     const noPrintElements = clone.querySelectorAll(".no-print");
     noPrintElements.forEach((el) => {
       (el as HTMLElement).style.display = "none";
     });
+
+    clone.style.width = `${PREVIEW_BASE_WIDTH_PX}px`;
+    clone.style.paddingTop = "0px";
+    clone.style.paddingBottom = "0px";
+    clone.style.transform = "none";
+    clone.style.transition = "none";
+    clone.style.border = "none";
+    clone.style.boxShadow = "none";
+    clone.style.minHeight = "0";
     clone.style.overflow = "visible";
-    clone.style.padding = "0px";
 
-    // 4. Configure html2pdf options for ATS-friendly PDF
-    // We use a uniform 10mm margin on all sides to keep horizontal and vertical margins
-    // perfectly aligned. Since the preview has a ~90% content width ratio (720px/800px),
-    // a 10mm margin on A4 (190mm/210mm ≈ 90.5%) ensures the PDF layout and text wrapping
-    // match the screen preview exactly.
-    const opt = {
-      margin: 10,
-      filename: resumeData.basics?.name
-        ? `${resumeData.basics.name.replace(/\s+/g, "_")}_Resume.pdf`
-        : "Resume.pdf",
-      image: { type: "jpeg" as const, quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: "#ffffff",
-        windowWidth: 800,
-      },
-      jsPDF: {
-        unit: "mm" as const,
-        format: "a4" as const,
-        orientation: "portrait" as const,
-      },
-      pagebreak: {
-        mode: ["avoid-all", "css", "legacy"],
-        before: ".page-break-before",
-        after: ".page-break-after",
-        avoid: ["h2", "h3"],
-      },
-    };
+    container.appendChild(clone);
+    document.body.appendChild(container);
 
-    // 5. Wait for all fonts to be fully loaded to prevent alignment shifts
     await document.fonts.ready;
 
-    // 6. Generate and save PDF from the clone
-    await html2pdf().set(opt).from(clone).save();
+    // Push any atomic text/card block that straddles an A4 printable page boundary
+    // onto the next page so lines are never sliced in half across pages.
+    const cssPageHeightPx = Math.floor(PREVIEW_BASE_WIDTH_PX * (PRINTABLE_HEIGHT_MM / A4_WIDTH_MM));
+    const blocks = Array.from(
+      clone.querySelectorAll<HTMLElement>("header, h2, h3, li, p, .break-inside-avoid, footer"),
+    );
+
+    const processed = new WeakSet<HTMLElement>();
+
+    for (const rawEl of blocks) {
+      // Push the whole flex header row when an h3 sits beside a date column
+      const el = rawEl.tagName === "H3" ? rawEl.closest<HTMLElement>(".flex") || rawEl : rawEl;
+
+      if (processed.has(el)) continue;
+      processed.add(el);
+
+      const cloneTop = clone.getBoundingClientRect().top;
+      const rect = el.getBoundingClientRect();
+      if (rect.height === 0 || rect.height >= cssPageHeightPx) continue;
+
+      // Let tall work/project cards break between their inner bullets instead of jumping whole
+      if (el.classList.contains("break-inside-avoid") && rect.height > 140) {
+        continue;
+      }
+
+      const top = rect.top - cloneTop;
+      const bottom = rect.bottom - cloneTop;
+      const pageIndexAtTop = Math.floor(top / cssPageHeightPx);
+      const pageEnd = (pageIndexAtTop + 1) * cssPageHeightPx;
+
+      const isHeading = rawEl.tagName === "H2" || rawEl.tagName === "H3";
+      const nextSiblingHeight = el.nextElementSibling?.getBoundingClientRect().height || 0;
+      const minKeepWithNextPx = isHeading ? Math.min(60, nextSiblingHeight || 32) : 0;
+
+      if (top < pageEnd && bottom + minKeepWithNextPx > pageEnd) {
+        const pushPx = Math.ceil(pageEnd - top) + 4;
+        const currentPaddingTop = Number.parseFloat(getComputedStyle(el).paddingTop) || 0;
+        el.style.paddingTop = `${currentPaddingTop + pushPx}px`;
+      }
+    }
+
+    const fullCanvas = await domToCanvas(clone, {
+      scale: 2,
+      backgroundColor: "#ffffff",
+      width: PREVIEW_BASE_WIDTH_PX,
+    });
+
+    const pdf = new jsPDF({
+      unit: "mm",
+      format: "a4",
+      orientation: "portrait",
+    });
+
+    const pageSliceHeightPx = Math.floor(fullCanvas.width * (PRINTABLE_HEIGHT_MM / A4_WIDTH_MM));
+    let offsetY = 0;
+    let pageIndex = 0;
+
+    while (offsetY < fullCanvas.height) {
+      const sliceHeight = Math.min(pageSliceHeightPx, fullCanvas.height - offsetY);
+      const pageCanvas = document.createElement("canvas");
+      pageCanvas.width = fullCanvas.width;
+      pageCanvas.height = sliceHeight;
+
+      const ctx = pageCanvas.getContext("2d");
+      if (ctx) {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+        ctx.drawImage(
+          fullCanvas,
+          0,
+          offsetY,
+          fullCanvas.width,
+          sliceHeight,
+          0,
+          0,
+          fullCanvas.width,
+          sliceHeight,
+        );
+      }
+
+      if (pageIndex > 0) {
+        pdf.addPage();
+      }
+
+      const sliceHeightMm = (sliceHeight * A4_WIDTH_MM) / fullCanvas.width;
+      pdf.addImage(
+        pageCanvas.toDataURL("image/jpeg", 0.96),
+        "JPEG",
+        0,
+        PAGE_MARGIN_Y_MM,
+        A4_WIDTH_MM,
+        sliceHeightMm,
+        undefined,
+        "FAST",
+      );
+
+      offsetY += pageSliceHeightPx;
+      pageIndex++;
+    }
+
+    const filename = resumeData.basics?.name
+      ? `${resumeData.basics.name.replace(/\s+/g, "_")}_Resume.pdf`
+      : "Resume.pdf";
+    pdf.save(filename);
   } catch (error) {
     console.error("Error generating PDF:", error);
     throw error;
   } finally {
-    // 7. Cleanup: remove the temporary container from the DOM
     if (document.body.contains(container)) {
       document.body.removeChild(container);
     }

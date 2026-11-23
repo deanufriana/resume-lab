@@ -1,35 +1,31 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import { ResumeForm, SignaturePad, About } from "../components";
-import UploadView from "../views/UploadView.vue";
+import ResumeForm from "../components/ResumeForm.vue";
 
 const routes = [
   {
     path: "/",
-    redirect: "/upload",
-  },
-  {
-    path: "/upload",
-    name: "upload",
-    component: UploadView,
-  },
-  {
-    path: "/manual",
-    name: "manual",
+    name: "studio",
     component: ResumeForm,
   },
   {
+    path: "/upload",
+    redirect: "/",
+  },
+  {
+    path: "/manual",
+    redirect: "/",
+  },
+  {
     path: "/preview",
-    redirect: "/manual",
+    redirect: "/",
   },
   {
     path: "/signature",
-    name: "signature",
-    component: SignaturePad,
+    redirect: "/",
   },
   {
     path: "/about",
-    name: "about",
-    component: About,
+    redirect: "/",
   },
 ];
 

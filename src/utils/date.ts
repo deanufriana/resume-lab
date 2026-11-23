@@ -15,3 +15,12 @@ export function formatDate(date?: string): string {
     timeZone: "UTC",
   });
 }
+
+/**
+ * Converts an ISO date string (YYYY-MM-DD or YYYY-MM) into YYYY-MM for <input type="month">
+ */
+export function toMonthInput(date?: string): string {
+  if (!date) return "";
+  const match = /^(\d{4}-\d{2})/.exec(date.trim());
+  return match ? match[1] : "";
+}
