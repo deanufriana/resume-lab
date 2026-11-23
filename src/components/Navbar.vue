@@ -6,7 +6,6 @@ import {
   Moon,
   Info,
   FileCode2,
-  Printer,
   Download,
   Sparkles,
   CheckCircle2,
