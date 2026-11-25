@@ -2,7 +2,7 @@
 import { EyeOff } from "lucide-vue-next";
 import type { Meta } from "../types/resume";
 import type { Theme } from "../themes";
-import { Button, NativeSelect, NativeSelectOption, SegmentedControl } from "./ui/index";
+import { Button, NativeSelect, NativeSelectOption, SegmentedControl, Switch } from "./ui/index";
 
 const accentColors = [
   { name: "Blue", value: "#2563eb" },
@@ -40,7 +40,7 @@ const resolvedFont = () =>
       <NativeSelect
         size="sm"
         :model-value="props.themeId"
-        @change="(e: Event) => emit('theme-change', (e.target as HTMLSelectElement).value)"
+        @update:model-value="(v) => emit('theme-change', String(v))"
       >
         <NativeSelectOption v-for="theme in props.themes" :key="theme.id" :value="theme.id">
           {{ theme.name }}
@@ -83,19 +83,20 @@ const resolvedFont = () =>
     </div>
 
     <div class="flex items-center gap-2 sm:gap-2.5">
-      <label
-        class="flex items-center gap-1.5 cursor-pointer select-none text-[11px] font-medium text-muted-foreground hover:text-foreground py-1"
+      <div
+        class="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground hover:text-foreground py-1"
         title="Hide email, phone, website, and social links for Upwork"
       >
-        <input
-          type="checkbox"
-          :checked="props.meta?.hideContact || false"
-          @change="emit('update-meta', 'hideContact', ($event.target as HTMLInputElement).checked)"
-          class="rounded border-input accent-amber-500 w-3.5 h-3.5"
+        <Switch
+          size="sm"
+          variant="amber"
+          :model-value="Boolean(props.meta?.hideContact)"
+          aria-label="Hide contact info"
+          @update:model-value="(val) => emit('update-meta', 'hideContact', val)"
         />
         <EyeOff v-if="props.meta?.hideContact" class="w-3.5 h-3.5 text-amber-500" />
         <span class="whitespace-nowrap">Hide Contact</span>
-      </label>
+      </div>
 
       <NativeSelect
         size="sm"

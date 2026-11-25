@@ -1,9 +1,21 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { X, Copy, Check, Download, Upload, AlertCircle, FileCode2 } from "lucide-vue-next";
+import { onKeyStroke } from "@vueuse/core";
+import {
+  X,
+  Copy,
+  Check,
+  Download,
+  Upload,
+  AlertCircle,
+  FileCode2,
+  Link2,
+  Loader2,
+} from "lucide-vue-next";
 import type { Resume } from "../types/resume";
-import { Button } from "./ui";
+import { Button, Input } from "./ui";
 import { useToast } from "../composables/useToast";
+import { fetchResumeFromGist } from "../utils/gist";
 
 const props = defineProps<{
   open: boolean;
@@ -21,6 +33,12 @@ const jsonText = ref("");
 const parseError = ref<string | null>(null);
 const copied = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
+const gistInput = ref("");
+const isLoadingGist = ref(false);
+
+onKeyStroke("Escape", () => {
+  if (props.open) emit("close");
+});
 
 watch(
   () => [props.open, props.resumeData],
@@ -83,6 +101,25 @@ function handleFileUpload(e: Event) {
   reader.readAsText(file);
   if (fileInput.value) fileInput.value.value = "";
 }
+
+async function handleGistImport() {
+  if (!gistInput.value.trim() || isLoadingGist.value) return;
+  isLoadingGist.value = true;
+  parseError.value = null;
+  try {
+    const { resume, filename } = await fetchResumeFromGist(gistInput.value);
+    jsonText.value = JSON.stringify(resume, null, 2);
+    emit("apply-json", resume);
+    gistInput.value = "";
+    toast.success(`Imported ${filename} from Gist!`);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to import from Gist";
+    parseError.value = message;
+    toast.error(message);
+  } finally {
+    isLoadingGist.value = false;
+  }
+}
 </script>
 
 <template>
@@ -101,7 +138,7 @@ function handleFileUpload(e: Event) {
         @click.self="emit('close')"
       >
         <div
-          class="w-full max-w-xl bg-white dark:bg-zinc-950 text-foreground border-l h-full flex flex-col shadow-xl"
+          class="w-full max-w-xl bg-popover text-popover-foreground border-l h-full flex flex-col shadow-xl"
         >
           <!-- Header -->
           <div class="flex items-center justify-between px-5 py-4 border-b">
@@ -114,7 +151,13 @@ function handleFileUpload(e: Event) {
                 <p class="text-xs text-muted-foreground">Inspect, paste, or import raw JSON</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" class="h-8 w-8" @click="emit('close')">
+            <Button
+              variant="ghost"
+              size="icon"
+              class="h-8 w-8"
+              aria-label="Close JSON drawer"
+              @click="emit('close')"
+            >
               <X class="w-4 h-4" />
             </Button>
           </div>
@@ -154,6 +197,31 @@ function handleFileUpload(e: Event) {
               {{ copied ? "Copied" : "Copy" }}
             </Button>
           </div>
+
+          <!-- Gist Import -->
+          <form
+            class="flex items-center gap-2 px-5 py-2.5 border-b bg-muted/10"
+            @submit.prevent="handleGistImport"
+          >
+            <Input
+              v-model="gistInput"
+              type="text"
+              placeholder="Paste GitHub Gist URL or ID..."
+              :disabled="isLoadingGist"
+              class="h-7 text-xs flex-1"
+            />
+            <Button
+              type="submit"
+              variant="outline"
+              size="sm"
+              class="h-7 text-xs gap-1.5 flex-shrink-0"
+              :disabled="!gistInput.trim() || isLoadingGist"
+            >
+              <Loader2 v-if="isLoadingGist" class="w-3.5 h-3.5 animate-spin" />
+              <Link2 v-else class="w-3.5 h-3.5" />
+              {{ isLoadingGist ? "Loading..." : "Load Gist" }}
+            </Button>
+          </form>
 
           <!-- Editor -->
           <div class="flex-1 p-3 sm:p-4 overflow-hidden flex flex-col gap-2">

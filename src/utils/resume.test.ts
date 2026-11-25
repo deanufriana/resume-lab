@@ -5,6 +5,7 @@ import { stripContactInfo } from "./privacy";
 import { sanitizeUrl } from "./url";
 import { saveResumeToStorage, loadResumeFromStorage, clearResumeFromStorage } from "./storage";
 import { useStableList } from "../composables/useStableList";
+import { parseGistId, getGistParamFromLocation, fetchResumeFromGist } from "./gist";
 
 describe("formatDate", () => {
   it("formats ISO dates in UTC without timezone shift", () => {
@@ -128,5 +129,124 @@ describe("stripContactInfo", () => {
   it("returns the resume unchanged when hideContact is false", () => {
     const resume = { basics: { name: "Jane Doe", email: "jane@example.com" }, meta: {} };
     expect(stripContactInfo(resume)).toBe(resume);
+  });
+});
+
+describe("parseGistId", () => {
+  const sampleId = "0123456789abcdef0123456789abcdef";
+
+  it("extracts IDs from bare IDs and GitHub Gist URLs", () => {
+    expect(parseGistId(sampleId)).toBe(sampleId);
+    expect(parseGistId(`  ${sampleId}  `)).toBe(sampleId);
+    expect(parseGistId(`https://gist.github.com/deanufriana/${sampleId}`)).toBe(sampleId);
+    expect(parseGistId(`https://gist.github.com/${sampleId}/revisions`)).toBe(sampleId);
+    expect(parseGistId(`gist.github.com/deanufriana/${sampleId}`)).toBe(sampleId);
+    expect(
+      parseGistId(`https://gist.githubusercontent.com/deanufriana/${sampleId}/raw/resume.json`),
+    ).toBe(sampleId);
+    expect(parseGistId(`https://api.github.com/gists/${sampleId}`)).toBe(sampleId);
+  });
+
+  it("returns null for invalid or non-gist inputs", () => {
+    expect(parseGistId("")).toBeNull();
+    expect(parseGistId("not-a-gist")).toBeNull();
+    expect(parseGistId("https://example.com/0123456789abcdef0123456789abcdef")).toBeNull();
+  });
+});
+
+describe("getGistParamFromLocation", () => {
+  it("reads gist param from search or hash query string", () => {
+    expect(getGistParamFromLocation("?gist=abc123", "")).toBe("abc123");
+    expect(getGistParamFromLocation("", "#/?gist=def456")).toBe("def456");
+    expect(getGistParamFromLocation("?gist=first", "#/?gist=second")).toBe("first");
+    expect(getGistParamFromLocation("", "#/")).toBeNull();
+  });
+});
+
+describe("fetchResumeFromGist", () => {
+  const sampleId = "0123456789abcdef0123456789abcdef";
+
+  it("prefers resume.json and falls back to other .json files", async () => {
+    const mockFetch = (async () =>
+      new Response(
+        JSON.stringify({
+          files: {
+            "notes.txt": { filename: "notes.txt", content: "hello" },
+            "other.json": { filename: "other.json", content: '{"basics":{"name":"Other"}}' },
+            "resume.json": { filename: "resume.json", content: '{"basics":{"name":"Jane"}}' },
+          },
+        }),
+        { status: 200 },
+      )) as typeof fetch;
+
+    const result = await fetchResumeFromGist(sampleId, mockFetch);
+    expect(result.gistId).toBe(sampleId);
+    expect(result.filename).toBe("resume.json");
+    expect(result.resume.basics?.name).toBe("Jane");
+  });
+
+  it("falls back to first .json file when resume.json is absent", async () => {
+    const mockFetch = (async () =>
+      new Response(
+        JSON.stringify({
+          files: {
+            "profile.json": { filename: "profile.json", content: '{"basics":{"name":"Alex"}}' },
+          },
+        }),
+        { status: 200 },
+      )) as typeof fetch;
+
+    const result = await fetchResumeFromGist(sampleId, mockFetch);
+    expect(result.filename).toBe("profile.json");
+    expect(result.resume.basics?.name).toBe("Alex");
+  });
+
+  it("fetches raw_url when the gist file is truncated", async () => {
+    const mockFetch = (async (url: string | URL | Request) => {
+      const target = typeof url === "string" ? url : url instanceof URL ? url.href : url.url;
+      if (target.includes("api.github.com")) {
+        return new Response(
+          JSON.stringify({
+            files: {
+              "resume.json": {
+                filename: "resume.json",
+                truncated: true,
+                raw_url: "https://gist.githubusercontent.com/raw/resume.json",
+                content: "{",
+              },
+            },
+          }),
+          { status: 200 },
+        );
+      }
+      return new Response('{"basics":{"name":"Full"}}', { status: 200 });
+    }) as typeof fetch;
+
+    const result = await fetchResumeFromGist(sampleId, mockFetch);
+    expect(result.resume.basics?.name).toBe("Full");
+  });
+
+  it("throws clear errors on invalid input, HTTP errors, missing JSON, and invalid JSON", async () => {
+    await expect(fetchResumeFromGist("bad-id")).rejects.toThrow("Invalid GitHub Gist URL or ID.");
+
+    const notFoundFetch = (async () => new Response("", { status: 404 })) as typeof fetch;
+    await expect(fetchResumeFromGist(sampleId, notFoundFetch)).rejects.toThrow("Gist not found");
+
+    const rateLimitFetch = (async () => new Response("", { status: 403 })) as typeof fetch;
+    await expect(fetchResumeFromGist(sampleId, rateLimitFetch)).rejects.toThrow("rate limit");
+
+    const noJsonFetch = (async () =>
+      new Response(JSON.stringify({ files: { "readme.md": { content: "hi" } } }), {
+        status: 200,
+      })) as typeof fetch;
+    await expect(fetchResumeFromGist(sampleId, noJsonFetch)).rejects.toThrow("No JSON file found");
+
+    const badJsonFetch = (async () =>
+      new Response(JSON.stringify({ files: { "resume.json": { content: "{bad" } } }), {
+        status: 200,
+      })) as typeof fetch;
+    await expect(fetchResumeFromGist(sampleId, badJsonFetch)).rejects.toThrow(
+      "does not contain valid JSON",
+    );
   });
 });

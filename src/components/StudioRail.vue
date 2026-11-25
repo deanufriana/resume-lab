@@ -99,6 +99,24 @@ const emit = defineEmits<{
       >
         <component :is="section.icon" class="w-4 h-4" />
         <span class="leading-none">{{ section.label }}</span>
+        <span
+          v-if="section.count > 0 && section.isDot"
+          :class="[
+            'absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full',
+            activeSection === section.id ? 'bg-primary-foreground/80' : 'bg-emerald-500',
+          ]"
+        />
+        <span
+          v-else-if="section.count > 0"
+          :class="[
+            'absolute top-1 right-1 min-w-[14px] h-[14px] px-1 rounded-full text-[9px] font-semibold leading-none flex items-center justify-center tabular-nums',
+            activeSection === section.id
+              ? 'bg-primary-foreground/20 text-primary-foreground'
+              : 'bg-muted text-muted-foreground',
+          ]"
+        >
+          {{ section.count }}
+        </span>
       </Button>
     </nav>
 

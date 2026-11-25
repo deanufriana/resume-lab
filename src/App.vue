@@ -14,8 +14,8 @@ import {
   clearResumeFromStorage,
 } from "./utils/storage";
 import { themes, getDefaultTheme } from "./themes";
-import exampleResume from "./data/resume.json";
 import { Analytics } from "./utils/analytics";
+import { fetchResumeFromGist, getGistParamFromLocation } from "./utils/gist";
 
 const toast = useToast();
 const selectedThemeId = ref(getDefaultTheme().id);
@@ -67,7 +67,7 @@ const hasResumeContent = computed(() => {
   );
 });
 
-onMounted(() => {
+function loadFromLocalStorage() {
   const savedResume = loadResumeFromStorage();
   if (savedResume && Object.keys(savedResume).length > 0) {
     if (savedResume.basics?.name || savedResume.work?.length || savedResume.education?.length) {
@@ -78,6 +78,25 @@ onMounted(() => {
       saveStatus.value = "saved";
     }
   }
+}
+
+onMounted(async () => {
+  const gistParam = getGistParamFromLocation(window.location.search, window.location.hash);
+  if (gistParam) {
+    try {
+      const { resume, filename } = await fetchResumeFromGist(gistParam);
+      Object.assign(resumeData, createEmptyResume(), resume);
+      if (resume.meta?.theme) {
+        selectedThemeId.value = resume.meta.theme;
+      }
+      persistResume(true);
+      toast.success(`Loaded ${filename} from Gist!`);
+      return;
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to load resume from Gist");
+    }
+  }
+  loadFromLocalStorage();
 });
 
 function persistResume(immediate = false) {
@@ -117,12 +136,29 @@ function applyJsonData(data: Resume) {
   Analytics.trackResumeUpload();
 }
 
-function loadSampleResume() {
-  Object.assign(resumeData, createEmptyResume(), structuredClone(exampleResume));
-  if (!resumeData.meta) resumeData.meta = {};
-  resumeData.meta.theme = selectedThemeId.value;
-  persistResume(true);
-  toast.success("Sample resume loaded!");
+const SAMPLE_GIST_ID = "b0396934938be633d75f134046ae8806";
+let isLoadingSample = false;
+
+async function loadSampleResume() {
+  if (isLoadingSample) return;
+  isLoadingSample = true;
+  toast.info("Loading sample resume...");
+  try {
+    const { resume } = await fetchResumeFromGist(SAMPLE_GIST_ID);
+    Object.assign(resumeData, createEmptyResume(), resume);
+    if (!resumeData.meta) resumeData.meta = {};
+    if (resume.meta?.theme) {
+      selectedThemeId.value = resume.meta.theme;
+    } else {
+      resumeData.meta.theme = selectedThemeId.value;
+    }
+    persistResume(true);
+    toast.success("Sample resume loaded!");
+  } catch (err) {
+    toast.error(err instanceof Error ? err.message : "Failed to load sample resume");
+  } finally {
+    isLoadingSample = false;
+  }
 }
 
 function clearAllResume() {

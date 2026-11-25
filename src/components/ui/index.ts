@@ -13,3 +13,4 @@ export { default as EmptyState } from "./EmptyState.vue";
 export { default as TagInput } from "./TagInput.vue";
 export { default as BulletListInput } from "./BulletListInput.vue";
 export { default as SegmentedControl } from "./SegmentedControl.vue";
+export { default as Switch } from "./Switch.vue";

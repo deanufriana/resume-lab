@@ -129,7 +129,7 @@ const toggleDark = (event: MouseEvent) => {
         <Button
           variant="ghost"
           size="sm"
-          class="h-8 text-xs gap-1.5 hidden md:inline-flex"
+          class="h-8 text-xs gap-1.5 hidden sm:inline-flex"
           @click="emit('load-sample')"
         >
           <Sparkles class="w-3.5 h-3.5" /> Sample

@@ -6,7 +6,7 @@ import { ChevronDown } from "lucide-vue-next";
 import { cn } from "../../utils/cn";
 
 const nativeSelectVariants = cva(
-  "block w-full appearance-none rounded-md text-sm transition-colors focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 group-hover:border-border cursor-pointer font-outfit",
+  "block w-full appearance-none rounded-md text-sm transition-colors focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 group-hover:border-border cursor-pointer",
   {
     variants: {
       variant: {
@@ -67,9 +67,3 @@ const modelValue = useVModel(props, "modelValue", emits, {
     </div>
   </div>
 </template>
-
-<style scoped>
-.font-outfit {
-  font-family: "Outfit", sans-serif;
-}
-</style>

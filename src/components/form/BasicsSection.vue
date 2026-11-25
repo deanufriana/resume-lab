@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import type { Basics, Location, Profile } from "../../types/resume";
-import { Input, Label, Textarea, Button } from "../ui/index";
+import { Input, Label, Textarea, Button, Switch } from "../ui/index";
 import Draggable from "vuedraggable";
 import { GripVertical, Plus, Trash2 } from "lucide-vue-next";
 
@@ -110,12 +110,12 @@ function removeProfile(index: number) {
           input intact here.
         </p>
       </div>
-      <label class="relative inline-flex items-center cursor-pointer select-none flex-shrink-0">
-        <input type="checkbox" v-model="localBasicsHideContact" class="sr-only peer" />
-        <div
-          class="w-10 h-5 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-amber-500"
-        ></div>
-      </label>
+      <Switch
+        v-model="localBasicsHideContact"
+        variant="amber"
+        aria-label="Toggle Upwork Compliance Mode"
+        class="flex-shrink-0"
+      />
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -237,7 +237,7 @@ function removeProfile(index: number) {
         handle=".handle"
         class="space-y-2.5"
       >
-        <template #item="{ element: profile, index }">
+        <template #item="{ element, index }: { element: Profile; index: number }">
           <div class="flex items-start gap-2.5 p-3 border rounded-md bg-card">
             <div class="handle cursor-grab active:cursor-grabbing mt-2">
               <GripVertical class="w-4 h-4 text-muted-foreground" />
@@ -246,7 +246,7 @@ function removeProfile(index: number) {
               <div class="space-y-1">
                 <Label class="text-xs">Network</Label>
                 <Input
-                  v-model="profile.network"
+                  v-model="element.network"
                   placeholder="LinkedIn"
                   class="h-9 sm:h-8 text-base sm:text-xs"
                 />
@@ -254,7 +254,7 @@ function removeProfile(index: number) {
               <div class="space-y-1">
                 <Label class="text-xs">Username</Label>
                 <Input
-                  v-model="profile.username"
+                  v-model="element.username"
                   placeholder="johndoe"
                   class="h-9 sm:h-8 text-base sm:text-xs"
                 />
@@ -262,7 +262,7 @@ function removeProfile(index: number) {
               <div class="space-y-1">
                 <Label class="text-xs">URL</Label>
                 <Input
-                  v-model="profile.url"
+                  v-model="element.url"
                   placeholder="https://..."
                   class="h-9 sm:h-8 text-base sm:text-xs"
                 />
