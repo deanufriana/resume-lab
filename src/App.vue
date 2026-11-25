@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar.vue";
 import JsonDrawer from "./components/JsonDrawer.vue";
 import SignatureModal from "./components/SignatureModal.vue";
 import AboutModal from "./components/AboutModal.vue";
+import ConfirmModal from "./components/ConfirmModal.vue";
 import Toast from "./components/ui/Toast.vue";
 import { generatePDFFromElement } from "./utils/pdf";
 import { useToast } from "./composables/useToast";
@@ -139,7 +140,27 @@ function applyJsonData(data: Resume) {
 const SAMPLE_GIST_ID = "b0396934938be633d75f134046ae8806";
 let isLoadingSample = false;
 
-async function loadSampleResume() {
+const pendingConfirm = ref<"clear" | "sample" | null>(null);
+
+const confirmModalConfig = computed(() => {
+  if (pendingConfirm.value === "clear") {
+    return {
+      title: "Clear resume data?",
+      description:
+        "This will remove all resume sections and clear your local browser storage. This action cannot be undone.",
+      confirmLabel: "Clear Resume",
+      variant: "destructive" as const,
+    };
+  }
+  return {
+    title: "Replace with sample resume?",
+    description: "Loading the sample resume will overwrite your current resume data.",
+    confirmLabel: "Load Sample",
+    variant: "default" as const,
+  };
+});
+
+async function performLoadSample() {
   if (isLoadingSample) return;
   isLoadingSample = true;
   toast.info("Loading sample resume...");
@@ -161,11 +182,34 @@ async function loadSampleResume() {
   }
 }
 
-function clearAllResume() {
+function requestLoadSample() {
+  if (hasResumeContent.value) {
+    pendingConfirm.value = "sample";
+    return;
+  }
+  void performLoadSample();
+}
+
+function performClearResume() {
   Object.assign(resumeData, createEmptyResume());
   clearResumeFromStorage();
   saveStatus.value = "idle";
   toast.info("Resume cleared");
+}
+
+function requestClearResume() {
+  if (!hasResumeContent.value) return;
+  pendingConfirm.value = "clear";
+}
+
+function handleConfirmAction() {
+  const action = pendingConfirm.value;
+  pendingConfirm.value = null;
+  if (action === "clear") {
+    performClearResume();
+  } else if (action === "sample") {
+    void performLoadSample();
+  }
 }
 
 function handleSaveSignature(payload: { dataUrl: string; showSignature: boolean }) {
@@ -217,8 +261,8 @@ function downloadJSON() {
       @open-json="isJsonOpen = true"
       @open-signature="isSignatureOpen = true"
       @open-about="isAboutOpen = true"
-      @load-sample="loadSampleResume"
-      @clear-resume="clearAllResume"
+      @load-sample="requestLoadSample"
+      @clear-resume="requestClearResume"
       @export-pdf="generatePDF"
     />
 
@@ -230,9 +274,9 @@ function downloadJSON() {
           :themes="themes"
           :theme-id="selectedThemeId"
           @update="handleResumeUpdate"
-          @load-sample="loadSampleResume"
+          @load-sample="requestLoadSample"
           @open-json="isJsonOpen = true"
-          @clear-resume="clearAllResume"
+          @clear-resume="requestClearResume"
           @theme-change="handleThemeChange"
         />
       </router-view>
@@ -255,6 +299,16 @@ function downloadJSON() {
     />
 
     <AboutModal :open="isAboutOpen" @close="isAboutOpen = false" />
+
+    <ConfirmModal
+      :open="pendingConfirm !== null"
+      :title="confirmModalConfig.title"
+      :description="confirmModalConfig.description"
+      :confirm-label="confirmModalConfig.confirmLabel"
+      :variant="confirmModalConfig.variant"
+      @confirm="handleConfirmAction"
+      @cancel="pendingConfirm = null"
+    />
 
     <Toast />
   </div>

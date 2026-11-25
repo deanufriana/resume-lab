@@ -79,9 +79,9 @@ function removeProject(index: number) {
       handle=".handle"
       class="space-y-3"
     >
-      <template #item="{ element: project, index }">
+      <template #item="{ element, index }: { element: Project; index: number }">
         <Card class="border-border/80 shadow-none">
-          <CardHeader class="p-3.5 cursor-pointer select-none" @click="toggleCollapse(project)">
+          <CardHeader class="p-3.5 cursor-pointer select-none" @click="toggleCollapse(element)">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2.5 min-w-0">
                 <div
@@ -91,7 +91,7 @@ function removeProject(index: number) {
                   <GripVertical class="w-4 h-4" />
                 </div>
                 <CardTitle class="text-sm font-semibold truncate">
-                  {{ project.name || `Project #${index + 1}` }}
+                  {{ element.name || `Project #${index + 1}` }}
                 </CardTitle>
               </div>
               <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0" @click.stop>
@@ -99,12 +99,12 @@ function removeProject(index: number) {
                   variant="ghost"
                   size="icon"
                   class="h-8 w-8 sm:h-7 sm:w-7 touch-manipulation"
-                  @click="toggleCollapse(project)"
+                  @click="toggleCollapse(element)"
                   :aria-label="
-                    isCollapsed(project) ? 'Expand project details' : 'Collapse project details'
+                    isCollapsed(element) ? 'Expand project details' : 'Collapse project details'
                   "
                 >
-                  <ChevronUp v-if="!isCollapsed(project)" class="w-4 h-4" />
+                  <ChevronUp v-if="!isCollapsed(element)" class="w-4 h-4" />
                   <ChevronDown v-else class="w-4 h-4" />
                 </Button>
                 <Button
@@ -119,12 +119,12 @@ function removeProject(index: number) {
               </div>
             </div>
           </CardHeader>
-          <CardContent v-show="!isCollapsed(project)" class="p-3.5 pt-0 space-y-3">
+          <CardContent v-show="!isCollapsed(element)" class="p-3.5 pt-0 space-y-3">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div class="space-y-1">
                 <Label class="text-xs">Project Name</Label>
                 <Input
-                  v-model="project.name"
+                  v-model="element.name"
                   placeholder="Portfolio Website"
                   class="h-9 sm:h-8 text-base sm:text-xs"
                 />
@@ -132,7 +132,7 @@ function removeProject(index: number) {
               <div class="space-y-1">
                 <Label class="text-xs">URL</Label>
                 <Input
-                  v-model="project.url"
+                  v-model="element.url"
                   placeholder="https://..."
                   class="h-9 sm:h-8 text-base sm:text-xs"
                 />
@@ -142,8 +142,8 @@ function removeProject(index: number) {
                   <Label class="text-xs">Start Month</Label>
                   <Input
                     type="month"
-                    :model-value="toMonthInput(project.startDate)"
-                    @update:model-value="(v) => (project.startDate = String(v))"
+                    :model-value="toMonthInput(element.startDate)"
+                    @update:model-value="(v) => (element.startDate = String(v))"
                     class="h-9 sm:h-8 text-base sm:text-xs"
                   />
                 </div>
@@ -151,8 +151,8 @@ function removeProject(index: number) {
                   <Label class="text-xs">End Month</Label>
                   <Input
                     type="month"
-                    :model-value="toMonthInput(project.endDate)"
-                    @update:model-value="(v) => (project.endDate = String(v))"
+                    :model-value="toMonthInput(element.endDate)"
+                    @update:model-value="(v) => (element.endDate = String(v))"
                     class="h-9 sm:h-8 text-base sm:text-xs"
                   />
                 </div>
@@ -161,7 +161,7 @@ function removeProject(index: number) {
             <div class="space-y-1">
               <Label class="text-xs">Description</Label>
               <Textarea
-                v-model="project.description"
+                v-model="element.description"
                 placeholder="Short description of the project..."
                 class="min-h-[64px] text-base sm:text-xs"
               />
@@ -169,8 +169,8 @@ function removeProject(index: number) {
             <div class="space-y-1.5">
               <Label class="text-xs">Highlights</Label>
               <BulletListInput
-                :model-value="project.highlights || []"
-                @update:model-value="(val) => (project.highlights = val)"
+                :model-value="element.highlights || []"
+                @update:model-value="(val) => (element.highlights = val)"
                 placeholder="Implemented SSR with Nuxt.js..."
                 add-label="Add highlight"
               />

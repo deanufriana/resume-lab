@@ -130,7 +130,7 @@ function handlePaste(e: ClipboardEvent, index: number) {
       class="space-y-1.5"
       @update:model-value="emitRows"
     >
-      <template #item="{ element: row, index }">
+      <template #item="{ element, index }: { element: BulletRow; index: number }">
         <div class="flex items-start gap-1.5 group">
           <div
             class="bullet-handle cursor-grab active:cursor-grabbing pt-2 text-muted-foreground/60 hover:text-foreground flex-shrink-0"
@@ -139,9 +139,9 @@ function handlePaste(e: ClipboardEvent, index: number) {
             <GripVertical class="w-3.5 h-3.5" />
           </div>
           <textarea
-            :ref="(el) => setInputRef(row.id, el)"
+            :ref="(el) => setInputRef(element.id, el)"
             rows="1"
-            :value="row.text"
+            :value="element.text"
             :placeholder="placeholder"
             @input="updateItem(index, ($event.target as HTMLTextAreaElement).value)"
             @keydown="handleKeydown($event, index)"

@@ -2,6 +2,8 @@ import type { Component } from "vue";
 import SimplePreview from "./Simple.vue";
 import ProfessionalPreview from "./Professional.vue";
 import ModernPreview from "./Modern.vue";
+import TechnicalPreview from "./Technical.vue";
+import HarvardPreview from "./Harvard.vue";
 
 export interface Theme {
   id: string;
@@ -28,6 +30,19 @@ export const themes: Theme[] = [
     name: "Professional",
     description: "Bold, high-contrast executive layout with structured sections",
     component: ProfessionalPreview,
+  },
+  {
+    id: "technical",
+    name: "Technical",
+    description:
+      "Developer-focused layout with skills matrix, timeline rail, and monospace accents",
+    component: TechnicalPreview,
+  },
+  {
+    id: "harvard",
+    name: "Harvard",
+    description: "Ultra-compact single-column ATS classic optimized for 1-page resumes",
+    component: HarvardPreview,
   },
 ];
 

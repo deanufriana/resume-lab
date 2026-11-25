@@ -74,9 +74,9 @@ function removeSkill(index: number) {
       handle=".handle"
       class="space-y-3"
     >
-      <template #item="{ element: skill, index }">
+      <template #item="{ element, index }: { element: Skill; index: number }">
         <Card class="border-border/80 shadow-none">
-          <CardHeader class="p-3.5 cursor-pointer select-none" @click="toggleCollapse(skill)">
+          <CardHeader class="p-3.5 cursor-pointer select-none" @click="toggleCollapse(element)">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2.5 min-w-0">
                 <div
@@ -86,7 +86,7 @@ function removeSkill(index: number) {
                   <GripVertical class="w-4 h-4" />
                 </div>
                 <CardTitle class="text-sm font-semibold truncate">
-                  {{ skill.name || `Skill Group #${index + 1}` }}
+                  {{ element.name || `Skill Group #${index + 1}` }}
                 </CardTitle>
               </div>
               <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0" @click.stop>
@@ -94,12 +94,12 @@ function removeSkill(index: number) {
                   variant="ghost"
                   size="icon"
                   class="h-8 w-8 sm:h-7 sm:w-7 touch-manipulation"
-                  @click="toggleCollapse(skill)"
+                  @click="toggleCollapse(element)"
                   :aria-label="
-                    isCollapsed(skill) ? 'Expand skills details' : 'Collapse skills details'
+                    isCollapsed(element) ? 'Expand skills details' : 'Collapse skills details'
                   "
                 >
-                  <ChevronUp v-if="!isCollapsed(skill)" class="w-4 h-4" />
+                  <ChevronUp v-if="!isCollapsed(element)" class="w-4 h-4" />
                   <ChevronDown v-else class="w-4 h-4" />
                 </Button>
                 <Button
@@ -114,12 +114,12 @@ function removeSkill(index: number) {
               </div>
             </div>
           </CardHeader>
-          <CardContent v-show="!isCollapsed(skill)" class="p-3.5 pt-0 space-y-3">
+          <CardContent v-show="!isCollapsed(element)" class="p-3.5 pt-0 space-y-3">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div class="space-y-1">
                 <Label class="text-xs">Skill Group / Name</Label>
                 <Input
-                  v-model="skill.name"
+                  v-model="element.name"
                   placeholder="Frontend Development"
                   class="h-9 sm:h-8 text-base sm:text-xs"
                 />
@@ -127,7 +127,7 @@ function removeSkill(index: number) {
               <div class="space-y-1">
                 <Label class="text-xs">Level (optional)</Label>
                 <Input
-                  v-model="skill.level"
+                  v-model="element.level"
                   placeholder="Expert / Advanced"
                   class="h-9 sm:h-8 text-base sm:text-xs"
                 />
@@ -136,8 +136,8 @@ function removeSkill(index: number) {
             <div class="space-y-1.5">
               <Label class="text-xs">Keywords</Label>
               <TagInput
-                :model-value="skill.keywords || []"
-                @update:model-value="(val) => (skill.keywords = val)"
+                :model-value="element.keywords || []"
+                @update:model-value="(val) => (element.keywords = val)"
                 placeholder="Type skill & press Enter (e.g. React, Vue, TS)..."
               />
             </div>

@@ -80,9 +80,9 @@ function removeEducation(index: number) {
       handle=".handle"
       class="space-y-3"
     >
-      <template #item="{ element: edu, index }">
+      <template #item="{ element, index }: { element: Education; index: number }">
         <Card class="border-border/80 shadow-none">
-          <CardHeader class="p-3.5 cursor-pointer select-none" @click="toggleCollapse(edu)">
+          <CardHeader class="p-3.5 cursor-pointer select-none" @click="toggleCollapse(element)">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2.5 min-w-0">
                 <div
@@ -92,7 +92,7 @@ function removeEducation(index: number) {
                   <GripVertical class="w-4 h-4" />
                 </div>
                 <CardTitle class="text-sm font-semibold truncate">
-                  {{ edu.institution || `Education #${index + 1}` }}
+                  {{ element.institution || `Education #${index + 1}` }}
                 </CardTitle>
               </div>
               <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0" @click.stop>
@@ -100,12 +100,12 @@ function removeEducation(index: number) {
                   variant="ghost"
                   size="icon"
                   class="h-8 w-8 sm:h-7 sm:w-7 touch-manipulation"
-                  @click="toggleCollapse(edu)"
+                  @click="toggleCollapse(element)"
                   :aria-label="
-                    isCollapsed(edu) ? 'Expand education details' : 'Collapse education details'
+                    isCollapsed(element) ? 'Expand education details' : 'Collapse education details'
                   "
                 >
-                  <ChevronUp v-if="!isCollapsed(edu)" class="w-4 h-4" />
+                  <ChevronUp v-if="!isCollapsed(element)" class="w-4 h-4" />
                   <ChevronDown v-else class="w-4 h-4" />
                 </Button>
                 <Button
@@ -120,12 +120,12 @@ function removeEducation(index: number) {
               </div>
             </div>
           </CardHeader>
-          <CardContent v-show="!isCollapsed(edu)" class="p-3.5 pt-0 space-y-3">
+          <CardContent v-show="!isCollapsed(element)" class="p-3.5 pt-0 space-y-3">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div class="space-y-1">
                 <Label class="text-xs">Institution</Label>
                 <Input
-                  v-model="edu.institution"
+                  v-model="element.institution"
                   placeholder="University of..."
                   class="h-9 sm:h-8 text-base sm:text-xs"
                 />
@@ -133,7 +133,7 @@ function removeEducation(index: number) {
               <div class="space-y-1">
                 <Label class="text-xs">Area of Study</Label>
                 <Input
-                  v-model="edu.area"
+                  v-model="element.area"
                   placeholder="Computer Science"
                   class="h-9 sm:h-8 text-base sm:text-xs"
                 />
@@ -141,7 +141,7 @@ function removeEducation(index: number) {
               <div class="space-y-1">
                 <Label class="text-xs">Degree Type</Label>
                 <Input
-                  v-model="edu.studyType"
+                  v-model="element.studyType"
                   placeholder="Bachelor's"
                   class="h-9 sm:h-8 text-base sm:text-xs"
                 />
@@ -149,7 +149,7 @@ function removeEducation(index: number) {
               <div class="space-y-1">
                 <Label class="text-xs">GPA / Score</Label>
                 <Input
-                  v-model="edu.score"
+                  v-model="element.score"
                   placeholder="3.8/4.0"
                   class="h-9 sm:h-8 text-base sm:text-xs"
                 />
@@ -157,7 +157,7 @@ function removeEducation(index: number) {
               <div class="space-y-1">
                 <Label class="text-xs">URL</Label>
                 <Input
-                  v-model="edu.url"
+                  v-model="element.url"
                   placeholder="https://..."
                   class="h-9 sm:h-8 text-base sm:text-xs"
                 />
@@ -167,8 +167,8 @@ function removeEducation(index: number) {
                   <Label class="text-xs">Start Month</Label>
                   <Input
                     type="month"
-                    :model-value="toMonthInput(edu.startDate)"
-                    @update:model-value="(v) => (edu.startDate = String(v))"
+                    :model-value="toMonthInput(element.startDate)"
+                    @update:model-value="(v) => (element.startDate = String(v))"
                     class="h-9 sm:h-8 text-base sm:text-xs"
                   />
                 </div>
@@ -176,8 +176,8 @@ function removeEducation(index: number) {
                   <Label class="text-xs">End Month</Label>
                   <Input
                     type="month"
-                    :model-value="toMonthInput(edu.endDate)"
-                    @update:model-value="(v) => (edu.endDate = String(v))"
+                    :model-value="toMonthInput(element.endDate)"
+                    @update:model-value="(v) => (element.endDate = String(v))"
                     class="h-9 sm:h-8 text-base sm:text-xs"
                   />
                 </div>
@@ -186,8 +186,8 @@ function removeEducation(index: number) {
             <div class="space-y-1.5">
               <Label class="text-xs">Relevant Courses</Label>
               <TagInput
-                :model-value="edu.courses || []"
-                @update:model-value="(val) => (edu.courses = val)"
+                :model-value="element.courses || []"
+                @update:model-value="(val) => (element.courses = val)"
                 placeholder="Type course & press Enter..."
               />
             </div>

@@ -14,6 +14,7 @@ import {
   EmptyState,
   TagInput,
   BulletListInput,
+  Switch,
 } from "../ui/index";
 import Draggable from "vuedraggable";
 import { Briefcase, GripVertical, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-vue-next";
@@ -85,9 +86,9 @@ function toggleCurrentRole(exp: Work, isCurrent: boolean) {
     </EmptyState>
 
     <Draggable v-else v-model="localWork" :item-key="getItemKey" handle=".handle" class="space-y-3">
-      <template #item="{ element: exp, index }">
+      <template #item="{ element, index }: { element: Work; index: number }">
         <Card class="border-border/80 shadow-none">
-          <CardHeader class="p-3.5 cursor-pointer select-none" @click="toggleCollapse(exp)">
+          <CardHeader class="p-3.5 cursor-pointer select-none" @click="toggleCollapse(element)">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2.5 min-w-0">
                 <div
@@ -98,10 +99,13 @@ function toggleCurrentRole(exp: Work, isCurrent: boolean) {
                 </div>
                 <div class="min-w-0">
                   <CardTitle class="text-sm font-semibold truncate">
-                    {{ exp.position || exp.name || `Experience #${index + 1}` }}
+                    {{ element.position || element.name || `Experience #${index + 1}` }}
                   </CardTitle>
-                  <p v-if="exp.position && exp.name" class="text-xs text-muted-foreground truncate">
-                    {{ exp.name }}
+                  <p
+                    v-if="element.position && element.name"
+                    class="text-xs text-muted-foreground truncate"
+                  >
+                    {{ element.name }}
                   </p>
                 </div>
               </div>
@@ -110,10 +114,12 @@ function toggleCurrentRole(exp: Work, isCurrent: boolean) {
                   variant="ghost"
                   size="icon"
                   class="h-8 w-8 sm:h-7 sm:w-7 touch-manipulation"
-                  @click="toggleCollapse(exp)"
-                  :aria-label="isCollapsed(exp) ? 'Expand role details' : 'Collapse role details'"
+                  @click="toggleCollapse(element)"
+                  :aria-label="
+                    isCollapsed(element) ? 'Expand role details' : 'Collapse role details'
+                  "
                 >
-                  <ChevronUp v-if="!isCollapsed(exp)" class="w-4 h-4" />
+                  <ChevronUp v-if="!isCollapsed(element)" class="w-4 h-4" />
                   <ChevronDown v-else class="w-4 h-4" />
                 </Button>
                 <Button
@@ -128,12 +134,12 @@ function toggleCurrentRole(exp: Work, isCurrent: boolean) {
               </div>
             </div>
           </CardHeader>
-          <CardContent v-show="!isCollapsed(exp)" class="p-3.5 pt-0 space-y-4">
+          <CardContent v-show="!isCollapsed(element)" class="p-3.5 pt-0 space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div class="space-y-1">
                 <Label class="text-xs">Company Name</Label>
                 <Input
-                  v-model="exp.name"
+                  v-model="element.name"
                   placeholder="Acme Corp"
                   class="h-9 sm:h-8 text-base sm:text-xs"
                 />
@@ -141,7 +147,7 @@ function toggleCurrentRole(exp: Work, isCurrent: boolean) {
               <div class="space-y-1">
                 <Label class="text-xs">Position</Label>
                 <Input
-                  v-model="exp.position"
+                  v-model="element.position"
                   placeholder="Senior Software Engineer"
                   class="h-9 sm:h-8 text-base sm:text-xs"
                 />
@@ -149,7 +155,7 @@ function toggleCurrentRole(exp: Work, isCurrent: boolean) {
               <div class="space-y-1">
                 <Label class="text-xs">Company URL</Label>
                 <Input
-                  v-model="exp.url"
+                  v-model="element.url"
                   placeholder="https://..."
                   class="h-9 sm:h-8 text-base sm:text-xs"
                 />
@@ -159,33 +165,29 @@ function toggleCurrentRole(exp: Work, isCurrent: boolean) {
                   <Label class="text-xs block leading-4">Start</Label>
                   <Input
                     type="month"
-                    :model-value="toMonthInput(exp.startDate)"
-                    @update:model-value="(v) => (exp.startDate = String(v))"
+                    :model-value="toMonthInput(element.startDate)"
+                    @update:model-value="(v) => (element.startDate = String(v))"
                     class="h-9 sm:h-8 text-base sm:text-xs"
                   />
                 </div>
                 <div class="space-y-1">
                   <div class="flex items-center justify-between leading-4">
                     <Label class="text-xs">End</Label>
-                    <label
-                      class="flex items-center gap-1 text-[11px] text-muted-foreground cursor-pointer select-none whitespace-nowrap"
-                    >
-                      <input
-                        type="checkbox"
-                        :checked="!exp.endDate"
-                        @change="
-                          toggleCurrentRole(exp, ($event.target as HTMLInputElement).checked)
-                        "
-                        class="rounded border-input accent-foreground h-3.5 w-3.5 sm:h-3 sm:w-3"
+                    <div class="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                      <Switch
+                        size="sm"
+                        :model-value="!element.endDate"
+                        aria-label="Current role"
+                        @update:model-value="(val) => toggleCurrentRole(element, val)"
                       />
-                      Current
-                    </label>
+                      <span class="whitespace-nowrap">Current</span>
+                    </div>
                   </div>
                   <Input
                     type="month"
-                    :disabled="!exp.endDate"
-                    :model-value="toMonthInput(exp.endDate)"
-                    @update:model-value="(v) => (exp.endDate = String(v))"
+                    :disabled="!element.endDate"
+                    :model-value="toMonthInput(element.endDate)"
+                    @update:model-value="(v) => (element.endDate = String(v))"
                     class="h-9 sm:h-8 text-base sm:text-xs disabled:opacity-40"
                   />
                 </div>
@@ -194,7 +196,7 @@ function toggleCurrentRole(exp: Work, isCurrent: boolean) {
             <div class="space-y-1">
               <Label class="text-xs">Summary</Label>
               <Textarea
-                v-model="exp.summary"
+                v-model="element.summary"
                 placeholder="Brief overview of your role and scope..."
                 class="min-h-[68px] text-base sm:text-xs"
               />
@@ -202,16 +204,16 @@ function toggleCurrentRole(exp: Work, isCurrent: boolean) {
             <div class="space-y-1.5">
               <Label class="text-xs">Skills Used</Label>
               <TagInput
-                :model-value="exp.skills || []"
-                @update:model-value="(val) => (exp.skills = val)"
+                :model-value="element.skills || []"
+                @update:model-value="(val) => (element.skills = val)"
                 placeholder="Type skill & press Enter (e.g. TypeScript, Vue)..."
               />
             </div>
             <div class="space-y-1.5">
               <Label class="text-xs">Key Highlights</Label>
               <BulletListInput
-                :model-value="exp.highlights || []"
-                @update:model-value="(val) => (exp.highlights = val)"
+                :model-value="element.highlights || []"
+                @update:model-value="(val) => (element.highlights = val)"
                 placeholder="Led migration to Vite, cutting build time by 40%..."
                 add-label="Add highlight"
               />

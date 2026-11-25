@@ -1,8 +1,8 @@
 <template>
   <div
     class="resume-content relative bg-white text-gray-900"
-    :class="[fontClass, densityClass]"
-    :style="{ '--resume-accent': accentColor }"
+    :class="densityClass"
+    :style="{ fontFamily: resolvedFontFamily, '--resume-accent': accentColor }"
   >
     <!-- Professional Header -->
     <header class="border-b-2 pb-5 mb-6" :style="{ borderColor: accentColor }">
@@ -26,7 +26,9 @@
           </div>
           <div v-if="resumeData.basics?.phone" class="flex items-center gap-1">
             <span class="text-gray-400 font-bold">P:</span>
-            {{ resumeData.basics.phone }}
+            <a :href="`tel:${resumeData.basics.phone}`" class="hover:underline">
+              {{ resumeData.basics.phone }}
+            </a>
           </div>
           <div v-if="formattedLocation" class="flex items-center gap-1">
             <span class="text-gray-400 font-bold">L:</span>
@@ -39,8 +41,9 @@
               class="hover:underline"
               target="_blank"
               rel="noopener noreferrer"
-              >{{ resumeData.basics.url.replace(/^https?:\/\//, "") }}</a
             >
+              {{ displayUrl(resumeData.basics.url) }}
+            </a>
           </div>
         </div>
 
@@ -56,7 +59,11 @@
             target="_blank"
             rel="noopener noreferrer"
           >
-            {{ profile.network }}: {{ profile.username }}
+            {{
+              [profile.network, profile.username || displayUrl(profile.url)]
+                .filter(Boolean)
+                .join(": ")
+            }}
           </a>
         </div>
       </div>
@@ -80,13 +87,26 @@
               <h3 class="text-base font-extrabold uppercase tracking-tight">
                 {{ work.position }}
               </h3>
-              <h4 class="text-sm font-bold text-gray-600">{{ work.name }}</h4>
+              <h4 class="text-sm font-bold text-gray-600">
+                {{ work.name }}
+                <span v-if="work.url" class="font-medium text-gray-500">
+                  ·
+                  <a
+                    :href="sanitizeUrl(work.url)"
+                    class="hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {{ displayUrl(work.url) }}
+                  </a>
+                </span>
+              </h4>
             </div>
             <div
-              class="text-xs font-black text-gray-500 uppercase tracking-tight whitespace-nowrap"
+              v-if="formatDateRange(work.startDate, work.endDate)"
+              class="text-xs font-black text-gray-500 uppercase tracking-tight whitespace-nowrap tabular-nums"
             >
-              {{ formatDate(work.startDate) }} —
-              {{ formatDate(work.endDate) || "Present" }}
+              {{ formatDateRange(work.startDate, work.endDate) }}
             </div>
           </div>
           <p v-if="work.summary" class="text-gray-700 font-medium mb-2 text-sm">
@@ -109,14 +129,23 @@
     </section>
 
     <!-- Two-Column Section for Skills & Education -->
-    <div class="grid grid-cols-2 gap-8 section-block">
-      <!-- Left: Skills -->
+    <div
+      v-if="resumeData.skills?.length || resumeData.education?.length"
+      :class="[
+        'grid gap-8 section-block',
+        resumeData.skills?.length && resumeData.education?.length ? 'grid-cols-2' : 'grid-cols-1',
+      ]"
+    >
+      <!-- Skills -->
       <section v-if="resumeData.skills?.length">
         <h2 class="section-title">Expertise</h2>
         <div class="space-y-3">
-          <div v-for="(skill, index) in resumeData.skills" :key="index">
+          <div v-for="(skill, index) in resumeData.skills" :key="index" class="break-inside-avoid">
             <h3 class="text-xs font-black uppercase tracking-widest text-gray-500 mb-1">
               {{ skill.name }}
+              <span v-if="skill.level" class="font-semibold normal-case tracking-normal">
+                ({{ skill.level }})
+              </span>
             </h3>
             <p
               v-if="skill.keywords?.length"
@@ -128,7 +157,7 @@
         </div>
       </section>
 
-      <!-- Right: Education -->
+      <!-- Education -->
       <section v-if="resumeData.education?.length">
         <h2 class="section-title">Education</h2>
         <div class="space-y-4">
@@ -137,69 +166,63 @@
               <h3 class="font-extrabold text-sm uppercase leading-tight">
                 {{ [edu.studyType, edu.area].filter(Boolean).join(" — ") }}
               </h3>
-              <span class="text-[11px] font-black text-gray-500 whitespace-nowrap"
-                >{{ formatDate(edu.startDate) }} - {{ formatDate(edu.endDate) || "Present" }}</span
+              <span
+                v-if="formatDateRange(edu.startDate, edu.endDate)"
+                class="text-[11px] font-black text-gray-500 whitespace-nowrap tabular-nums"
               >
+                {{ formatDateRange(edu.startDate, edu.endDate) }}
+              </span>
             </div>
-            <p class="text-sm font-bold text-gray-600">{{ edu.institution }}</p>
+            <p class="text-sm font-bold text-gray-600">
+              <a
+                v-if="edu.url"
+                :href="sanitizeUrl(edu.url)"
+                class="hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {{ edu.institution }}
+              </a>
+              <span v-else>{{ edu.institution }}</span>
+            </p>
             <p v-if="edu.score" class="text-xs font-medium text-gray-500 mt-0.5 italic">
               Honors / GPA: {{ edu.score }}
+            </p>
+            <p v-if="edu.courses?.length" class="text-xs text-gray-600 mt-1 leading-snug">
+              <span class="font-bold text-gray-700">Courses:</span> {{ edu.courses.join(", ") }}
             </p>
           </div>
         </div>
       </section>
     </div>
 
-    <!-- Final Section (Awards/Certs) -->
-    <div
-      v-if="resumeData.awards?.length || resumeData.certificates?.length"
-      class="mt-10 pt-8 border-t-2 border-gray-100 grid grid-cols-2 gap-10"
-    >
-      <section v-if="resumeData.awards?.length">
-        <h2 class="section-title !mb-4">Awards</h2>
-        <ul class="space-y-2">
-          <li v-for="(award, index) in resumeData.awards" :key="index" class="text-sm">
-            <span class="font-black">{{ award.title }}</span> —
-            <span class="text-gray-600 font-bold"
-              >{{ award.awarder }}, {{ formatDate(award.date) }}</span
-            >
-          </li>
-        </ul>
-      </section>
-
-      <section v-if="resumeData.certificates?.length">
-        <h2 class="section-title !mb-4">Certifications</h2>
-        <ul class="space-y-2 text-sm">
-          <li v-for="(cert, index) in resumeData.certificates" :key="index">
-            <span class="font-black">{{ cert.name }}</span> —
-            <span class="text-gray-600 font-bold">{{ cert.issuer }}</span>
-          </li>
-        </ul>
-      </section>
-    </div>
-
     <!-- Projects -->
-    <section v-if="resumeData.projects?.length" class="mt-10">
+    <section v-if="resumeData.projects?.length" class="section-block">
       <h2 class="section-title">Projects</h2>
       <div class="space-y-4">
-        <div v-for="(project, index) in resumeData.projects" :key="index">
-          <div class="flex justify-between items-baseline">
+        <div
+          v-for="(project, index) in resumeData.projects"
+          :key="index"
+          class="break-inside-avoid"
+        >
+          <div class="flex justify-between items-baseline gap-4">
             <h3 class="text-base font-extrabold uppercase tracking-tight">
               {{ project.name }}
               <a
                 v-if="project.url"
                 :href="sanitizeUrl(project.url)"
-                class="text-xs font-semibold text-blue-600 hover:underline ml-1 normal-case"
+                class="text-xs font-semibold hover:underline ml-1 normal-case"
                 target="_blank"
                 rel="noopener noreferrer"
-                >{{ project.url.replace(/^https?:\/\//, "") }}</a
               >
+                {{ displayUrl(project.url) }}
+              </a>
             </h3>
             <span
-              v-if="project.startDate || project.endDate"
-              class="text-xs font-black text-gray-500 uppercase"
+              v-if="formatDateRange(project.startDate, project.endDate)"
+              class="text-xs font-black text-gray-500 uppercase whitespace-nowrap tabular-nums"
             >
-              {{ formatDate(project.startDate) }} — {{ formatDate(project.endDate) || "Present" }}
+              {{ formatDateRange(project.startDate, project.endDate) }}
             </span>
           </div>
           <p v-if="project.description" class="text-sm text-gray-700 mt-1">
@@ -218,17 +241,113 @@
       </div>
     </section>
 
+    <!-- Awards & Certifications -->
+    <div
+      v-if="resumeData.awards?.length || resumeData.certificates?.length"
+      :class="[
+        'pt-5 border-t-2 border-gray-100 grid gap-10 section-block',
+        resumeData.awards?.length && resumeData.certificates?.length
+          ? 'grid-cols-2'
+          : 'grid-cols-1',
+      ]"
+    >
+      <section v-if="resumeData.awards?.length">
+        <h2 class="section-title !mb-4">Awards</h2>
+        <ul class="space-y-2">
+          <li
+            v-for="(award, index) in resumeData.awards"
+            :key="index"
+            class="text-sm break-inside-avoid"
+          >
+            <div>
+              <span class="font-black">{{ award.title }}</span>
+              <span v-if="award.awarder || award.date" class="text-gray-600 font-bold tabular-nums">
+                — {{ [award.awarder, formatDate(award.date)].filter(Boolean).join(" · ") }}
+              </span>
+            </div>
+            <p v-if="award.summary" class="text-xs text-gray-600 mt-0.5 leading-snug">
+              {{ award.summary }}
+            </p>
+          </li>
+        </ul>
+      </section>
+
+      <section v-if="resumeData.certificates?.length">
+        <h2 class="section-title !mb-4">Certifications</h2>
+        <ul class="space-y-2 text-sm">
+          <li
+            v-for="(cert, index) in resumeData.certificates"
+            :key="index"
+            class="break-inside-avoid"
+          >
+            <a
+              v-if="cert.url"
+              :href="sanitizeUrl(cert.url)"
+              class="font-black hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {{ cert.name }}
+            </a>
+            <span v-else class="font-black">{{ cert.name }}</span>
+            <span v-if="cert.issuer || cert.date" class="text-gray-600 font-bold tabular-nums">
+              — {{ [cert.issuer, formatDate(cert.date)].filter(Boolean).join(" · ") }}
+            </span>
+          </li>
+        </ul>
+      </section>
+    </div>
+
     <!-- Volunteer & Publications -->
     <div
       v-if="resumeData.volunteer?.length || resumeData.publications?.length"
-      class="mt-10 grid grid-cols-2 gap-10"
+      :class="[
+        'grid gap-10 section-block',
+        resumeData.volunteer?.length && resumeData.publications?.length
+          ? 'grid-cols-2'
+          : 'grid-cols-1',
+      ]"
     >
       <section v-if="resumeData.volunteer?.length">
         <h2 class="section-title !mb-4">Volunteer</h2>
         <div class="space-y-3">
-          <div v-for="(vol, index) in resumeData.volunteer" :key="index" class="text-sm">
-            <div class="font-black">{{ vol.position }} — {{ vol.organization }}</div>
+          <div
+            v-for="(vol, index) in resumeData.volunteer"
+            :key="index"
+            class="text-sm break-inside-avoid"
+          >
+            <div class="flex justify-between items-baseline gap-2">
+              <div class="font-black">
+                {{ vol.position }}
+                <span v-if="vol.organization"> — {{ vol.organization }}</span>
+                <span v-if="vol.url" class="text-xs font-medium ml-1">
+                  <a
+                    :href="sanitizeUrl(vol.url)"
+                    class="hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    ({{ displayUrl(vol.url) }})
+                  </a>
+                </span>
+              </div>
+              <span
+                v-if="formatDateRange(vol.startDate, vol.endDate)"
+                class="text-[11px] font-black text-gray-500 whitespace-nowrap tabular-nums"
+              >
+                {{ formatDateRange(vol.startDate, vol.endDate) }}
+              </span>
+            </div>
             <p v-if="vol.summary" class="text-gray-600 mt-0.5">{{ vol.summary }}</p>
+            <ul v-if="vol.highlights?.length" class="resume-list mt-1 space-y-1">
+              <li
+                v-for="(highlight, hIndex) in vol.highlights"
+                :key="hIndex"
+                class="text-xs text-gray-800"
+              >
+                {{ highlight }}
+              </li>
+            </ul>
           </div>
         </div>
       </section>
@@ -236,12 +355,32 @@
       <section v-if="resumeData.publications?.length">
         <h2 class="section-title !mb-4">Publications</h2>
         <div class="space-y-3">
-          <div v-for="(pub, index) in resumeData.publications" :key="index" class="text-sm">
-            <div class="font-black">{{ pub.name }}</div>
-            <div class="text-gray-600 font-bold">
-              {{ pub.publisher }}
-              <span v-if="pub.releaseDate">· {{ formatDate(pub.releaseDate) }}</span>
+          <div
+            v-for="(pub, index) in resumeData.publications"
+            :key="index"
+            class="text-sm break-inside-avoid"
+          >
+            <div class="font-black">
+              <a
+                v-if="pub.url"
+                :href="sanitizeUrl(pub.url)"
+                class="hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {{ pub.name }}
+              </a>
+              <span v-else>{{ pub.name }}</span>
             </div>
+            <div
+              v-if="pub.publisher || pub.releaseDate"
+              class="text-gray-600 font-bold tabular-nums"
+            >
+              {{ [pub.publisher, formatDate(pub.releaseDate)].filter(Boolean).join(" · ") }}
+            </div>
+            <p v-if="pub.summary" class="text-xs text-gray-600 mt-0.5 leading-snug">
+              {{ pub.summary }}
+            </p>
           </div>
         </div>
       </section>
@@ -250,7 +389,12 @@
     <!-- Languages & Interests -->
     <div
       v-if="resumeData.languages?.length || resumeData.interests?.length"
-      class="mt-10 pt-6 border-t-2 border-gray-100 grid grid-cols-2 gap-10"
+      :class="[
+        'pt-5 border-t-2 border-gray-100 grid gap-10 section-block',
+        resumeData.languages?.length && resumeData.interests?.length
+          ? 'grid-cols-2'
+          : 'grid-cols-1',
+      ]"
     >
       <section v-if="resumeData.languages?.length">
         <h2 class="section-title !mb-4">Languages</h2>
@@ -276,10 +420,14 @@
     </div>
 
     <!-- References -->
-    <section v-if="resumeData.references?.length" class="mt-8">
+    <section v-if="resumeData.references?.length" class="section-block">
       <h2 class="section-title !mb-4">References</h2>
       <div class="grid grid-cols-2 gap-6">
-        <div v-for="(ref, index) in resumeData.references" :key="index" class="text-sm">
+        <div
+          v-for="(ref, index) in resumeData.references"
+          :key="index"
+          class="text-sm break-inside-avoid"
+        >
           <div class="font-black">{{ ref.name }}</div>
           <p v-if="ref.reference" class="text-gray-600 mt-0.5">{{ ref.reference }}</p>
         </div>
@@ -289,7 +437,7 @@
     <!-- Optional Signature Footer -->
     <footer
       v-if="resumeData.meta?.showSignature && resumeData.meta?.signatureDataUrl"
-      class="mt-10 pt-4 border-t border-gray-200 flex justify-end"
+      class="mt-8 pt-4 border-t border-gray-200 flex justify-end break-inside-avoid"
     >
       <div class="text-center">
         <img
@@ -319,11 +467,11 @@ const props = defineProps<Props>();
 
 const accentColor = computed(() => props.resumeData.meta?.accentColor || "#111827");
 
-const fontClass = computed(() => {
+const resolvedFontFamily = computed(() => {
   const f = props.resumeData.meta?.fontFamily || "sans";
-  if (f === "serif") return "font-serif";
-  if (f === "mono") return "font-mono";
-  return "font-sans";
+  if (f === "serif") return '"Georgia", "Cambria", "Times New Roman", serif';
+  if (f === "mono") return '"JetBrains Mono", monospace';
+  return '"Inter", system-ui, sans-serif';
 });
 
 const densityClass = computed(() => {
@@ -338,6 +486,23 @@ const formattedLocation = computed(() => {
   if (!loc) return "";
   return [loc.city, loc.region, loc.countryCode].filter(Boolean).join(", ");
 });
+
+function displayUrl(url?: string): string {
+  if (!url) return "";
+  return url
+    .trim()
+    .replace(/^https?:\/\/(www\.)?/i, "")
+    .replace(/\/+$/, "");
+}
+
+function formatDateRange(startDate?: string, endDate?: string): string {
+  const start = formatDate(startDate);
+  const end = formatDate(endDate);
+  if (!start && !end) return "";
+  if (start && end) return `${start} – ${end}`;
+  if (start) return `${start} – Present`;
+  return end;
+}
 </script>
 
 <style scoped>
@@ -393,20 +558,8 @@ const formattedLocation = computed(() => {
   content: "■";
   position: absolute;
   left: 0;
-  color: #111827; /* gray-900 */
+  color: var(--resume-accent, #111827);
   font-size: 0.6em;
   line-height: 2.2;
-}
-
-/* Ensure font is applied to headers */
-.font-outfit {
-  font-family: "Outfit", sans-serif;
-}
-
-@media print {
-  .resume-content {
-    width: 210mm;
-    min-height: 297mm;
-  }
 }
 </style>

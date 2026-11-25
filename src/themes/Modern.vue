@@ -1,8 +1,8 @@
 <template>
   <div
     class="resume-content relative bg-white text-slate-900"
-    :class="[densityClass, fontClass]"
-    :style="{ '--resume-accent': accentColor }"
+    :class="densityClass"
+    :style="{ fontFamily: resolvedFontFamily, '--resume-accent': accentColor }"
   >
     <!-- Header -->
     <header class="border-b-2 pb-4 mb-5" :style="{ borderColor: accentColor }">
@@ -24,38 +24,24 @@
         </div>
       </div>
 
-      <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
-        <a
-          v-if="resumeData.basics?.email"
-          :href="`mailto:${resumeData.basics.email}`"
-          class="hover:underline font-medium"
-          target="_blank"
-        >
-          {{ resumeData.basics.email }}
-        </a>
-        <span v-if="resumeData.basics?.phone">{{ resumeData.basics.phone }}</span>
-        <a
-          v-if="resumeData.basics?.url"
-          :href="sanitizeUrl(resumeData.basics.url)"
-          class="hover:underline"
-          :style="{ color: accentColor }"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {{ resumeData.basics.url.replace(/^https?:\/\//, "") }}
-        </a>
-        <template v-if="resumeData.basics?.profiles?.length">
+      <div
+        v-if="contactItems.length"
+        class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600"
+      >
+        <template v-for="(item, index) in contactItems" :key="item.key">
+          <span v-if="index > 0" class="text-slate-300 select-none" aria-hidden="true">·</span>
           <a
-            v-for="(profile, index) in resumeData.basics.profiles"
-            :key="index"
-            :href="sanitizeUrl(profile.url)"
+            v-if="item.href"
+            :href="item.href"
             class="hover:underline"
-            :style="{ color: accentColor }"
+            :class="item.accent ? 'font-medium' : ''"
+            :style="item.accent ? { color: accentColor } : undefined"
             target="_blank"
             rel="noopener noreferrer"
           >
-            {{ profile.network }}: {{ profile.username }}
+            {{ item.label }}
           </a>
+          <span v-else>{{ item.label }}</span>
         </template>
       </div>
     </header>
@@ -66,10 +52,10 @@
       <p class="text-sm text-slate-700 leading-relaxed">{{ resumeData.basics.summary }}</p>
     </section>
 
-    <!-- Two-Column Body -->
+    <!-- Two-Column Body (collapses to full width when sidebar is empty) -->
     <div class="grid grid-cols-12 gap-6">
-      <!-- Main Column (8 cols) -->
-      <div class="col-span-8 modern-col">
+      <!-- Main Column -->
+      <div :class="[hasSidebar ? 'col-span-8' : 'col-span-12', 'modern-col']">
         <!-- Work Experience -->
         <section v-if="resumeData.work?.length">
           <h2 class="modern-heading">Experience</h2>
@@ -77,8 +63,11 @@
             <div v-for="(work, index) in resumeData.work" :key="index" class="break-inside-avoid">
               <div class="flex justify-between items-baseline gap-2">
                 <h3 class="text-sm font-bold text-slate-900">{{ work.position }}</h3>
-                <span class="text-[11px] font-medium text-slate-500 whitespace-nowrap">
-                  {{ formatDate(work.startDate) }} – {{ formatDate(work.endDate) || "Present" }}
+                <span
+                  v-if="formatDateRange(work.startDate, work.endDate)"
+                  class="text-[11px] font-medium text-slate-500 whitespace-nowrap tabular-nums"
+                >
+                  {{ formatDateRange(work.startDate, work.endDate) }}
                 </span>
               </div>
               <div class="text-xs font-semibold mb-1.5" :style="{ color: accentColor }">
@@ -90,7 +79,7 @@
                     class="hover:underline"
                     target="_blank"
                     rel="noopener noreferrer"
-                    >{{ work.url.replace(/^https?:\/\//, "") }}</a
+                    >{{ displayUrl(work.url) }}</a
                   >
                 </span>
               </div>
@@ -109,7 +98,7 @@
                 <span
                   v-for="(s, sIdx) in work.skills"
                   :key="sIdx"
-                  class="px-1.5 py-0.5 text-[10px] font-medium rounded bg-slate-100 text-slate-700"
+                  class="skill-pill px-1.5 py-0.5 text-[10px] font-medium rounded text-slate-700"
                 >
                   {{ s }}
                 </span>
@@ -138,15 +127,14 @@
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    ↗
+                    {{ displayUrl(project.url) }}
                   </a>
                 </h3>
                 <span
-                  v-if="project.startDate || project.endDate"
-                  class="text-[11px] font-medium text-slate-500 whitespace-nowrap"
+                  v-if="formatDateRange(project.startDate, project.endDate)"
+                  class="text-[11px] font-medium text-slate-500 whitespace-nowrap tabular-nums"
                 >
-                  {{ formatDate(project.startDate) }} –
-                  {{ formatDate(project.endDate) || "Present" }}
+                  {{ formatDateRange(project.startDate, project.endDate) }}
                 </span>
               </div>
               <p v-if="project.description" class="text-xs text-slate-600 mb-1">
@@ -173,15 +161,41 @@
               :key="index"
               class="break-inside-avoid"
             >
-              <div class="flex justify-between items-baseline">
+              <div class="flex justify-between items-baseline gap-2">
                 <h3 class="text-xs font-bold text-slate-900">
-                  {{ vol.position }} · <span class="font-semibold">{{ vol.organization }}</span>
+                  {{ vol.position }}
+                  <span v-if="vol.organization" class="font-semibold">
+                    · {{ vol.organization }}
+                  </span>
+                  <span v-if="vol.url" class="font-normal text-slate-500">
+                    ·
+                    <a
+                      :href="sanitizeUrl(vol.url)"
+                      class="hover:underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      >{{ displayUrl(vol.url) }}</a
+                    >
+                  </span>
                 </h3>
-                <span v-if="vol.startDate" class="text-[11px] text-slate-500 whitespace-nowrap">
-                  {{ formatDate(vol.startDate) }} – {{ formatDate(vol.endDate) || "Present" }}
+                <span
+                  v-if="formatDateRange(vol.startDate, vol.endDate)"
+                  class="text-[11px] text-slate-500 whitespace-nowrap tabular-nums"
+                >
+                  {{ formatDateRange(vol.startDate, vol.endDate) }}
                 </span>
               </div>
-              <p v-if="vol.summary" class="text-xs text-slate-600 mt-0.5">{{ vol.summary }}</p>
+              <p v-if="vol.summary" class="text-xs text-slate-600 mt-0.5 leading-relaxed">
+                {{ vol.summary }}
+              </p>
+              <ul
+                v-if="vol.highlights?.length"
+                class="resume-list text-xs text-slate-700 space-y-1 mt-1"
+              >
+                <li v-for="(highlight, hIndex) in vol.highlights" :key="hIndex">
+                  {{ highlight }}
+                </li>
+              </ul>
             </div>
           </div>
         </section>
@@ -189,25 +203,55 @@
         <!-- Publications -->
         <section v-if="resumeData.publications?.length">
           <h2 class="modern-heading">Publications</h2>
-          <div class="space-y-2">
-            <div v-for="(pub, index) in resumeData.publications" :key="index">
-              <div class="text-xs font-bold text-slate-900">{{ pub.name }}</div>
-              <div class="text-[11px] text-slate-600">
-                {{ pub.publisher }}
-                <span v-if="pub.releaseDate">· {{ formatDate(pub.releaseDate) }}</span>
+          <div class="space-y-2.5">
+            <div
+              v-for="(pub, index) in resumeData.publications"
+              :key="index"
+              class="break-inside-avoid"
+            >
+              <div class="flex justify-between items-baseline gap-2">
+                <div class="text-xs font-bold text-slate-900">
+                  <a
+                    v-if="pub.url"
+                    :href="sanitizeUrl(pub.url)"
+                    class="hover:underline"
+                    :style="{ color: accentColor }"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {{ pub.name }}
+                  </a>
+                  <span v-else>{{ pub.name }}</span>
+                </div>
+                <span
+                  v-if="pub.releaseDate"
+                  class="text-[11px] text-slate-500 whitespace-nowrap tabular-nums"
+                >
+                  {{ formatDate(pub.releaseDate) }}
+                </span>
               </div>
+              <div v-if="pub.publisher" class="text-[11px] text-slate-600">
+                {{ pub.publisher }}
+              </div>
+              <p v-if="pub.summary" class="text-xs text-slate-600 mt-0.5 leading-relaxed">
+                {{ pub.summary }}
+              </p>
             </div>
           </div>
         </section>
       </div>
 
-      <!-- Sidebar Column (4 cols) -->
-      <div class="col-span-4 modern-col border-l border-slate-100 pl-5">
+      <!-- Sidebar Column -->
+      <div v-if="hasSidebar" class="col-span-4 modern-col border-l border-slate-200 pl-5">
         <!-- Skills -->
         <section v-if="resumeData.skills?.length">
           <h2 class="modern-heading">Skills</h2>
           <div class="space-y-3">
-            <div v-for="(skill, index) in resumeData.skills" :key="index">
+            <div
+              v-for="(skill, index) in resumeData.skills"
+              :key="index"
+              class="break-inside-avoid"
+            >
               <div class="text-xs font-bold text-slate-900 mb-1">
                 {{ skill.name }}
                 <span v-if="skill.level" class="font-normal text-slate-500"
@@ -218,7 +262,7 @@
                 <span
                   v-for="(kw, kIdx) in skill.keywords"
                   :key="kIdx"
-                  class="px-1.5 py-0.5 text-[10px] font-medium rounded border border-slate-200 text-slate-700 bg-slate-50"
+                  class="skill-pill px-1.5 py-0.5 text-[10px] font-medium rounded text-slate-700"
                 >
                   {{ kw }}
                 </span>
@@ -240,11 +284,30 @@
                 {{ edu.studyType }} {{ edu.area ? `in ${edu.area}` : "" }}
               </div>
               <div class="text-xs font-medium" :style="{ color: accentColor }">
-                {{ edu.institution }}
+                <a
+                  v-if="edu.url"
+                  :href="sanitizeUrl(edu.url)"
+                  class="hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {{ edu.institution }}
+                </a>
+                <span v-else>{{ edu.institution }}</span>
               </div>
-              <div class="text-[11px] text-slate-500">
-                {{ formatDate(edu.startDate) }} – {{ formatDate(edu.endDate) || "Present" }}
-                <span v-if="edu.score">· GPA {{ edu.score }}</span>
+              <div
+                v-if="formatDateRange(edu.startDate, edu.endDate) || edu.score"
+                class="text-[11px] text-slate-500 tabular-nums"
+              >
+                {{
+                  [formatDateRange(edu.startDate, edu.endDate), edu.score ? `GPA ${edu.score}` : ""]
+                    .filter(Boolean)
+                    .join(" · ")
+                }}
+              </div>
+              <div v-if="edu.courses?.length" class="mt-1 text-[10px] text-slate-600 leading-snug">
+                <span class="font-semibold text-slate-700">Courses:</span>
+                {{ edu.courses.join(", ") }}
               </div>
             </div>
           </div>
@@ -254,10 +317,26 @@
         <section v-if="resumeData.certificates?.length">
           <h2 class="modern-heading">Certificates</h2>
           <div class="space-y-2">
-            <div v-for="(cert, index) in resumeData.certificates" :key="index">
-              <div class="text-xs font-bold text-slate-900">{{ cert.name }}</div>
-              <div class="text-[11px] text-slate-600">
-                {{ cert.issuer }} <span v-if="cert.date">· {{ formatDate(cert.date) }}</span>
+            <div
+              v-for="(cert, index) in resumeData.certificates"
+              :key="index"
+              class="break-inside-avoid"
+            >
+              <div class="text-xs font-bold text-slate-900">
+                <a
+                  v-if="cert.url"
+                  :href="sanitizeUrl(cert.url)"
+                  class="hover:underline"
+                  :style="{ color: accentColor }"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {{ cert.name }}
+                </a>
+                <span v-else>{{ cert.name }}</span>
+              </div>
+              <div v-if="cert.issuer || cert.date" class="text-[11px] text-slate-600 tabular-nums">
+                {{ [cert.issuer, formatDate(cert.date)].filter(Boolean).join(" · ") }}
               </div>
             </div>
           </div>
@@ -267,11 +346,21 @@
         <section v-if="resumeData.awards?.length">
           <h2 class="modern-heading">Awards</h2>
           <div class="space-y-2">
-            <div v-for="(award, index) in resumeData.awards" :key="index">
+            <div
+              v-for="(award, index) in resumeData.awards"
+              :key="index"
+              class="break-inside-avoid"
+            >
               <div class="text-xs font-bold text-slate-900">{{ award.title }}</div>
-              <div class="text-[11px] text-slate-600">
-                {{ award.awarder }} <span v-if="award.date">· {{ formatDate(award.date) }}</span>
+              <div
+                v-if="award.awarder || award.date"
+                class="text-[11px] text-slate-600 tabular-nums"
+              >
+                {{ [award.awarder, formatDate(award.date)].filter(Boolean).join(" · ") }}
               </div>
+              <p v-if="award.summary" class="text-[11px] text-slate-600 mt-0.5 leading-snug">
+                {{ award.summary }}
+              </p>
             </div>
           </div>
         </section>
@@ -304,7 +393,11 @@
         <section v-if="resumeData.references?.length">
           <h2 class="modern-heading">References</h2>
           <div class="space-y-2">
-            <div v-for="(ref, index) in resumeData.references" :key="index" class="text-xs">
+            <div
+              v-for="(ref, index) in resumeData.references"
+              :key="index"
+              class="text-xs break-inside-avoid"
+            >
               <div class="font-semibold text-slate-900">{{ ref.name }}</div>
               <p v-if="ref.reference" class="text-slate-600">{{ ref.reference }}</p>
             </div>
@@ -316,7 +409,7 @@
     <!-- Optional Signature Footer -->
     <footer
       v-if="resumeData.meta?.showSignature && resumeData.meta?.signatureDataUrl"
-      class="mt-8 pt-4 border-t border-slate-200 flex justify-end"
+      class="mt-8 pt-4 border-t border-slate-200 flex justify-end break-inside-avoid"
     >
       <div class="text-center">
         <img
@@ -346,11 +439,11 @@ const props = defineProps<{
 
 const accentColor = computed(() => props.resumeData.meta?.accentColor || "#2563eb");
 
-const fontClass = computed(() => {
+const resolvedFontFamily = computed(() => {
   const f = props.resumeData.meta?.fontFamily || "sans";
-  if (f === "serif") return "font-serif";
-  if (f === "mono") return "font-mono";
-  return "font-sans";
+  if (f === "serif") return '"Georgia", "Cambria", "Times New Roman", serif';
+  if (f === "mono") return '"JetBrains Mono", monospace';
+  return '"Inter", system-ui, sans-serif';
 });
 
 const densityClass = computed(() => {
@@ -364,6 +457,71 @@ const formattedLocation = computed(() => {
   const loc = props.resumeData.basics?.location;
   if (!loc) return "";
   return [loc.city, loc.region, loc.countryCode].filter(Boolean).join(", ");
+});
+
+const hasSidebar = computed(() =>
+  Boolean(
+    props.resumeData.skills?.length ||
+    props.resumeData.education?.length ||
+    props.resumeData.certificates?.length ||
+    props.resumeData.awards?.length ||
+    props.resumeData.languages?.length ||
+    props.resumeData.interests?.length ||
+    props.resumeData.references?.length,
+  ),
+);
+
+function displayUrl(url?: string): string {
+  if (!url) return "";
+  return url
+    .trim()
+    .replace(/^https?:\/\/(www\.)?/i, "")
+    .replace(/\/+$/, "");
+}
+
+function formatDateRange(startDate?: string, endDate?: string): string {
+  const start = formatDate(startDate);
+  const end = formatDate(endDate);
+  if (!start && !end) return "";
+  if (start && end) return `${start} – ${end}`;
+  if (start) return `${start} – Present`;
+  return end;
+}
+
+const contactItems = computed(() => {
+  const basics = props.resumeData.basics;
+  const items: Array<{ key: string; label: string; href?: string; accent?: boolean }> = [];
+
+  if (basics?.email) {
+    items.push({ key: "email", label: basics.email, href: `mailto:${basics.email}` });
+  }
+  if (basics?.phone) {
+    items.push({ key: "phone", label: basics.phone, href: `tel:${basics.phone}` });
+  }
+  if (basics?.url) {
+    items.push({
+      key: "url",
+      label: displayUrl(basics.url),
+      href: sanitizeUrl(basics.url),
+      accent: true,
+    });
+  }
+  if (basics?.profiles?.length) {
+    basics.profiles.forEach((profile, index) => {
+      const label = [profile.network, profile.username || displayUrl(profile.url)]
+        .filter(Boolean)
+        .join(": ");
+      if (!label) return;
+      items.push({
+        key: `profile-${index}`,
+        label,
+        href: profile.url ? sanitizeUrl(profile.url) : undefined,
+        accent: true,
+      });
+    });
+  }
+
+  return items;
 });
 </script>
 
@@ -417,6 +575,13 @@ const formattedLocation = computed(() => {
   border-bottom: 1px solid #e2e8f0;
   padding-bottom: 0.25rem;
   margin-bottom: 0.65rem;
+}
+
+.skill-pill {
+  background-color: #f1f5f9;
+  background-color: color-mix(in srgb, var(--resume-accent) 8%, transparent);
+  border: 1px solid #e2e8f0;
+  border-color: color-mix(in srgb, var(--resume-accent) 18%, transparent);
 }
 
 .resume-list {
